@@ -40,7 +40,6 @@ The local server proxies authentication through same-origin `/api/*` routes. Suc
 - `POST /api/auth/login`
 - `GET /api/auth/me`
 - `POST /api/auth/change-password`
-- `POST /api/auth/logout`
 - `GET /api/health`
 
 ## Validation
