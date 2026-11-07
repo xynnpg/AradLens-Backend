@@ -98,6 +98,9 @@
     <script>
       (function () {
         var token = location.pathname.split("/").filter(Boolean).pop() || "";
+        /* The page is only ever served at /capture/<token>. If the path is
+           anything else, stop before making a request that can only 404. */
+        if (!/^[A-Za-z0-9_-]+$/.test(token)) token = "";
         var coords = null;
         var photoFile = null;
         var el = function (id) { return document.getElementById(id); };
@@ -158,18 +161,23 @@
           return body;
         }
 
-        fetch("/api/capture/" + encodeURIComponent(token), { headers: { Accept: "application/json" } })
-          .then(function (response) { return response.ok ? response.json() : Promise.reject(new Error("invalid")); })
-          .then(function (info) {
-            if (info && info.theme === "night") {
-              document.documentElement.dataset.theme = "night";
-              var meta = document.querySelector('meta[name="theme-color"]');
-              if (meta) meta.setAttribute("content", "#0b0b0d");
-            }
-            loading.hidden = true;
-            panel.hidden = false;
-          })
-          .catch(function () { loading.hidden = true; invalid.hidden = false; });
+        if (!token) {
+          loading.hidden = true;
+          invalid.hidden = false;
+        } else {
+          fetch("/api/capture/" + encodeURIComponent(token), { headers: { Accept: "application/json" } })
+            .then(function (response) { return response.ok ? response.json() : Promise.reject(new Error("invalid")); })
+            .then(function (info) {
+              if (info && info.theme === "night") {
+                document.documentElement.dataset.theme = "night";
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.setAttribute("content", "#0b0b0d");
+              }
+              loading.hidden = true;
+              panel.hidden = false;
+            })
+            .catch(function () { loading.hidden = true; invalid.hidden = false; });
+        }
 
         gpsButton.addEventListener("click", function () {
           if (!navigator.geolocation) { fail("Location is not available on this device."); return; }
