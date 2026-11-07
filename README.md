@@ -8,8 +8,9 @@ AradLens API and keeps the session token out of the browser.
 
 - Sign in, register via invite, and change password through same-origin `/api/*` routes.
 - Browse, search, filter, create, edit, and delete locations, including images.
+- Chain important points into ordered tours, with create, edit, and delete actions.
 - Record a location on a phone without signing in: generate a 24-hour capture link.
-- Issue invite codes and manage administrator accounts.
+- Issue invite codes, update administrator roles and active status, and edit your own account.
 - Review the operations queue, location map picker, and API health.
 - Switch day/night theme and English/Romanian language.
 
@@ -23,6 +24,32 @@ AradLens API and keeps the session token out of the browser.
    ```
 
 3. Open <http://localhost:4173> and sign in.
+
+## Legal compliance
+
+The app ships with a legal layer for EU/Romania operation:
+
+- `/terms.html` — Terms of Use (EULA)
+- `/privacy.html` — GDPR privacy notice
+- `/cookies.html` — cookie and storage notice
+- `/content-policy.html` — content rules, reports and takedown
+- `/accessibility.html` — accessibility statement
+
+The legal pages use fixed text and no template placeholders. Registration and
+capture submissions require accepting the current terms; the proxy records
+acceptance in `CONSENT_LOG_PATH` (default `./data/consent.log`, gitignored).
+Cookies add `Secure` on HTTPS, and responses carry CSP, HSTS (HTTPS only), frame
+and MIME protections. The browser reverse-geocode call is proxied through the
+server, and uploads are re-encoded client-side where supported to strip EXIF
+metadata.
+
+Operator contact details, data-subject request channels and reporting emails are
+intentionally not wired up yet because this is an internal admin workspace.
+Add them to the legal pages when public contact channels exist.
+
+The included text is a compliance baseline, not legal advice. Have Romanian
+counsel review the operator details, legal bases, retention periods and
+accessibility statement before production use.
 
 ## Documentation
 

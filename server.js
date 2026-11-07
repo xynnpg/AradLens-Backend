@@ -8,12 +8,94 @@ const root = __dirname;
 const apiOrigin = process.env.ARADLENS_API_ORIGIN || "https://api.aradlens.binarysquad.club";
 const publicOrigin = (process.env.PUBLIC_ORIGIN || "").replace(/\/+$/, "");
 const devMode = process.env.DEV_MODE === "true";
+const termsVersion = "1.0";
+const consentLogPath = process.env.CONSENT_LOG_PATH || path.join(root, "data", "consent.log");
 const mime = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".woff2": "font/woff2",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".txt": "text/plain; charset=utf-8",
 };
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[character]);
+}
+
+function isSecureRequest(req) {
+  const forwarded = String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim().toLowerCase();
+  return Boolean(req.socket.encrypted) || forwarded === "https" || publicOrigin.startsWith("https://");
+}
+
+function securityHeaders(req) {
+  const headers = {
+    "Content-Security-Policy": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org; font-src 'self'; connect-src 'self'; media-src 'none'; worker-src 'none'",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Permissions-Policy": "geolocation=(self), camera=(self), microphone=(), payment=(), usb=()",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "same-origin",
+  };
+  if (isSecureRequest(req)) headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
+  return headers;
+}
+
+function clientIp(req) {
+  return String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+}
+
+const rateBuckets = new Map();
+function rateLimit(req, key, limit, windowMs) {
+  const now = Date.now();
+  const bucketKey = `${key}:${clientIp(req)}`;
+  let bucket = rateBuckets.get(bucketKey);
+  if (!bucket || bucket.reset <= now) {
+    bucket = { count: 0, reset: now + windowMs };
+    rateBuckets.set(bucketKey, bucket);
+  }
+  bucket.count += 1;
+  if (rateBuckets.size > 10_000) {
+    for (const [existingKey, existingBucket] of rateBuckets) {
+      if (existingBucket.reset <= now) rateBuckets.delete(existingKey);
+    }
+  }
+  return bucket.count <= limit;
+}
+
+function sameOriginRequest(req) {
+  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return true;
+  if (req.headers["sec-fetch-site"] === "cross-site") return false;
+  const origin = req.headers.origin;
+  if (!origin) return true;
+  const proto = String(req.headers["x-forwarded-proto"] || (req.socket.encrypted ? "https" : "http")).split(",")[0].trim();
+  const host = String(req.headers["x-forwarded-host"] || req.headers.host || "").split(",")[0].trim();
+  return Boolean(host) && (origin === `${proto}://${host}` || (publicOrigin && origin === publicOrigin));
+}
+
+function recordConsent(req, type, username) {
+  const entry = {
+    timestamp: new Date().toISOString(),
+    type,
+    username: username || null,
+    terms_version: termsVersion,
+    ip: clientIp(req),
+    user_agent: String(req.headers["user-agent"] || "").slice(0, 300),
+  };
+  fs.mkdir(path.dirname(consentLogPath), { recursive: true }, () => {
+    fs.appendFile(consentLogPath, `${JSON.stringify(entry)}\n`, () => {});
+  });
+}
 
 const CAPTURE_TTL_MS = 24 * 60 * 60 * 1000;
 const captureLinks = new Map();
@@ -38,7 +120,12 @@ function lanAddress() {
 }
 
 function sendJson(res, status, payload, headers = {}) {
-  res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", ...headers });
+  res.writeHead(status, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    ...securityHeaders(res.req || { headers: {}, socket: {} }),
+    ...headers,
+  });
   res.end(JSON.stringify(payload));
 }
 
@@ -100,34 +187,99 @@ function parseAccountsCookie(value) {
   }
 }
 
-function usernameFromToken(token) {
+function tokenClaims(token) {
   try {
     const parts = String(token).split(".");
-    if (parts.length < 2) return "";
-    const claims = JSON.parse(Buffer.from(parts[1].replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8"));
-    return typeof claims.username === "string" && claims.username ? claims.username : "";
+    if (parts.length < 2) return null;
+    return JSON.parse(Buffer.from(parts[1].replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8"));
   } catch {
-    return "";
+    return null;
   }
 }
 
-function accountCookies(accounts, active, maxAge) {
+function usernameFromToken(token) {
+  const claims = tokenClaims(token);
+  return typeof claims?.username === "string" && claims.username ? claims.username : "";
+}
+
+function maxAgeFromToken(token) {
+  const claims = tokenClaims(token);
+  return Number.isFinite(claims?.exp) ? Math.max(0, claims.exp - Math.floor(Date.now() / 1000)) : undefined;
+}
+
+function accountCookies(accounts, active, maxAge, secure = false) {
   const encoded = encodeURIComponent(JSON.stringify(accounts));
   const age = Number.isFinite(maxAge) ? `; Max-Age=${Math.max(0, maxAge)}` : "";
-  const cookies = [`aradlens_accounts=${encoded}; HttpOnly; SameSite=Lax; Path=/${age}`];
+  const attributes = `HttpOnly; SameSite=Lax; Path=/${secure ? "; Secure" : ""}${age}`;
+  const cookies = [`aradlens_accounts=${encoded}; ${attributes}`];
   if (active && accounts[active]) {
-    cookies.push(`aradlens_token=${encodeURIComponent(accounts[active])}; HttpOnly; SameSite=Lax; Path=/${age}`);
-    cookies.push(`aradlens_active=${encodeURIComponent(active)}; HttpOnly; SameSite=Lax; Path=/${age}`);
+    cookies.push(`aradlens_token=${encodeURIComponent(accounts[active])}; ${attributes}`);
+    cookies.push(`aradlens_active=${encodeURIComponent(active)}; ${attributes}`);
   }
   return cookies;
 }
 
-function clearAccountCookies() {
-  const expired = "HttpOnly; SameSite=Lax; Path=/; Max-Age=0";
+function clearAccountCookies(secure = false) {
+  const expired = `HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secure ? "; Secure" : ""}`;
   return [`aradlens_token=; ${expired}`, `aradlens_accounts=; ${expired}`, `aradlens_active=; ${expired}`];
 }
 
+const geocodeCache = new Map();
+
 async function proxyApi(req, res, pathname) {
+  if (!sameOriginRequest(req)) {
+    sendJson(res, 403, { detail: "Cross-site request blocked." });
+    return true;
+  }
+  if (pathname === "/api/geocode/reverse" && req.method === "GET") {
+    if (!rateLimit(req, "geocode", 10, 60_000)) {
+      sendJson(res, 429, { detail: "Too many geocoding requests. Try again shortly." }, { "Retry-After": "60" });
+      return true;
+    }
+    let latitude;
+    let longitude;
+    try {
+      const requestUrl = new URL(req.url, "http://localhost");
+      latitude = Number(requestUrl.searchParams.get("lat"));
+      longitude = Number(requestUrl.searchParams.get("lon") ?? requestUrl.searchParams.get("lng"));
+    } catch {
+      latitude = NaN;
+      longitude = NaN;
+    }
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      sendJson(res, 400, { detail: "Valid lat and lon query parameters are required." });
+      return true;
+    }
+    const cacheKey = `${latitude.toFixed(5)},${longitude.toFixed(5)}`;
+    const cached = geocodeCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      sendJson(res, 200, cached.payload, { "Cache-Control": "private, max-age=3600" });
+      return true;
+    }
+    try {
+      const upstream = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=18&addressdetails=1`, {
+        headers: {
+          Accept: "application/json",
+          "Accept-Language": req.headers["accept-language"] || "ro,en",
+          "User-Agent": "AradLensAdmin/1.0",
+        },
+      });
+      if (!upstream.ok) {
+        sendJson(res, 502, { detail: "Reverse geocoding is unavailable. Enter the place name manually." });
+        return true;
+      }
+      const payload = await upstream.json();
+      geocodeCache.set(cacheKey, { payload, expiresAt: Date.now() + 60 * 60 * 1000 });
+      if (geocodeCache.size > 500) {
+        const oldestKey = geocodeCache.keys().next().value;
+        if (oldestKey) geocodeCache.delete(oldestKey);
+      }
+      sendJson(res, 200, payload, { "Cache-Control": "private, max-age=3600" });
+    } catch {
+      sendJson(res, 502, { detail: "Reverse geocoding is unavailable. Enter the place name manually." });
+    }
+    return true;
+  }
   const cookies = parseCookies(req.headers.cookie);
   const clientAuthorization = typeof req.headers.authorization === "string" ? req.headers.authorization : "";
   const accounts = parseAccountsCookie(cookies.aradlens_accounts);
@@ -142,10 +294,17 @@ async function proxyApi(req, res, pathname) {
   const isLogout = pathname === "/api/auth/logout" && req.method === "POST";
   const isAccounts = pathname === "/api/auth/accounts" && req.method === "GET";
   const isSwitch = pathname === "/api/auth/switch" && req.method === "POST";
-  const isAdminEndpoint = /^\/api\/admins(?:\/\d+)?$/.test(pathname) && ["GET", "POST", "PUT", "DELETE"].includes(req.method);
+  const isAdminList = pathname === "/api/admins" && req.method === "GET";
+  const isAdminUpdate = /^\/api\/admins\/\d+$/.test(pathname) && req.method === "PUT";
+  const isAdminEndpoint = isAdminList || isAdminUpdate;
+  const isOwnAdminEndpoint = pathname === "/api/admins/me" && req.method === "PATCH";
   const isInvitesList = pathname === "/api/invites" && req.method === "GET";
   const isInviteCreate = pathname === "/api/invites" && req.method === "POST";
   const isInviteEndpoint = isInvitesList || isInviteCreate;
+  const isToursList = pathname === "/api/tours" && ["GET", "POST"].includes(req.method);
+  const isTourDetails = /^\/api\/tours\/\d+$/.test(pathname) && ["GET", "PUT", "DELETE"].includes(req.method);
+  const isTourEndpoint = isToursList || isTourDetails;
+  const isTourWrite = (isToursList && req.method === "POST") || (isTourDetails && ["PUT", "DELETE"].includes(req.method));
   const isLocationsList = pathname === "/api/locations" && req.method === "GET";
   const isLocationDetails = /^\/api\/locations\/\d+$/.test(pathname) && req.method === "GET";
   const isLocationCreate = pathname === "/api/locations" && req.method === "POST";
@@ -162,7 +321,19 @@ async function proxyApi(req, res, pathname) {
   const isCaptureImage = Boolean(captureImageMatch) && req.method === "POST";
   const isCaptureLinkCreate = pathname === "/api/capture-links" && req.method === "POST";
 
-  if (!isLogin && !isRegister && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isInviteEndpoint && !isPublicLocationRead && !isLocationWrite && !isLocationImages && !isCaptureInfo && !isCaptureCreate && !isCaptureImage && !isCaptureLinkCreate) return false;
+  if (!isLogin && !isRegister && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isOwnAdminEndpoint && !isInviteEndpoint && !isTourEndpoint && !isPublicLocationRead && !isLocationWrite && !isLocationImages && !isCaptureInfo && !isCaptureCreate && !isCaptureImage && !isCaptureLinkCreate) return false;
+  if ((isLogin || isRegister) && !rateLimit(req, "auth", 20, 15 * 60 * 1000)) {
+    sendJson(res, 429, { detail: "Too many authentication attempts. Try again later." }, { "Retry-After": "900" });
+    return true;
+  }
+  if ((isCaptureInfo || isCaptureCreate || isCaptureImage) && !rateLimit(req, "capture", 120, 15 * 60 * 1000)) {
+    sendJson(res, 429, { detail: "Too many capture requests. Try again later." }, { "Retry-After": "900" });
+    return true;
+  }
+  if (isCaptureLinkCreate && !rateLimit(req, "capture-link", 30, 60 * 60 * 1000)) {
+    sendJson(res, 429, { detail: "Too many capture links created. Try again later." }, { "Retry-After": "3600" });
+    return true;
+  }
   if (devMode && isMe && token === "dev-token") {
     sendJson(res, 200, { username: "admin", role: "Administrator" });
     return true;
@@ -179,15 +350,19 @@ async function proxyApi(req, res, pathname) {
     delete accounts[activeUser];
     const remaining = Object.keys(accounts);
     if (!remaining.length) {
-      sendJson(res, 200, { ok: true, active: null }, { "Set-Cookie": clearAccountCookies() });
+      sendJson(res, 200, { ok: true, active: null }, { "Set-Cookie": clearAccountCookies(isSecureRequest(req)) });
     } else {
-      sendJson(res, 200, { ok: true, active: remaining[0] }, { "Set-Cookie": accountCookies(accounts, remaining[0]) });
+      sendJson(res, 200, { ok: true, active: remaining[0] }, { "Set-Cookie": accountCookies(accounts, remaining[0], undefined, isSecureRequest(req)) });
     }
     return true;
   }
   const authorization = token ? `Bearer ${token}` : clientAuthorization;
-  if ((isMe || isPasswordChange || isAdminEndpoint || isInviteEndpoint || isLocationWrite || isLocationImagesWrite || isCaptureLinkCreate) && !authorization) {
+  if ((isMe || isPasswordChange || isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourWrite || isLocationWrite || isLocationImagesWrite || isCaptureLinkCreate) && !authorization) {
     sendJson(res, 401, { detail: "Not authenticated" });
+    return true;
+  }
+  if (isCaptureImage && String(req.headers["x-aradlens-terms-version"] || "") !== termsVersion) {
+    sendJson(res, 400, { detail: "The current Terms and Privacy Notice must be accepted before uploading an image." });
     return true;
   }
 
@@ -207,6 +382,18 @@ async function proxyApi(req, res, pathname) {
       sendJson(res, 400, { detail: error.message });
       return true;
     }
+  }
+  let consentType = "";
+  let consentUsername = "";
+  if (isRegister || isCaptureCreate) {
+    if (!payload || payload.legal_accepted !== true || String(payload.terms_version || "") !== termsVersion) {
+      sendJson(res, 400, { detail: "You must accept the current Terms of Use and Privacy Notice before continuing." });
+      return true;
+    }
+    consentType = isRegister ? "registration" : "capture";
+    consentUsername = isRegister && typeof payload.username === "string" ? payload.username : "";
+    delete payload.legal_accepted;
+    delete payload.terms_version;
   }
   if (isCaptureLinkCreate) {
     const token = crypto.randomBytes(24).toString("base64url");
@@ -320,13 +507,13 @@ async function proxyApi(req, res, pathname) {
       sendJson(res, 404, { detail: "Unknown account. Sign in again to add it." });
       return true;
     }
-    sendJson(res, 200, { ok: true, active: username }, { "Set-Cookie": accountCookies(accounts, username) });
+    sendJson(res, 200, { ok: true, active: username }, { "Set-Cookie": accountCookies(accounts, username, undefined, isSecureRequest(req)) });
     return true;
   }
   if (devMode && isLogin) {
     if (payload.username === "admin" && ["admin", "administrare"].includes(payload.password)) {
       sendJson(res, 200, { ok: true }, {
-        "Set-Cookie": accountCookies({ admin: "dev-token" }, "admin"),
+        "Set-Cookie": accountCookies({ admin: "dev-token" }, "admin", undefined, isSecureRequest(req)),
       });
     } else {
       sendJson(res, 401, { detail: "Invalid development credentials." });
@@ -338,7 +525,7 @@ async function proxyApi(req, res, pathname) {
     : isRegister ? "/auth/register"
     : isMe ? "/auth/me"
       : isPasswordChange ? "/auth/change-password"
-        : (isAdminEndpoint || isInviteEndpoint || isPublicLocationRead || isLocationWrite || isLocationImages) ? pathname.replace(/^\/api/, "")
+        : (isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourEndpoint || isPublicLocationRead || isLocationWrite || isLocationImages) ? pathname.replace(/^\/api/, "")
           : "/health";
   const upstreamHeaders = { Accept: req.headers.accept || "*/*" };
   if (payload) upstreamHeaders["Content-Type"] = Buffer.isBuffer(payload) ? req.headers["content-type"] : "application/json";
@@ -353,7 +540,7 @@ async function proxyApi(req, res, pathname) {
     const upstreamType = upstream.headers.get("content-type") || "";
     if (!upstreamType.includes("application/json")) {
       const buffer = Buffer.from(await upstream.arrayBuffer());
-      const rawHeaders = { "Content-Type": upstreamType || "application/octet-stream" };
+      const rawHeaders = { "Content-Type": upstreamType || "application/octet-stream", "Cache-Control": "no-store", ...securityHeaders(req) };
       const disposition = upstream.headers.get("content-disposition");
       if (disposition) rawHeaders["Content-Disposition"] = disposition;
       const length = upstream.headers.get("content-length");
@@ -375,8 +562,15 @@ async function proxyApi(req, res, pathname) {
       const username = usernameFromToken(responsePayload.access_token)
         || (payload && typeof payload.username === "string" && payload.username)
         || "account";
-      responseHeaders["Set-Cookie"] = accountCookies({ ...accounts, [username]: responsePayload.access_token }, username, maxAge);
+      responseHeaders["Set-Cookie"] = accountCookies({ ...accounts, [username]: responsePayload.access_token }, username, maxAge, isSecureRequest(req));
     }
+    if (isOwnAdminEndpoint && upstream.ok && activeUser && accounts[activeUser]
+      && typeof responsePayload.username === "string" && responsePayload.username && responsePayload.username !== activeUser) {
+      accounts[responsePayload.username] = accounts[activeUser];
+      delete accounts[activeUser];
+      responseHeaders["Set-Cookie"] = accountCookies(accounts, responsePayload.username, maxAgeFromToken(accounts[responsePayload.username]), isSecureRequest(req));
+    }
+    if (upstream.ok && consentType) recordConsent(req, consentType, consentUsername);
     sendJson(res, upstream.status, responsePayload, responseHeaders);
   } catch {
     sendJson(res, 502, { detail: "The AradLens API is unavailable. Try again shortly." });
@@ -409,21 +603,33 @@ const server = http.createServer((req, res) => {
 function serveStatic(req, res, decodedPath) {
   const filePath = path.resolve(root, decodedPath === "/" ? "index.html" : `.${decodedPath}`);
   if (filePath !== root && !filePath.startsWith(`${root}${path.sep}`)) {
-    res.writeHead(403);
+    res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8", ...securityHeaders(req) });
     res.end("Forbidden");
     return;
   }
+  const extension = path.extname(filePath).toLowerCase();
   fs.readFile(filePath, (error, data) => {
     if (error) {
-      res.writeHead(404);
+      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8", ...securityHeaders(req) });
       res.end("Not found");
       return;
     }
     let body = data;
-    if (path.basename(filePath) === "index.html") {
-      body = Buffer.from(data.toString().replace(/(<meta name="aradlens-api-origin" content=")[^"]*(" \/>)/, `$1${apiOrigin}$2`));
+    if (extension === ".html") {
+      const html = data.toString("utf8")
+        .replace(/(<meta name="aradlens-api-origin" content=")[^"]*(" \/>)/, `$1${escapeHtml(apiOrigin)}$2`);
+      body = Buffer.from(html, "utf8");
     }
-    res.writeHead(200, { "Content-Type": mime[path.extname(filePath)] || "text/plain; charset=utf-8" });
+    const cacheControl = extension === ".html" || extension === ".js" || extension === ".css"
+      ? "no-cache"
+      : extension === ".woff2" || extension === ".png" || extension === ".svg"
+        ? "public, max-age=31536000, immutable"
+        : "public, max-age=3600";
+    res.writeHead(200, {
+      "Content-Type": mime[extension] || "application/octet-stream",
+      "Cache-Control": cacheControl,
+      ...securityHeaders(req),
+    });
     res.end(body);
   });
 }

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#17171a" />
+    <meta name="robots" content="index,follow" />
+    <title>Cookie Notice · AradLens</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2317171a'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M11 5H7a2 2 0 0 0-2 2v4M21 5h4a2 2 0 0 1 2 2v4M27 21v4a2 2 0 0 1-2 2h-4M11 27H7a2 2 0 0 1-2-2v-4'/%3E%3Ccircle cx='16' cy='16' r='5.2'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23f2f2f6'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/legal.css" />
+  </head>
+  <body>
+    <header class="legal-top">
+      <a class="legal-brand" href="/" aria-label="AradLens home">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M11 4.5H7A2.5 2.5 0 0 0 4.5 7v4M21 4.5h4A2.5 2.5 0 0 1 27.5 7v4M27.5 21v4a2.5 2.5 0 0 1-2.5 2.5h-4M11 27.5H7A2.5 2.5 0 0 1 4.5 25v-4" /><circle cx="16" cy="16" r="5.6" /><circle cx="16" cy="16" r="1.8" fill="#f58c80" stroke="none" /></svg>
+        <span>Arad<span>Lens</span></span>
+      </a>
+      <nav aria-label="Legal documents">
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/cookies.html" aria-current="page">Cookies</a>
+        <a href="/content-policy.html">Content policy</a>
+        <a href="/accessibility.html">Accessibility</a>
+      </nav>
+    </header>
+
+    <main class="legal-shell">
+      <p class="legal-eyebrow">Legal · Storage technologies</p>
+      <h1>Cookie Notice</h1>
+      <p class="legal-lede">AradLens uses a small number of strictly necessary cookies and browser storage entries. We do not use advertising, analytics, social-media or cross-site tracking technologies.</p>
+
+      <dl class="legal-meta">
+        <div><dt>Version</dt><dd>1.0</dd></div>
+        <div><dt>Effective date</dt><dd>19 October 2026</dd></div>
+        <div><dt>Controller</dt><dd>AradLens</dd></div>
+      </dl>
+
+      <div class="legal-body">
+        <h2 id="what">1. What cookies and local storage are</h2>
+        <p>Cookies are small text files stored by your browser. Local storage and session storage are browser features that store key-value data without sending it automatically with every request. We use them only to operate the sign-in session, remember interface preferences and protect the service.</p>
+
+        <h2 id="necessary">2. Strictly necessary cookies</h2>
+        <table>
+          <thead><tr><th>Name</th><th>Purpose</th><th>Set by</th><th>Duration</th><th>Attributes</th></tr></thead>
+          <tbody>
+            <tr><td><code>aradlens_token</code></td><td>Keeps the active administrator signed in; carries the API access token to the server-side proxy.</td><td>AradLens server</td><td>Session, or the token lifetime if the API returns an expiry (normally up to 7 days)</td><td>HttpOnly; SameSite=Lax; Secure in production; Path=/</td></tr>
+            <tr><td><code>aradlens_accounts</code></td><td>Stores the signed-in accounts available in the account switcher.</td><td>AradLens server</td><td>Same as the token lifetime</td><td>HttpOnly; SameSite=Lax; Secure in production; Path=/</td></tr>
+            <tr><td><code>aradlens_active</code></td><td>Remembers which account in the switcher is active.</td><td>AradLens server</td><td>Same as the token lifetime</td><td>HttpOnly; SameSite=Lax; Secure in production; Path=/</td></tr>
+          </tbody>
+        </table>
+        <p>These cookies are necessary to provide the service you requested. Blocking them will prevent sign-in and account switching. Because they are strictly necessary, they do not require consent under Article 5(3) of the ePrivacy Directive (2002/58/EC) as transposed by Romanian Law 506/2004.</p>
+
+        <h2 id="storage">3. Browser storage</h2>
+        <table>
+          <thead><tr><th>Key</th><th>Storage</th><th>Purpose</th><th>Duration</th></tr></thead>
+          <tbody>
+            <tr><td><code>aradlens-theme</code></td><td>localStorage</td><td>Remembers day/night theme.</td><td>Until you clear site data</td></tr>
+            <tr><td><code>aradlens-language</code></td><td>localStorage</td><td>Remembers English/Romanian interface language.</td><td>Until you clear site data</td></tr>
+            <tr><td><code>aradlens-nav</code></td><td>localStorage</td><td>Remembers whether the sidebar is collapsed.</td><td>Until you clear site data</td></tr>
+            <tr><td><code>aradlens-admin-auth</code></td><td>sessionStorage</td><td>Keeps the current browser tab aware that the user is authenticated; cleared when the tab closes.</td><td>Tab session</td></tr>
+          </tbody>
+        </table>
+        <p>These entries store interface preferences, not advertising identifiers. They are not shared with third parties.</p>
+
+        <h2 id="third-party">4. Third-party requests</h2>
+        <p>The map is displayed with Leaflet, which is served from this site. Map tiles are requested from OpenStreetMap tile servers. When your browser loads a tile, OpenStreetMap receives your IP address, user agent and the requested tile coordinates. We do not control OpenStreetMap’s servers or its privacy practices. Please see the <a href="https://wiki.openstreetmap.org/wiki/Privacy_Policy" rel="noopener">OpenStreetMap privacy policy</a> for details.</p>
+        <p>We do not load Google Fonts, unpkg or other third-party font/script CDNs in the production interface. Fonts and Leaflet are self-hosted from this domain.</p>
+
+        <h2 id="control">5. How to control cookies and storage</h2>
+        <p>You can control or delete cookies and site data through your browser settings. The following links provide instructions for common browsers:</p>
+        <ul>
+          <li><a href="https://support.google.com/chrome/answer/95647" rel="noopener">Google Chrome</a></li>
+          <li><a href="https://support.mozilla.org/en-US/kb/cookies-information-websites-store-on-your-computer" rel="noopener">Mozilla Firefox</a></li>
+          <li><a href="https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" rel="noopener">Microsoft Edge</a></li>
+          <li><a href="https://support.apple.com/en-gb/guide/safari/sfri11471/mac" rel="noopener">Safari</a></li>
+        </ul>
+        <p>If you block the strictly necessary cookies, you may not be able to sign in. Clearing local storage resets your theme, language and sidebar preferences.</p>
+
+        <h2 id="changes">6. Changes</h2>
+        <p>We may update this notice when our storage practices change. The version and effective date are shown above.</p>
+
+        <div class="legal-callout is-green"><strong>No consent banner.</strong> Because we use only strictly necessary cookies and preference storage, no consent banner is displayed. If analytics, advertising or other non-essential technologies are added, we will update this notice and implement a compliant consent mechanism before they are used.</div>
+      </div>
+
+      <footer class="legal-footer">
+        <nav aria-label="Legal documents">
+          <a href="/terms.html">Terms of Use</a>
+          <a href="/privacy.html">Privacy Notice</a>
+          <a href="/cookies.html">Cookie Notice</a>
+          <a href="/content-policy.html">Content Policy</a>
+          <a href="/accessibility.html">Accessibility</a>
+        </nav>
+        <p>Version 1.0 · Effective 19 October 2026 · AradLens</p>
+        <a class="legal-back" href="/">← Back to AradLens</a>
+      </footer>
+    </main>
+  </body>
+</html>

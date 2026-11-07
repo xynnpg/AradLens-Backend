@@ -47,7 +47,16 @@ index.html      Markup, inline styles, UI copy, illustration symbols
 app.js          UI state, rendering, translations, API client
 capture.html    No-login phone page for recording a location
 styles.css      Design tokens, day/night themes, component styles
-server.js       Static file server, API proxy, cookie session, capture-link store
+fonts.css       Self-hosted DM Sans / Space Grotesk faces
+legal.css       Shared styling for the legal pages
+terms.html      Terms of Use
+privacy.html    GDPR privacy notice
+cookies.html    Cookie and storage notice
+content-policy.html  Content rules, reports and takedown process
+accessibility.html   Accessibility statement
+assets/         Self-hosted fonts and Leaflet distribution
+server.js       Static file server, API proxy, cookie session, capture-link store,
+                security headers, consent/geocode proxy
 package.json    npm scripts (start, check)
 Dockerfile      Container image (node:22-alpine)
 compose.yaml    Docker Compose service definition
@@ -85,3 +94,17 @@ Phone (capture.html)  ->  /api/capture/:token  ->  server.js (stored bearer)  ->
 - [Getting started](./getting-started.md)
 - [API](./api.md)
 - [Theming and language](./theming-and-language.md)
+
+## Legal and security layer
+
+- Legal pages ship as static HTML with fixed text; no template placeholders remain.
+- Registration and capture writes must include the current `terms_version` and an
+  explicit acceptance flag. The proxy validates this before forwarding, records the
+  acceptance in `CONSENT_LOG_PATH`, then strips the two fields.
+- Cookies gain `Secure` on HTTPS. Responses carry CSP, HSTS (HTTPS only),
+  `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+  `Permissions-Policy` and `Cross-Origin-*` headers.
+- `/api/geocode/reverse` proxies Nominatim server-side with caching and rate limiting,
+  so the browser no longer calls Nominatim directly.
+- Admin and capture uploads are re-encoded through a canvas before upload where the
+  browser supports it, which removes EXIF metadata and caps the image dimension.

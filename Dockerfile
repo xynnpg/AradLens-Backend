@@ -3,10 +3,14 @@ FROM node:22-alpine
 WORKDIR /app
 
 COPY package.json ./
-COPY app.js index.html server.js styles.css ./
+COPY app.js index.html capture.html server.js styles.css fonts.css legal.css ./
+COPY terms.html privacy.html cookies.html content-policy.html accessibility.html ./
+COPY assets ./assets
 
 ENV NODE_ENV=production
 ENV PORT=4173
+
+RUN mkdir -p /app/data && chown -R node:node /app/data
 
 EXPOSE 4173
 
