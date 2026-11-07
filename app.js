@@ -227,6 +227,8 @@ function applyTheme() {
   document.documentElement.dataset.theme = currentTheme;
   loginView.classList.toggle("theme-night", currentTheme === "night");
   appView.classList.toggle("theme-night", currentTheme === "night");
+  const themeColor = document.querySelector('meta[name="theme-color"]');
+  if (themeColor) themeColor.setAttribute("content", currentTheme === "night" ? "#100e16" : "#251b35");
   document.querySelectorAll("[data-theme-label]").forEach((label) => { label.textContent = translations[currentLanguage][currentTheme]; });
   document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
     const nextTheme = currentTheme === "day" ? "night" : "day";
@@ -1136,8 +1138,8 @@ function locationImageList() {
 }
 function refreshImageGallery() {
   const strip = document.getElementById("image-strip");
-  const preview = document.getElementById("image-url-img");
-  const box = document.getElementById("image-url-preview");
+  const preview = document.getElementById("image-gallery-img");
+  const box = document.getElementById("image-gallery-preview");
   const errorMessage = document.getElementById("image-modal-error");
   const list = locationImageList();
   if (galleryIndex >= list.length) galleryIndex = 0;
@@ -1163,7 +1165,7 @@ function refreshImageGallery() {
   }
   if (preview && box) {
     preview.onload = () => { if (errorMessage) errorMessage.textContent = ""; };
-    preview.onerror = () => { if (preview.src && errorMessage) errorMessage.textContent = "An image failed to load. Check its URL and try again."; };
+    preview.onerror = () => { if (preview.src && errorMessage) errorMessage.textContent = "An image failed to load. Try again in a moment."; };
     if (list.length) {
       preview.src = resolveImageUrl(list[galleryIndex]);
       box.hidden = false;
@@ -1178,11 +1180,10 @@ function openImageModal() {
   const modal = document.getElementById("image-modal");
   if (!modal) return;
   document.getElementById("image-modal-error").textContent = "";
-  document.getElementById("image-url").value = "";
   galleryIndex = 0;
   refreshImageGallery();
   modal.classList.remove("is-hidden");
-  document.getElementById("image-url")?.focus();
+  document.getElementById("image-file")?.focus();
 }
 function closeImageModal() {
   document.getElementById("image-modal")?.classList.add("is-hidden");
@@ -1247,38 +1248,6 @@ document.getElementById("location-photo")?.addEventListener("change", (event) =>
   if (preview && img) { img.src = URL.createObjectURL(file); preview.hidden = false; }
   document.getElementById("location-form-error").textContent = "";
   input.value = "";
-});
-document.getElementById("image-save")?.addEventListener("click", async (event) => {
-  const urlInput = document.getElementById("image-url");
-  const errorMessage = document.getElementById("image-modal-error");
-  const form = document.getElementById("location-form");
-  const value = urlInput?.value.trim() || "";
-  errorMessage.textContent = "";
-  if (!value) {
-    errorMessage.textContent = "Paste an image URL first.";
-    return;
-  }
-  const id = form?.elements.id.value || "";
-  const button = event.currentTarget;
-  button.disabled = true;
-  try {
-    if (id) {
-      await apiRequest(`/api/locations/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: value }) });
-      form.elements.image.value = value;
-      await loadLocations();
-      showToast("Image saved.");
-    } else {
-      form.elements.image.value = value;
-      showToast("Image staged. Save the location to keep it.");
-    }
-    urlInput.value = "";
-    galleryIndex = 0;
-    refreshImageGallery();
-  } catch (error) {
-    errorMessage.textContent = error.message;
-  } finally {
-    button.disabled = false;
-  }
 });
 document.getElementById("image-upload")?.addEventListener("click", async (event) => {
   const errorMessage = document.getElementById("image-modal-error");
