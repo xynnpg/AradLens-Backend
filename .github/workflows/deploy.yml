@@ -1,0 +1,46 @@
+name: Deploy
+
+# Rulează la fiecare push pe main. Un merge de PR în main este tot un push,
+# deci este acoperit de același trigger. workflow_dispatch permite rulare manuală.
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+# Nu lăsa două deploy-uri să ruleze simultan; păstrează ordinea.
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy pe server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rulează deploy.sh pe server (prin SSH)
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          echo "Deploy commit ${{ github.sha }} (${{ github.ref_name }})"
+
+          if [ -z "${SSH_HOST:-}" ] || [ -z "${SSH_USER:-}" ] || [ -z "${SSH_PRIVATE_KEY:-}" ] || [ -z "${DEPLOY_PATH:-}" ]; then
+            echo "::error::Lipsesc secretele SSH_HOST / SSH_USER / SSH_PRIVATE_KEY / DEPLOY_PATH."
+            exit 1
+          fi
+
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          PORT="${SSH_PORT:-22}"
+          DEPLOY_PATH_CLEAN="${DEPLOY_PATH%/}"
+          ssh-keyscan -p "$PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+          ssh -i ~/.ssh/deploy_key -p "$PORT" -o IdentitiesOnly=yes \
+            "$SSH_USER@$SSH_HOST" \
+            "set -e; cd '$DEPLOY_PATH_CLEAN' && sudo -n '$DEPLOY_PATH_CLEAN/deploy.sh'"
