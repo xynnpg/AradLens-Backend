@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#17171a" />
+    <meta name="robots" content="index,follow" />
+    <title>Accessibility · AradLens</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2317171a'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M11 5H7a2 2 0 0 0-2 2v4M21 5h4a2 2 0 0 1 2 2v4M27 21v4a2 2 0 0 1-2 2h-4M11 27H7a2 2 0 0 1-2-2v-4'/%3E%3Ccircle cx='16' cy='16' r='5.2'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23f2f2f6'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/legal.css" />
+  </head>
+  <body>
+    <header class="legal-top">
+      <a class="legal-brand" href="/" aria-label="AradLens home">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M11 4.5H7A2.5 2.5 0 0 0 4.5 7v4M21 4.5h4A2.5 2.5 0 0 1 27.5 7v4M27.5 21v4a2.5 2.5 0 0 1-2.5 2.5h-4M11 27.5H7A2.5 2.5 0 0 1 4.5 25v-4" /><circle cx="16" cy="16" r="5.6" /><circle cx="16" cy="16" r="1.8" fill="#f58c80" stroke="none" /></svg>
+        <span>Arad<span>Lens</span></span>
+      </a>
+      <nav aria-label="Legal documents">
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/cookies.html">Cookies</a>
+        <a href="/content-policy.html">Content policy</a>
+        <a href="/accessibility.html" aria-current="page">Accessibility</a>
+      </nav>
+    </header>
+
+    <main class="legal-shell">
+      <p class="legal-eyebrow">Legal · Accessibility</p>
+      <h1>Accessibility Statement</h1>
+      <p class="legal-lede">The AradLens operator is committed to making the service usable by as many people as possible, including people who use keyboards, screen readers, magnification, speech input or reduced-motion settings.</p>
+
+      <dl class="legal-meta">
+        <div><dt>Statement date</dt><dd>19 October 2026</dd></div>
+        <div><dt>Target standard</dt><dd>WCAG 2.2 Level AA</dd></div>
+        <div><dt>Scope</dt><dd>Admin workspace, capture pages, legal pages</dd></div>
+      </dl>
+
+      <div class="legal-body">
+        <h2 id="commitment">1. Our commitment</h2>
+        <p>We aim to meet the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA and, where applicable, the European standard EN 301 549. Accessibility is treated as an ongoing engineering requirement, not a one-off project. We review the interface when we add or change features and welcome reports from users.</p>
+
+        <h2 id="law">2. Legal framework</h2>
+        <p>Depending on the operator and the service, the following may apply:</p>
+        <ul>
+          <li><strong>Public-sector web accessibility:</strong> Directive (EU) 2016/2102, transposed in Romania by OUG 112/2018, approved by Law 90/2019. Public bodies must publish an accessibility statement, make their websites and mobile applications perceivable, operable, understandable and robust, and provide a feedback mechanism.</li>
+          <li><strong>European Accessibility Act:</strong> Directive (EU) 2019/882, transposed in Romania by Law 232/2022. It applies to certain products and services placed on the market or provided from 28 June 2025, including specified consumer-facing services. Its exact application to this service depends on the operator’s role and the service’s classification.</li>
+          <li><strong>Non-discrimination and equal treatment:</strong> Romanian and EU rules protecting people with disabilities may apply independently of the specific web-accessibility regime.</li>
+        </ul>
+        <div class="legal-callout"><strong>Operator note.</strong> If the operator is a public authority or institution, the OUG 112/2018 accessibility statement requirements apply and this page should be adapted to the prescribed model, including the compliance status, non-accessible content and enforcement information. If the operator is a private company, the EAA and general non-discrimination rules may apply depending on the service. Confirm the classification with Romanian counsel before launch.</div>
+
+        <h2 id="measures">3. Measures we take</h2>
+        <ul>
+          <li>semantic HTML landmarks, headings and form labels;</li>
+          <li>keyboard access to navigation, dialogs, forms and map controls, with visible focus indicators;</li>
+          <li>text alternatives for meaningful images and decorative images marked as such;</li>
+          <li>colour contrast checks and a high-contrast day/night theme;</li>
+          <li>support for browser zoom and responsive layouts at narrow widths;</li>
+          <li>respect for <code>prefers-reduced-motion</code> to reduce animation;</li>
+          <li>status messages and form errors exposed to assistive technology;</li>
+          <li>self-hosted fonts and scripts to avoid third-party tracking and load failures;</li>
+          <li>plain-language content and consistent navigation.</li>
+        </ul>
+
+        <h2 id="limitations">4. Known limitations</h2>
+        <p>We are working on the following known limitations:</p>
+        <ul>
+          <li><strong>Interactive maps.</strong> The Leaflet map is mouse- and touch-oriented. Keyboard users can reach map controls, but exploring individual markers by keyboard may be limited. Location details and the list view provide an alternative way to read the same information.</li>
+          <li><strong>Third-party map tiles.</strong> OpenStreetMap tiles are images supplied by a third party. Their visual content is not under our control and may not have text alternatives. The location name and address are provided in text next to the map.</li>
+          <li><strong>User-generated photos.</strong> Photos uploaded by administrators or capture users may lack meaningful alt text. We provide the place name and description as the primary accessible information and are improving the upload flow to prompt for alt text.</li>
+          <li><strong>Complex admin tables.</strong> Some dense tables may require horizontal scrolling on small screens. We are reviewing responsive table patterns.</li>
+          <li><strong>Legacy content.</strong> Older location records may not yet have complete descriptions or alt text.</li>
+        </ul>
+        <p>If a limitation prevents you from completing a task, the operator will provide the information or assistance you need in an accessible format once a feedback channel is available.</p>
+
+        <h2 id="compatibility">5. Compatibility</h2>
+        <p>The service is designed for current versions of Chrome, Firefox, Edge and Safari, and for common screen readers (NVDA, JAWS, VoiceOver, TalkBack). It may not work fully with unsupported or very old browsers. JavaScript is required for the admin workspace and capture flow.</p>
+
+        <h2 id="feedback">6. Feedback and assistance</h2>
+        <p>We welcome accessibility feedback, including bugs, barriers and suggestions. A feedback channel will be published before the service is opened to the public. Please include the page, the task you were trying to complete, the assistive technology or browser you used, and what happened.</p>
+
+        <h2 id="enforcement">7. Enforcement</h2>
+        <p>Where the applicable law provides an enforcement route, complaints may be brought to the competent authority: the monitoring body designated under OUG 112/2018 for public-sector websites and apps, the market-surveillance or enforcement authority designated under Law 232/2022 where the European Accessibility Act applies, or the National Council for Combating Discrimination (CNCD) and the competent courts for discrimination matters.</p>
+
+        <h2 id="review">8. Review</h2>
+        <p>We review this statement at least annually and after significant interface changes. The date at the top shows the latest review. This statement was prepared using a combination of automated checks, manual keyboard testing and assistive-technology review. It is not a claim of perfect conformance.</p>
+
+        <div class="legal-callout is-green"><strong>Version history.</strong> 1.0 — initial published version.</div>
+      </div>
+
+      <footer class="legal-footer">
+        <nav aria-label="Legal documents">
+          <a href="/terms.html">Terms of Use</a>
+          <a href="/privacy.html">Privacy Notice</a>
+          <a href="/cookies.html">Cookie Notice</a>
+          <a href="/content-policy.html">Content Policy</a>
+          <a href="/accessibility.html">Accessibility</a>
+        </nav>
+        <p>Version 1.0 · Effective 19 October 2026 · AradLens</p>
+        <a class="legal-back" href="/">← Back to AradLens</a>
+      </footer>
+    </main>
+  </body>
+</html>

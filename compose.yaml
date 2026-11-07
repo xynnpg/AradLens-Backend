@@ -8,6 +8,8 @@ services:
     environment:
       ARADLENS_API_ORIGIN: "${ARADLENS_API_ORIGIN:-https://api.aradlens.binarysquad.club}"
       PORT: "4173"
+      PUBLIC_ORIGIN: "${PUBLIC_ORIGIN:-}"
+      CONSENT_LOG_PATH: "${CONSENT_LOG_PATH:-/app/data/consent.log}"
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4173/api/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 30s
@@ -15,3 +17,8 @@ services:
       start_period: 5s
       retries: 3
     restart: unless-stopped
+    volumes:
+      - aradlens-data:/app/data
+
+volumes:
+  aradlens-data:
