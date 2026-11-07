@@ -1,14 +1,14 @@
-# Architecture
+﻿# Architecture
 
 Read this to see where a request goes and which file owns which concern.
 
 ## Pieces
 
-- **Static front end** — `index.html`, `app.js`, `styles.css`. No build step, no framework, no dependencies.
-- **Capture page** — `capture.html`. A standalone phone page served at `/capture/<token>`; it shares `styles.css` and does not load `app.js`.
-- **Node proxy** — `server.js`. Serves the static files, forwards `/api/*` to the upstream API, and answers `/api/capture/*` locally.
-- **HttpOnly cookie session** — the bearer token is stored in a cookie the browser JavaScript cannot read.
-- **Upstream API** — the AradLens API at `ARADLENS_API_ORIGIN`.
+- **Static front end** â€” `index.html`, `app.js`, `styles.css`. No build step, no framework, no dependencies.
+- **Capture page** â€” `capture.html`. A standalone phone page served at `/capture/<token>`; it shares `styles.css` and does not load `app.js`.
+- **Node proxy** â€” `server.js`. Serves the static files, forwards `/api/*` to the upstream API, and answers `/api/capture/*` locally.
+- **HttpOnly cookie session** â€” the bearer token is stored in a cookie the browser JavaScript cannot read.
+- **Upstream API** â€” the AradLens API at `ARADLENS_API_ORIGIN`.
 
 ## Request flow
 
@@ -47,7 +47,7 @@ index.html      Markup, inline styles, UI copy, illustration symbols
 app.js          UI state, rendering, translations, API client
 capture.html    No-login phone page for recording a location
 styles.css      Design tokens, day/night themes, component styles
-fonts.css       Self-hosted DM Sans / Space Grotesk faces
+fonts.css       Self-hosted Literata / Public Sans faces
 legal.css       Shared styling for the legal pages
 terms.html      Terms of Use
 privacy.html    GDPR privacy notice
