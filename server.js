@@ -46,16 +46,59 @@ function readJsonBody(req) {
   });
 }
 
+function parseAccountsCookie(value) {
+  if (!value) return {};
+  try {
+    const parsed = JSON.parse(decodeURIComponent(value));
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    return Object.fromEntries(Object.entries(parsed).filter(([, token]) => typeof token === "string" && token));
+  } catch {
+    return {};
+  }
+}
+
+function usernameFromToken(token) {
+  try {
+    const parts = String(token).split(".");
+    if (parts.length < 2) return "";
+    const claims = JSON.parse(Buffer.from(parts[1].replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8"));
+    return typeof claims.username === "string" && claims.username ? claims.username : "";
+  } catch {
+    return "";
+  }
+}
+
+function accountCookies(accounts, active, maxAge) {
+  const encoded = encodeURIComponent(JSON.stringify(accounts));
+  const age = Number.isFinite(maxAge) ? `; Max-Age=${Math.max(0, maxAge)}` : "";
+  const cookies = [`aradlens_accounts=${encoded}; HttpOnly; SameSite=Lax; Path=/${age}`];
+  if (active && accounts[active]) {
+    cookies.push(`aradlens_token=${encodeURIComponent(accounts[active])}; HttpOnly; SameSite=Lax; Path=/${age}`);
+    cookies.push(`aradlens_active=${encodeURIComponent(active)}; HttpOnly; SameSite=Lax; Path=/${age}`);
+  }
+  return cookies;
+}
+
+function clearAccountCookies() {
+  const expired = "HttpOnly; SameSite=Lax; Path=/; Max-Age=0";
+  return [`aradlens_token=; ${expired}`, `aradlens_accounts=; ${expired}`, `aradlens_active=; ${expired}`];
+}
+
 async function proxyApi(req, res, pathname) {
   const cookies = parseCookies(req.headers.cookie);
-  const token = cookies.aradlens_token;
   const clientAuthorization = typeof req.headers.authorization === "string" ? req.headers.authorization : "";
+  const accounts = parseAccountsCookie(cookies.aradlens_accounts);
+  let activeUser = typeof cookies.aradlens_active === "string" ? cookies.aradlens_active : "";
+  if (!accounts[activeUser]) activeUser = Object.keys(accounts)[0] || "";
+  const token = (activeUser && accounts[activeUser]) || cookies.aradlens_token;
   const isLogin = pathname === "/api/auth/login" && req.method === "POST";
   const isRegister = pathname === "/api/auth/register" && req.method === "POST";
   const isMe = pathname === "/api/auth/me" && req.method === "GET";
   const isPasswordChange = pathname === "/api/auth/change-password" && req.method === "POST";
   const isHealth = pathname === "/api/health" && req.method === "GET";
   const isLogout = pathname === "/api/auth/logout" && req.method === "POST";
+  const isAccounts = pathname === "/api/auth/accounts" && req.method === "GET";
+  const isSwitch = pathname === "/api/auth/switch" && req.method === "POST";
   const isAdminEndpoint = /^\/api\/admins(?:\/\d+)?$/.test(pathname) && ["GET", "POST", "PUT", "DELETE"].includes(req.method);
   const isInvitesList = pathname === "/api/invites" && req.method === "GET";
   const isInviteCreate = pathname === "/api/invites" && req.method === "POST";
@@ -68,7 +111,7 @@ async function proxyApi(req, res, pathname) {
   const isLocationWrite = isLocationCreate || isLocationUpdate || isLocationDelete;
   const isPublicLocationRead = isLocationsList || isLocationDetails;
 
-  if (!isLogin && !isRegister && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAdminEndpoint && !isInviteEndpoint && !isPublicLocationRead && !isLocationWrite) return false;
+  if (!isLogin && !isRegister && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isInviteEndpoint && !isPublicLocationRead && !isLocationWrite) return false;
   if (devMode && isMe && token === "dev-token") {
     sendJson(res, 200, { username: "admin", role: "Administrator" });
     return true;
@@ -82,9 +125,13 @@ async function proxyApi(req, res, pathname) {
     return true;
   }
   if (isLogout) {
-    sendJson(res, 200, { ok: true }, {
-      "Set-Cookie": "aradlens_token=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0",
-    });
+    delete accounts[activeUser];
+    const remaining = Object.keys(accounts);
+    if (!remaining.length) {
+      sendJson(res, 200, { ok: true, active: null }, { "Set-Cookie": clearAccountCookies() });
+    } else {
+      sendJson(res, 200, { ok: true, active: remaining[0] }, { "Set-Cookie": accountCookies(accounts, remaining[0]) });
+    }
     return true;
   }
   const authorization = token ? `Bearer ${token}` : clientAuthorization;
@@ -102,10 +149,31 @@ async function proxyApi(req, res, pathname) {
       return true;
     }
   }
+  if (isAccounts) {
+    const names = Object.keys(accounts);
+    if (!names.length && !token) {
+      sendJson(res, 401, { detail: "Not authenticated" });
+      return true;
+    }
+    const list = names.length
+      ? names.map((username) => ({ username, active: username === activeUser }))
+      : [{ username: usernameFromToken(token) || "account", active: true }];
+    sendJson(res, 200, { accounts: list, active: activeUser || list[0].username });
+    return true;
+  }
+  if (isSwitch) {
+    const username = payload && typeof payload.username === "string" ? payload.username : "";
+    if (!username || !accounts[username]) {
+      sendJson(res, 404, { detail: "Unknown account. Sign in again to add it." });
+      return true;
+    }
+    sendJson(res, 200, { ok: true, active: username }, { "Set-Cookie": accountCookies(accounts, username) });
+    return true;
+  }
   if (devMode && isLogin) {
     if (payload.username === "admin" && ["admin", "administrare"].includes(payload.password)) {
       sendJson(res, 200, { ok: true }, {
-        "Set-Cookie": "aradlens_token=dev-token; HttpOnly; SameSite=Lax; Path=/",
+        "Set-Cookie": accountCookies({ admin: "dev-token" }, "admin"),
       });
     } else {
       sendJson(res, 401, { detail: "Invalid development credentials." });
@@ -138,8 +206,11 @@ async function proxyApi(req, res, pathname) {
     }
     const responseHeaders = {};
     if (isLogin && upstream.ok && responsePayload.access_token) {
-      const maxAge = Number.isFinite(responsePayload.expires_in) ? `; Max-Age=${Math.max(0, responsePayload.expires_in)}` : "";
-      responseHeaders["Set-Cookie"] = `aradlens_token=${encodeURIComponent(responsePayload.access_token)}; HttpOnly; SameSite=Lax; Path=/${maxAge}`;
+      const maxAge = Number.isFinite(responsePayload.expires_in) ? Math.max(0, responsePayload.expires_in) : undefined;
+      const username = usernameFromToken(responsePayload.access_token)
+        || (payload && typeof payload.username === "string" && payload.username)
+        || "account";
+      responseHeaders["Set-Cookie"] = accountCookies({ ...accounts, [username]: responsePayload.access_token }, username, maxAge);
     }
     sendJson(res, upstream.status, responsePayload, responseHeaders);
   } catch {
@@ -182,8 +253,12 @@ function serveStatic(req, res, decodedPath) {
       res.end("Not found");
       return;
     }
+    let body = data;
+    if (path.basename(filePath) === "index.html") {
+      body = Buffer.from(data.toString().replace(/(<meta name="aradlens-api-origin" content=")[^"]*(" \/>)/, `$1${apiOrigin}$2`));
+    }
     res.writeHead(200, { "Content-Type": mime[path.extname(filePath)] || "text/plain; charset=utf-8" });
-    res.end(data);
+    res.end(body);
   });
 }
 
