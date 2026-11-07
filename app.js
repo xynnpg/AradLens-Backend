@@ -12,7 +12,7 @@ async function apiRequest(path, options = {}) {
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
     const detail = Array.isArray(body.detail) ? body.detail.map((item) => item.msg).join(" ") : body.detail;
-    throw new Error(detail || "The request could not be completed.");
+    throw new Error(detail || "We couldn't complete that request. Check your connection and try again.");
   }
   return body;
 }
@@ -29,7 +29,11 @@ function showPage(page, updateUrl = true) {
   document.querySelectorAll(".page").forEach((section) => section.classList.remove("active-page"));
   const nextPage = document.getElementById(`page-${page}`);
   if (nextPage) nextPage.classList.add("active-page");
-  document.querySelectorAll(".nav-item[data-page]").forEach((item) => item.classList.toggle("is-active", item.dataset.page === page));
+  document.querySelectorAll(".nav-item[data-page]").forEach((item) => {
+    const active = item.dataset.page === page;
+    item.classList.toggle("is-active", active);
+    if (active) item.setAttribute("aria-current", "page"); else item.removeAttribute("aria-current");
+  });
   document.getElementById("breadcrumb-current").textContent = pageNames[page] || "Overview";
   document.querySelector(".sidebar")?.classList.remove("is-open");
   document.querySelector(".sidebar-scrim")?.classList.remove("is-visible");
@@ -49,10 +53,12 @@ function bindPageActions() {
 function showToast(message) {
   if (!toast) return;
   window.clearTimeout(toastTimer);
-  toast.textContent = message;
+  toast.querySelector(".toast-message").textContent = message;
   toast.classList.add("is-visible");
-  toastTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 4200);
+  toastTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 7000);
 }
+
+document.querySelector(".toast-dismiss")?.addEventListener("click", () => toast.classList.remove("is-visible"));
 
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -70,15 +76,16 @@ loginForm.addEventListener("submit", async (event) => {
     });
     setAuthenticated(true);
   } catch (error) {
-    loginError.textContent = error.message;
+    loginError.textContent = "We couldn't sign you in. Check your username and password, then try again.";
   } finally {
     submitButton.disabled = false;
     submitButton.classList.remove("is-loading");
-    submitButton.firstChild.textContent = "Enter workspace ";
+    submitButton.firstChild.textContent = "Sign in";
   }
 });
 
 document.getElementById("logout-button").addEventListener("click", async () => {
+  if (!window.confirm("Sign out of AradLens?")) return;
   await apiRequest("/api/auth/logout", { method: "POST" }).catch(() => {});
   setAuthenticated(false);
   loginForm.reset();
@@ -102,6 +109,12 @@ mobileMenu.addEventListener("click", () => {
 sidebarScrim.addEventListener("click", closeMobileNavigation);
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closeMobileNavigation();
+  if (event.key === "/" && document.activeElement?.tagName !== "INPUT") {
+    event.preventDefault();
+    showPage("points");
+    document.getElementById("points-search")?.focus();
+  }
+  if (event.key === "?" && document.activeElement?.tagName !== "INPUT") showToast("Shortcuts: / search · g then o overview · g then p points · g then u users · g then d debug");
 });
 
 document.getElementById("global-search-button").addEventListener("click", () => {
@@ -120,7 +133,7 @@ document.querySelector("[data-api-health]")?.addEventListener("click", async (ev
     showToast(error.message);
   } finally {
     button.disabled = false;
-    button.firstChild.textContent = "Run health check ";
+  button.firstChild.textContent = "Check API health";
   }
 });
 
@@ -129,21 +142,23 @@ document.getElementById("change-password-form")?.addEventListener("submit", asyn
   const form = event.currentTarget;
   const errorMessage = document.getElementById("change-password-error");
   const submitButton = form.querySelector("button[type=submit]");
+  if (!window.confirm("Change your password?\n\nYour current session will remain active.")) return;
   errorMessage.textContent = "";
   submitButton.disabled = true;
   submitButton.classList.add("is-loading");
   submitButton.firstChild.textContent = "Changing password…";
   try {
     const values = new FormData(form);
+    if (values.get("new_password") !== values.get("confirm_password")) throw new Error("New passwords do not match.");
     await apiRequest("/api/auth/change-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ old_password: values.get("old_password"), new_password: values.get("new_password") }),
     });
     form.reset();
-    showToast("Password changed successfully.");
+    showToast("Password changed successfully. You'll stay signed in.");
   } catch (error) {
-    errorMessage.textContent = error.message;
+    errorMessage.textContent = error.message === "New passwords do not match." ? error.message : "We couldn't change your password. Check your current password and try again.";
   } finally {
     submitButton.disabled = false;
     submitButton.classList.remove("is-loading");

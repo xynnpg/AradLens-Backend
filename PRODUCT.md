@@ -24,11 +24,11 @@ The admin workspace connects the editorial truth of Arad's places with the opera
 
 ## Operating Context
 
-The first prototype is a web admin app backed by an API that is not yet built. It needs a local login using `admin` / `admin` and should make API-backed states easy to replace later.
+The first prototype is a web admin app backed by an API that is not yet built. It uses the administrator login `admin` / `administrare` and should make API-backed states easy to replace later.
 
 ## Capabilities and Constraints
 
-- Admin login with the credentials `admin` / `admin`.
+- Admin login with the credentials `admin` / `administrare`.
 - Overview dashboard with pending content work and service health.
 - Users page.
 - Important Points page for managing place records.
@@ -38,7 +38,7 @@ The first prototype is a web admin app backed by an API that is not yet built. I
 
 ## Brand Commitments
 
-The product is named AradLens. The user wants a UX-led admin interface with G2-style rounded corners and a polished visual quality bar inspired by the supplied Binary Squad reference.
+The product is named AradLens. The admin interface uses a hard-edged industrial blueprint language: visible grids, cartographic markers, high-contrast typography, and restrained plum accents.
 
 ## Evidence on Hand
 

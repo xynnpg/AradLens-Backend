@@ -3,7 +3,8 @@ const fs = require("fs");
 const path = require("path");
 
 const root = __dirname;
-const apiOrigin = process.env.ARADLENS_API_ORIGIN || "http://api.aradlens.binarysquad.club";
+const apiOrigin = process.env.ARADLENS_API_ORIGIN || "https://api.aradlens.binarysquad.club";
+const devMode = process.env.DEV_MODE === "true";
 const mime = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -55,6 +56,18 @@ async function proxyApi(req, res, pathname) {
   const isLogout = pathname === "/api/auth/logout" && req.method === "POST";
 
   if (!isLogin && !isMe && !isPasswordChange && !isHealth && !isLogout) return false;
+  if (devMode && isMe && token === "dev-token") {
+    sendJson(res, 200, { username: "admin", role: "Administrator" });
+    return true;
+  }
+  if (devMode && isPasswordChange && token === "dev-token") {
+    sendJson(res, 200, { ok: true });
+    return true;
+  }
+  if (devMode && isHealth) {
+    sendJson(res, 200, { status: "ok" });
+    return true;
+  }
   if (isLogout) {
     sendJson(res, 200, { ok: true }, {
       "Set-Cookie": "aradlens_token=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0",
@@ -75,12 +88,22 @@ async function proxyApi(req, res, pathname) {
       return true;
     }
   }
+  if (devMode && isLogin) {
+    if (payload.username === "admin" && payload.password === "admin") {
+      sendJson(res, 200, { ok: true }, {
+        "Set-Cookie": "aradlens_token=dev-token; HttpOnly; SameSite=Lax; Path=/",
+      });
+    } else {
+      sendJson(res, 401, { detail: "Invalid development credentials." });
+    }
+    return true;
+  }
 
   const upstreamPath = isLogin ? "/auth/login"
     : isMe ? "/auth/me"
       : isPasswordChange ? "/auth/change-password"
         : "/health";
-  const upstreamHeaders = { Accept: "application/json" };
+  const upstreamHeaders = { Accept: "*/*" };
   if (payload) upstreamHeaders["Content-Type"] = "application/json";
   if (token) upstreamHeaders.Authorization = `Bearer ${token}`;
 

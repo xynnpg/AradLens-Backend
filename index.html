@@ -54,9 +54,9 @@
           <label for="password">Password</label>
           <input id="password" name="password" autocomplete="current-password" type="password" placeholder="••••••••" required />
           <p id="login-error" class="form-error" role="alert"></p>
-          <button class="button button-primary button-wide" type="submit">Enter workspace <span aria-hidden="true">↗</span></button>
+          <button class="button button-primary button-wide" type="submit">Sign in</button>
         </form>
-        <p class="login-hint">Prototype access: <strong>admin</strong> / <strong>admin</strong></p>
+        <p class="login-hint">Use your AradLens administrator account. <a href="#" data-toast="Password recovery will be available when account recovery is connected.">Forgot password?</a></p>
       </div>
     </div>
 
@@ -64,19 +64,21 @@
       <button class="sidebar-scrim" aria-label="Close navigation"></button>
       <aside class="sidebar">
         <div class="brand-mark"><span class="brand-dot"></span><span>Arad<span>Lens</span></span></div>
-        <div class="workspace-switcher"><span class="avatar avatar-small">AM</span><span><strong>Arad city guide</strong><small>Admin workspace</small></span><span class="chevron">⌄</span></div>
+        <button class="workspace-switcher" type="button" data-toast="Workspace switching will be available when multiple guides are connected.">
+          <span class="avatar avatar-small">AM</span><span class="workspace-copy"><strong>Arad city guide</strong><small>Admin workspace</small></span><svg class="chevron" viewBox="0 0 12 12" aria-hidden="true"><path d="m2.5 4.5 3.5 3 3.5-3" /></svg>
+        </button>
         <nav class="main-nav" aria-label="Main navigation">
           <p class="nav-label">Workspace</p>
-          <button class="nav-item is-active" type="button" data-page="overview"><span class="nav-icon" aria-hidden="true">⌂</span>Overview</button>
-          <button class="nav-item" type="button" data-page="points"><span class="nav-icon" aria-hidden="true">⌖</span>Important points <span class="nav-count">12</span></button>
-          <button class="nav-item" type="button" data-page="users"><span class="nav-icon" aria-hidden="true">◎</span>Users</button>
+          <button class="nav-item is-active" type="button" data-page="overview" aria-current="page"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 10 8-6 8 6v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" /></svg><span>Overview</span></button>
+          <button class="nav-item" type="button" data-page="points"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 10-7 10S5 15 5 10a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2.5" /></svg><span>Important points</span><span class="nav-count">12</span></button>
+          <button class="nav-item" type="button" data-page="users"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3" /><path d="M5 20a7 7 0 0 1 14 0M17 5.5a3 3 0 0 1 0 5.5" /></svg><span>Users</span></button>
           <p class="nav-label nav-label-spaced">Monitor</p>
-          <button class="nav-item" type="button" data-page="debug"><span class="nav-icon nav-icon-alert" aria-hidden="true">⊙</span>Debug <span class="status-dot" aria-hidden="true"></span></button>
-          <button class="nav-item" type="button" data-page="activity"><span class="nav-icon" aria-hidden="true">◷</span>Activity log</button>
+          <button class="nav-item" type="button" data-page="debug" title="All systems operational"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1" /><circle cx="12" cy="12" r="4" /></svg><span>Debug</span><span class="nav-status"><i></i>OK</span></button>
+          <button class="nav-item" type="button" data-page="activity"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M12 7v5l3 2" /></svg><span>Activity log</span></button>
         </nav>
         <div class="sidebar-bottom">
-          <button class="nav-item" type="button" data-page="settings"><span class="nav-icon" aria-hidden="true">⚙</span>Settings</button>
-          <button id="logout-button" class="nav-item" type="button"><span class="nav-icon" aria-hidden="true">↪</span>Sign out</button>
+          <button class="nav-item" type="button" data-page="settings"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0-5v2m0 14v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M3 12h2m14 0h2M4.9 19.1l1.4-1.4M18 6.3l1.1-1.4" /></svg><span>Settings</span></button>
+          <button id="logout-button" class="nav-item" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5m5-4 4-3-4-3m4 3H9" /></svg><span>Sign out</span></button>
           <div class="sidebar-footer"><span class="avatar">AM</span><span><strong>Alex Morgan</strong><small>Administrator</small></span><span class="more">···</span></div>
         </div>
       </aside>
@@ -84,8 +86,8 @@
       <main class="main-content">
         <header class="topbar">
           <button class="mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
-          <div class="breadcrumbs"><span>Arad city guide</span><b>/</b><strong id="breadcrumb-current">Overview</strong></div>
-          <div class="topbar-actions"><button id="global-search-button" class="icon-button" type="button" aria-label="Search points">⌕</button><button id="notifications-button" class="icon-button notification-button" type="button" aria-label="Notifications">♢<span aria-hidden="true"></span></button><span class="topbar-divider"></span><span class="topbar-date">Tue, 14 May 2024</span></div>
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><span>Arad city guide</span><b aria-hidden="true">/</b><strong id="breadcrumb-current">Overview</strong></nav>
+          <div class="topbar-actions"><button id="global-search-button" class="icon-button" type="button" aria-label="Search points"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2" /><path d="m16 16 4 4" /></svg></button><button id="notifications-button" class="icon-button notification-button" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17h12l-1.5-2v-4a4.5 4.5 0 0 0-9 0v4zM10 19h4" /></svg><span aria-hidden="true"></span></button><span class="topbar-divider"></span><span class="topbar-date">Tue, 14 May 2024</span></div>
         </header>
 
         <div id="page-overview" class="page active-page">
@@ -112,7 +114,7 @@
         <div id="page-settings" class="page"><div class="page-heading"><div><p class="eyebrow">Workspace preferences</p><h2>Settings</h2><p class="heading-copy">Keep your admin workspace tuned to the way you work.</p></div><button class="button button-dark" type="button" data-toast="Settings saved for this prototype session.">Save changes</button></div><div class="settings-grid"><section class="panel settings-panel"><div class="panel-heading"><div><h3>Notifications</h3><p>Choose which updates deserve your attention.</p></div></div><label class="setting-row"><span><strong>Incident alerts</strong><small>Get notified when crashes or API issues appear.</small></span><input class="toggle-input" type="checkbox" checked /><i class="toggle"></i></label><label class="setting-row"><span><strong>Editorial reminders</strong><small>Receive a daily summary of points awaiting review.</small></span><input class="toggle-input" type="checkbox" checked /><i class="toggle"></i></label><label class="setting-row"><span><strong>Weekly activity digest</strong><small>A short recap of changes across the workspace.</small></span><input class="toggle-input" type="checkbox" /><i class="toggle"></i></label></section><section class="panel settings-panel"><div class="panel-heading"><div><h3>Account security</h3><p>Change the password for your authenticated API account.</p></div></div><form id="change-password-form" class="settings-form" aria-describedby="change-password-error"><div class="setting-field"><label for="old-password">Current password</label><input id="old-password" name="old_password" type="password" autocomplete="current-password" required /></div><div class="setting-field"><label for="new-password">New password</label><input id="new-password" name="new_password" type="password" autocomplete="new-password" minlength="8" required /><small class="field-help">Use at least 8 characters.</small></div><p id="change-password-error" class="form-error" role="alert"></p><button class="button button-soft" type="submit">Change password</button></form></section><section class="panel settings-panel"><div class="panel-heading"><div><h3>Workspace</h3><p>Basic details for this admin space.</p></div></div><div class="setting-field"><label for="workspace-name">Workspace name</label><input id="workspace-name" name="workspace-name" autocomplete="off" value="Arad city guide" /></div><div class="setting-field"><label for="timezone">Timezone</label><select id="timezone" name="timezone"><option>Europe/Bucharest (GMT+3)</option><option>UTC (GMT+0)</option></select></div></section></div></div>
       </main>
     </div>
-    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+     <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><span class="toast-message"></span><button type="button" class="toast-dismiss" aria-label="Dismiss notification">×</button></div>
     <script src="app.js"></script>
   </body>
 </html>
