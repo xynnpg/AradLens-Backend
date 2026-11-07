@@ -9,6 +9,7 @@ node_modules/
 .github/
 final-desktop.png
 Thumbs.db
+magicui/
 
 
 aradlens-black-theme-snapshot.yml
@@ -19,4 +20,3 @@ aradlens-night-theme.png
 DESIGN.md
 issue.md
 PRODUCT.md
-magicui
