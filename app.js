@@ -1993,7 +1993,10 @@ async function saveLocation() {
     return;
   }
   const payload = { name, latitude: Number(form.elements.latitude.value), longitude: Number(form.elements.longitude.value) };
-  if (form.elements.description.value) payload.description = form.elements.description.value;
+  /* Always send the description, even when it is empty. Leaving it out of
+     the payload made the API keep the old text, so a description could
+     never be cleared. */
+  payload.description = form.elements.description.value.trim() || null;
   const categoryField = form.elements.category_id;
   if (categoryField && categoryField.options.length > 1) {
     payload.category_id = categoryField.value ? Number(categoryField.value) : null;
