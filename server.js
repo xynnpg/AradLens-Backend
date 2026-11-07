@@ -46,6 +46,24 @@ function readJsonBody(req) {
   });
 }
 
+function readRawBody(req, limit = 25_000_000) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > limit) {
+        reject(new Error("Request body is too large"));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
+}
+
 function parseAccountsCookie(value) {
   if (!value) return {};
   try {
@@ -109,9 +127,11 @@ async function proxyApi(req, res, pathname) {
   const isLocationUpdate = /^\/api\/locations\/\d+$/.test(pathname) && ["PATCH", "PUT"].includes(req.method);
   const isLocationDelete = /^\/api\/locations\/\d+$/.test(pathname) && req.method === "DELETE";
   const isLocationWrite = isLocationCreate || isLocationUpdate || isLocationDelete;
+  const isLocationImages = /^\/api\/locations\/\d+\/images$/.test(pathname) && ["GET", "POST"].includes(req.method);
+  const isLocationImagesWrite = isLocationImages && req.method === "POST";
   const isPublicLocationRead = isLocationsList || isLocationDetails;
 
-  if (!isLogin && !isRegister && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isInviteEndpoint && !isPublicLocationRead && !isLocationWrite) return false;
+  if (!isLogin && !isRegister && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isInviteEndpoint && !isPublicLocationRead && !isLocationWrite && !isLocationImages) return false;
   if (devMode && isMe && token === "dev-token") {
     sendJson(res, 200, { username: "admin", role: "Administrator" });
     return true;
@@ -135,13 +155,21 @@ async function proxyApi(req, res, pathname) {
     return true;
   }
   const authorization = token ? `Bearer ${token}` : clientAuthorization;
-  if ((isMe || isPasswordChange || isAdminEndpoint || isInviteEndpoint || isLocationWrite) && !authorization) {
+  if ((isMe || isPasswordChange || isAdminEndpoint || isInviteEndpoint || isLocationWrite || isLocationImagesWrite) && !authorization) {
     sendJson(res, 401, { detail: "Not authenticated" });
     return true;
   }
 
+  const isMultipart = String(req.headers["content-type"] || "").includes("multipart/form-data");
   let payload;
-  if (isLogin || isRegister || isPasswordChange || isInviteCreate || isLocationCreate || isLocationUpdate || req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
+  if (isMultipart) {
+    try {
+      payload = await readRawBody(req);
+    } catch (error) {
+      sendJson(res, 400, { detail: error.message });
+      return true;
+    }
+  } else if (isLogin || isRegister || isPasswordChange || isInviteCreate || isLocationCreate || isLocationUpdate || req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
     try {
       payload = await readJsonBody(req);
     } catch (error) {
@@ -185,18 +213,30 @@ async function proxyApi(req, res, pathname) {
     : isRegister ? "/auth/register"
     : isMe ? "/auth/me"
       : isPasswordChange ? "/auth/change-password"
-        : (isAdminEndpoint || isInviteEndpoint || isPublicLocationRead || isLocationWrite) ? pathname.replace(/^\/api/, "")
+        : (isAdminEndpoint || isInviteEndpoint || isPublicLocationRead || isLocationWrite || isLocationImages) ? pathname.replace(/^\/api/, "")
           : "/health";
-  const upstreamHeaders = { Accept: "*/*" };
-  if (payload) upstreamHeaders["Content-Type"] = "application/json";
+  const upstreamHeaders = { Accept: req.headers.accept || "*/*" };
+  if (payload) upstreamHeaders["Content-Type"] = Buffer.isBuffer(payload) ? req.headers["content-type"] : "application/json";
   if (authorization) upstreamHeaders.Authorization = authorization.startsWith("Bearer ") ? authorization : `Bearer ${authorization}`;
 
   try {
     const upstream = await fetch(`${apiOrigin}${upstreamPath}`, {
       method: req.method,
       headers: upstreamHeaders,
-      body: payload ? JSON.stringify(payload) : undefined,
+      body: payload ? (Buffer.isBuffer(payload) ? payload : JSON.stringify(payload)) : undefined,
     });
+    const upstreamType = upstream.headers.get("content-type") || "";
+    if (!upstreamType.includes("application/json")) {
+      const buffer = Buffer.from(await upstream.arrayBuffer());
+      const rawHeaders = { "Content-Type": upstreamType || "application/octet-stream" };
+      const disposition = upstream.headers.get("content-disposition");
+      if (disposition) rawHeaders["Content-Disposition"] = disposition;
+      const length = upstream.headers.get("content-length");
+      if (length) rawHeaders["Content-Length"] = length;
+      res.writeHead(upstream.status, rawHeaders);
+      res.end(buffer);
+      return true;
+    }
     const text = await upstream.text();
     let responsePayload;
     try {

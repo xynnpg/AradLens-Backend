@@ -2,6 +2,8 @@
   "name": "aradlens-admin",
   "private": true,
   "version": "0.1.0",
+  "description": "Operational admin workspace for AradLens.",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "start": "node server.js",
     "check": "node --check app.js && node --check server.js"

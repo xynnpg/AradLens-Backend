@@ -1,23 +1,33 @@
+# Dependencies
 node_modules/
+
+# Environment
 .env
 .env.*
 !.env.example
+
+# Logs
 *.log
-.playwright-mcp/
-.impeccable/
+
+# Local tooling and agent scaffolding
+.codex/
 .agents/
 .github/
+.impeccable/
+.playwright-mcp/
+magicui/
+skills-lock.json
+
+# Design and planning notes (kept local)
+DESIGN.md
+PRODUCT.md
+issue.md
+
+# Local build artifacts
 final-desktop.png
 Thumbs.db
-magicui/hi
-.codex
-
-
 aradlens-black-theme-snapshot.yml
 aradlens-black-theme.png
 aradlens-live-snapshot.yml
 aradlens-login.png
 aradlens-night-theme.png
-DESIGN.md
-issue.md
-PRODUCT.md

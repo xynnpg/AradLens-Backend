@@ -84,3 +84,114 @@ html[data-theme="night"] .app-shell.theme-night .metric-card.metric-card-mint{ba
 
 .prototype-label{font-size:12px;color:var(--signal-green);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:4px 0 0}.prototype-notice{display:flex;gap:12px;align-items:baseline;border:1px solid var(--signal-amber);background:var(--apricot-fill);color:var(--ink);padding:12px 14px;margin-bottom:24px;font-size:13px;line-height:1.45}.prototype-notice strong{font-weight:700;text-transform:uppercase;letter-spacing:.06em}.admin-list{display:grid;gap:8px;margin:14px 0 24px}.admin-list:empty{display:none}.admin-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;border-top:1px solid var(--grid-line);padding:12px 0;color:var(--print);font-size:13px}.admin-row>span{min-width:0;overflow-wrap:anywhere}.admin-list .button{min-height:36px}
 @media(max-width:600px){.prototype-notice{align-items:flex-start;flex-direction:column}.admin-row{grid-template-columns:1fr;gap:8px}.admin-row .button{width:100%}}
+
+/* Critique fixes: readable floors, calm states, triage controls */
+.nav-label,.topbar-date,.metric-foot,.metric-foot span:last-child,.user-stat-row span,.user-row,.user-head,.health-list>div,.health-list strong,.health-score p,.point-meta,.queue-item small,.setting-row small,.field-help,.banner-time,.device-row small,.breadcrumbs{font-size:12px}
+.nav-count,.badge,.point-category{font-size:11px}
+.health-summary{padding:20px;gap:24px}
+.health-ring{margin:8px}
+.health-list{padding:20px 20px 20px 28px}
+.activity-row{padding:15px 12px}
+.edit-state{font-size:13px;font-weight:700;color:var(--ink);background:var(--lavender-fill);border:1px solid var(--signal-plum);padding:10px 12px;margin:12px 0 0}
+.status-tag{font-size:12px;padding:4px 8px}
+.status-tag::before{content:"●";margin-right:6px;font-size:10px}
+.card-open{min-width:44px;min-height:44px;font-size:16px}
+.metric-card-dark .metric-foot,.metric-card-dark .metric-top{color:#d0c7d5}
+.search-field{color:var(--print)}
+.search-field input::placeholder{color:var(--print);opacity:.8}
+#points-status{min-width:170px}
+#points-view-list[aria-pressed="true"],#points-view-grid[aria-pressed="true"]{outline:2px solid var(--signal-plum);outline-offset:1px}
+.page-heading h2{letter-spacing:-.02em;line-height:1.05;text-wrap:balance}
+.page-heading h2 span{letter-spacing:inherit}
+
+/* Login + create-account refinement: one clear path, quiet utilities */
+.login-panel h1{letter-spacing:-.03em}
+.login-panel form{gap:12px}
+.login-panel label{color:var(--print);font-size:13px;font-weight:700;text-transform:none;letter-spacing:0}
+.login-panel input{min-height:48px;border-color:var(--steel)}
+.login-panel input::placeholder{color:var(--muted);opacity:.9}
+.auth-tabs{display:flex;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;max-width:390px}
+.auth-tabs .button{flex:1;border:0;background:transparent;color:var(--print);box-shadow:none;margin-top:0}
+.auth-tabs .button[aria-selected="true"]{background:var(--plum);color:#fff;opacity:1}
+.auth-tabs .button[aria-selected="false"]{opacity:1}
+.password-toggle{min-height:44px;min-width:70px;padding:0 12px;font-size:12px}
+.login-panel .button-wide{min-height:48px;font-size:14px}
+#login-back-button{max-width:390px}
+.login-tools{align-items:center;max-width:390px}
+.login-theme-toggle,.login-tools .language-picker select{background:transparent}
+.login-hint{font-size:12px;color:var(--print);max-width:390px}
+.register-hint{margin:0 0 4px}
+
+/* Theme unity: menus, tabs and switchers speak blueprint everywhere */
+#account-menu,#admin-menu{border-radius:0;border:2px solid var(--steel);box-shadow:none;background:var(--blueprint);color:var(--ink);padding:4px}
+#account-menu button,#admin-menu button{border-radius:0;min-height:44px;color:var(--ink);font-size:13px}
+#account-menu button:hover,#admin-menu button:hover{background:var(--lavender-fill)}
+#account-menu button[aria-checked="true"],#admin-menu button[aria-checked="true"]{box-shadow:inset 3px 0 0 var(--signal-plum)}
+#account-menu .menu-label,#admin-menu .menu-label{color:var(--print)}
+#account-menu .menu-separator,#admin-menu .menu-separator{background:var(--grid-line)}
+#account-menu .menu-check,#admin-menu .menu-check{color:var(--signal-plum)}
+.auth-tabs{border-radius:2px;border-width:2px;border-color:var(--steel)}
+.auth-tabs .button{border-radius:2px}
+.queue-marker{border-radius:0}
+#image-strip button{border-radius:2px}
+#points-view-list[aria-pressed="true"],#points-view-grid[aria-pressed="true"]{background:var(--plum);color:#fff;outline:none}
+.login-theme-toggle,.login-tools .language-picker select{border-radius:2px;border-width:2px}
+
+/* Contrast repairs verified by Playwright scan (14 states, day + night) */
+.sidebar .brand-mark{color:#fff}
+.app-shell.theme-night .sidebar .brand-mark{color:#fff}
+.metric-card.metric-card-dark .metric-foot span{color:#d0c7d5}
+.activity-head{color:var(--print);font-size:11px}
+.nav-item.is-active .nav-status{color:#fff}
+.nav-item.is-active .nav-status i{background:#78d39f}
+.app-shell.theme-night .nav-item.is-active .nav-status{color:#251b35}
+.app-shell.theme-night .nav-item.is-active .nav-status i{background:#251b35}
+.debug-banner p{color:#256b48}
+.banner-time{color:#256b48}
+html[data-theme="night"] .debug-banner p{color:#b9efd0}
+html[data-theme="night"] .banner-time{color:#b9efd0}
+.status-live{color:#256b48}
+.password-toggle,.text-button,.login-hint a{color:#5a4ed6}
+html[data-theme="night"] .password-toggle,html[data-theme="night"] .text-button,html[data-theme="night"] .login-hint a{color:#b8a7ff}
+
+/* Night: place badge + points count stay legible on dark surfaces */
+.app-shell.theme-night .point-badge{color:#e5d9ff;border-color:var(--signal-plum)}
+html[data-theme="night"] .point-badge{color:#e5d9ff}
+.app-shell.theme-night .nav-item[data-page="points"] .nav-count{background:var(--lavender-fill);color:#e5d9ff}
+html[data-theme="night"] .nav-item[data-page="points"] .nav-count{color:#e5d9ff}
+
+/* Day: light rail to match the workspace; night keeps the plum rail */
+.sidebar{background:var(--blueprint);color:var(--ink);border-right:2px solid var(--steel)}
+.sidebar .brand-mark{color:var(--ink)}
+.workspace-switcher{border-color:var(--grid-line);color:var(--ink)}
+.workspace-switcher:hover{background:var(--lavender-fill)}
+.workspace-switcher small,.sidebar-footer small{color:var(--print)}
+.sidebar-footer{border-color:var(--grid-line)}
+.sidebar .sidebar-footer .more{color:var(--print)}
+.sidebar .main-nav .nav-label{color:var(--print);border-color:var(--grid-line)}
+.sidebar .brand-mark span span{color:var(--signal-plum)}
+.app-shell.theme-night .sidebar .sidebar-footer .more{color:#fff}
+.app-shell.theme-night .nav-item.is-active{color:#251b35}
+.app-shell.theme-night .nav-item.is-active .nav-count{background:#251b35;color:#fff}
+.app-shell.theme-night .sidebar .brand-mark span span{color:#b8a7ff}
+.chevron{color:var(--print)}
+.nav-label{color:var(--print);border-color:var(--grid-line)}
+.nav-item{color:var(--ink)}
+.nav-item:hover{background:var(--lavender-fill);color:var(--ink)}
+.nav-item.is-active{background:var(--plum);color:#fff}
+.nav-item.is-active .nav-status{color:#fff}
+.nav-item.is-active .nav-status i{background:#78d39f}
+.nav-count{background:var(--grid-line);color:var(--ink)}
+.nav-item.is-active .nav-count{background:rgba(255,255,255,.25);color:#fff}
+.nav-status{color:var(--signal-green)}
+.nav-status i{background:var(--signal-green)}
+.app-shell.theme-night .sidebar{background:var(--plum);color:#fff;border-right:0}
+.app-shell.theme-night .sidebar .brand-mark{color:#fff}
+.app-shell.theme-night .workspace-switcher{border-color:#766b80;color:#fff}
+.app-shell.theme-night .workspace-switcher small,.app-shell.theme-night .sidebar-footer small{color:#c0b8c6}
+.app-shell.theme-night .sidebar-footer{border-color:#766b80}
+.app-shell.theme-night .nav-label{color:#d0c7d5;border-color:#51465d}
+.app-shell.theme-night .nav-item{color:#ddd7e1}
+.app-shell.theme-night .nav-item:hover{background:#3a2e49;color:#fff}
+.app-shell.theme-night .nav-item.is-active{background:var(--signal-plum);color:#251b35}
+.app-shell.theme-night .nav-count{background:#4a3d58;color:#fff}

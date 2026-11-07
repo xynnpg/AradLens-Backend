@@ -3,7 +3,7 @@ const appView = document.getElementById("app-view");
 const loginForm = document.getElementById("login-form");
 const loginError = document.getElementById("login-error");
 let authenticatedAdmin = null;
-const pageNames = { overview: "Overview", points: "Important points", users: "Users", debug: "Debug", activity: "Activity log", admins: "Administrators", settings: "Settings" };
+const pageNames = { overview: "Overview", points: "Important points", users: "Administrators", debug: "Debug", admins: "Access control", settings: "Settings" };
 const translations = {
   en: { username: "Username", password: "Password", signIn: "Sign in", loginHint: "Use your AradLens administrator account.", forgotPassword: "Forgot password?", day: "Day", night: "Night", switchDay: "Switch to day theme", switchNight: "Switch to night theme" },
   ro: { username: "Nume de utilizator", password: "Parolă", signIn: "Autentificare", loginHint: "Folosește contul de administrator AradLens.", forgotPassword: "Ai uitat parola?", day: "Zi", night: "Noapte", switchDay: "Schimbă la tema de zi", switchNight: "Schimbă la tema de noapte" },
@@ -34,6 +34,8 @@ const uiTranslations = {
   "Settings": "Setări",
   "Sign out": "Deconectare",
   "Administrator": "Administrator",
+  "Administrators": "Administratori",
+  "Access control": "Control acces",
   "Open navigation": "Deschide meniul de navigare",
   "Breadcrumb": "Traseu de navigare",
   "Search points": "Caută puncte de interes",
@@ -260,6 +262,7 @@ function applyLanguage() {
   });
   document.querySelectorAll(".language-picker select").forEach((select) => { select.value = currentLanguage; });
   applyTheme();
+  updateTopbarDate();
   if (authenticatedAdmin) updateAccountChrome();
   showPage(currentPage, false);
 }
@@ -326,7 +329,18 @@ function showPage(page, updateUrl = true) {
   if (updateUrl) history.replaceState(null, "", `#${page}`);
 }
 
+function updateTopbarDate() {
+  const element = document.querySelector(".topbar-date");
+  if (!element) return;
+  try {
+    element.textContent = new Date().toLocaleDateString(currentLanguage === "ro" ? "ro-RO" : "en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  } catch {
+    element.textContent = new Date().toDateString();
+  }
+}
+
 function bindPageActions() {
+  updateTopbarDate();
   document.querySelectorAll("[data-page], [data-page-action]").forEach((element) => {
     element.addEventListener("click", () => showPage(element.dataset.page || element.dataset.pageAction));
   });
@@ -481,13 +495,15 @@ document.getElementById("change-password-form")?.addEventListener("submit", asyn
   const form = event.currentTarget;
   const errorMessage = document.getElementById("change-password-error");
   const submitButton = form.querySelector("button[type=submit]");
-  if (!window.confirm(t("Change your password?\n\nYour current session will remain active."))) return;
   errorMessage.textContent = "";
   submitButton.disabled = true;
   submitButton.classList.add("is-loading");
-  submitButton.firstChild.textContent = t("Changing password…");
+  const label = submitButton.firstChild && submitButton.firstChild.textContent !== undefined ? submitButton.firstChild : submitButton;
+  const priorLabel = label.textContent;
+  label.textContent = t("Changing password…");
   try {
     const values = new FormData(form);
+    if (!values.get("confirm_password")) throw new Error("New passwords do not match.");
     if (values.get("new_password") !== values.get("confirm_password")) throw new Error("New passwords do not match.");
     await apiRequest("/api/auth/change-password", {
       method: "POST",
@@ -501,7 +517,7 @@ document.getElementById("change-password-form")?.addEventListener("submit", asyn
   } finally {
     submitButton.disabled = false;
     submitButton.classList.remove("is-loading");
-    submitButton.firstChild.textContent = t("Change password");
+    label.textContent = priorLabel && String(priorLabel).includes("…") ? t("Change password") : (priorLabel || t("Change password"));
   }
 });
 
@@ -647,10 +663,28 @@ function clearPickerPoint() {
 
 function filterLiveCards() {
   const query = document.getElementById("points-search")?.value.trim().toLocaleLowerCase() || "";
+  const status = document.getElementById("points-status")?.value || "all";
   document.querySelectorAll("#live-grid .point-card").forEach((card) => {
-    card.hidden = Boolean(query) && !card.textContent.toLocaleLowerCase().includes(query);
+    const matchesQuery = !query || card.textContent.toLocaleLowerCase().includes(query);
+    const hasPhoto = card.dataset.hasPhoto === "true";
+    const hasText = card.dataset.hasText === "true";
+    let matchesStatus = true;
+    if (status === "missing-photo") matchesStatus = !hasPhoto;
+    else if (status === "missing-text") matchesStatus = !hasText;
+    else if (status === "complete") matchesStatus = hasPhoto && hasText;
+    card.hidden = !(matchesQuery && matchesStatus);
   });
 }
+function setPointsView(view) {
+  const grid = document.getElementById("live-grid");
+  if (!grid) return;
+  grid.classList.toggle("list-view", view === "list");
+  document.getElementById("points-view-list")?.setAttribute("aria-pressed", String(view === "list"));
+  document.getElementById("points-view-grid")?.setAttribute("aria-pressed", String(view === "grid"));
+}
+document.getElementById("points-status")?.addEventListener("change", filterLiveCards);
+document.getElementById("points-view-list")?.addEventListener("click", () => setPointsView("list"));
+document.getElementById("points-view-grid")?.addEventListener("click", () => setPointsView("grid"));
 document.getElementById("users-status")?.addEventListener("change", (event) => {
   document.querySelectorAll(".user-row:not(.user-head)").forEach((row) => {
     row.hidden = event.target.value !== "all" && stableValue(row.querySelector(".status-tag"), "value") !== event.target.value;
@@ -709,10 +743,15 @@ async function loadAdmins() {
           button.disabled = true;
           try {
             if (action === "Delete") {
+              if (String(authenticatedAdmin?.username || "").toLowerCase() === String(admin.username || "").toLowerCase()) {
+                showToast("You cannot delete your own administrator account.");
+                return;
+              }
               if (!window.confirm(`Delete administrator ${admin.username}? This cannot be undone.`)) return;
               await apiRequest(`/api/admins/${admin.id}`, { method: "DELETE" });
               resetAdminForm();
               await loadAdmins();
+              showToast(`Administrator ${admin.username} deleted.`);
             } else {
               const record = await apiRequest(`/api/admins/${admin.id}`);
               const form = document.getElementById("admin-form");
@@ -724,7 +763,8 @@ async function loadAdmins() {
               form.elements.is_active.checked = record.is_active;
               form.elements.password.value = "";
               form.elements.password.required = false;
-              document.getElementById("admin-form-title").textContent = "Edit administrator";
+              document.getElementById("admin-form-title").textContent = `Edit administrator ${record.username}`;
+              setAdminEditState(record.username);
               showPage("admins");
               form.elements.email.focus();
             }
@@ -763,6 +803,18 @@ async function loadAdmins() {
   }
 }
 
+function setAdminEditState(username) {
+  const state = document.getElementById("admin-edit-state");
+  if (!state) return;
+  if (!username) {
+    state.hidden = true;
+    state.textContent = "";
+    return;
+  }
+  state.hidden = false;
+  state.textContent = `Editing administrator ${username} — Save to apply, Cancel to discard. Username cannot be changed.`;
+}
+
 function resetAdminForm() {
   const form = document.getElementById("admin-form");
   form.reset();
@@ -771,9 +823,11 @@ function resetAdminForm() {
   form.elements.password.required = true;
   document.getElementById("admin-form-title").textContent = "Create administrator";
   document.getElementById("admin-form-error").textContent = "";
+  setAdminEditState(null);
 }
 
 document.getElementById("admins-refresh").addEventListener("click", loadAdmins);
+document.getElementById("admins-back")?.addEventListener("click", () => showPage("users"));
 document.getElementById("users-refresh")?.addEventListener("click", loadAdmins);
 document.getElementById("admin-cancel").addEventListener("click", resetAdminForm);
 document.getElementById("admin-form").addEventListener("submit", async (event) => {
@@ -904,6 +958,8 @@ function renderLocationCard(location) {
   card.className = "point-card";
   card.dataset.live = "true";
   card.dataset.drawing = kind.drawing;
+  card.dataset.hasPhoto = location.image ? "true" : "false";
+  card.dataset.hasText = location.description ? "true" : "false";
   card.innerHTML =
     `<div class="point-image"><svg class="point-drawing" viewBox="0 0 120 80" aria-hidden="true"><use href="#draw-${kind.drawing}"></use></svg><span class="point-badge">P</span><span class="point-category" data-value="${kind.category}">${kind.category}</span></div>` +
     `<div class="point-body"><div><h3>${escapeHtml(location.name)}</h3><p>${escapeHtml(location.description || "—")}</p></div><span class="status-tag status-live" data-value="Published">Live</span></div>` +
@@ -934,6 +990,8 @@ async function loadLocations() {
     cachedLocations = locations;
     for (const location of locations) grid.append(renderLocationCard(location));
     filterLiveCards();
+    const navCount = document.querySelector('.nav-item[data-page="points"] .nav-count');
+    if (navCount) navCount.textContent = String(locations.length);
     message.textContent = locations.length ? `${locations.length} location(s)` : "No locations found.";
   } catch (error) {
     message.textContent = `${error.message} Click Refresh to try again.`;
@@ -1034,28 +1092,64 @@ function updateImagePreview() {
     if (addButton) addButton.textContent = "Add image";
   }
 }
-function updateImageUrlPreview() {
-  const value = document.getElementById("image-url")?.value.trim() || "";
+const sessionImages = {};
+let galleryIndex = 0;
+function locationImageList() {
+  const form = document.getElementById("location-form");
+  const id = form?.elements.id.value || "new";
+  const list = [];
+  const cover = form?.elements.image.value || "";
+  if (cover) list.push(cover);
+  for (const path of sessionImages[id] || []) if (!list.includes(path)) list.push(path);
+  return list;
+}
+function refreshImageGallery() {
+  const strip = document.getElementById("image-strip");
+  const preview = document.getElementById("image-url-img");
   const box = document.getElementById("image-url-preview");
-  const img = document.getElementById("image-url-img");
   const errorMessage = document.getElementById("image-modal-error");
-  if (!box || !img) return;
-  img.onload = () => { if (errorMessage) errorMessage.textContent = ""; };
-  img.onerror = () => { if (img.src && errorMessage) errorMessage.textContent = "That URL did not load as an image. Check it and try again."; };
-  if (value) {
-    img.src = resolveImageUrl(value);
-    box.hidden = false;
-  } else {
-    img.removeAttribute("src");
-    box.hidden = true;
+  const list = locationImageList();
+  if (galleryIndex >= list.length) galleryIndex = 0;
+  if (strip) {
+    strip.replaceChildren();
+    list.forEach((path, index) => {
+      const thumb = document.createElement("button");
+      thumb.type = "button";
+      thumb.setAttribute("role", "option");
+      thumb.setAttribute("aria-selected", String(index === galleryIndex));
+      thumb.setAttribute("aria-label", `Show image ${index + 1}`);
+      const img = document.createElement("img");
+      img.src = resolveImageUrl(path);
+      img.alt = "";
+      img.loading = "lazy";
+      thumb.append(img);
+      thumb.addEventListener("click", () => {
+        galleryIndex = index;
+        refreshImageGallery();
+      });
+      strip.append(thumb);
+    });
   }
+  if (preview && box) {
+    preview.onload = () => { if (errorMessage) errorMessage.textContent = ""; };
+    preview.onerror = () => { if (preview.src && errorMessage) errorMessage.textContent = "An image failed to load. Check its URL and try again."; };
+    if (list.length) {
+      preview.src = resolveImageUrl(list[galleryIndex]);
+      box.hidden = false;
+    } else {
+      preview.removeAttribute("src");
+      box.hidden = true;
+    }
+  }
+  updateImagePreview();
 }
 function openImageModal() {
   const modal = document.getElementById("image-modal");
   if (!modal) return;
   document.getElementById("image-modal-error").textContent = "";
-  document.getElementById("image-url").value = document.getElementById("location-form")?.elements.image.value || "";
-  updateImageUrlPreview();
+  document.getElementById("image-url").value = "";
+  galleryIndex = 0;
+  refreshImageGallery();
   modal.classList.remove("is-hidden");
   document.getElementById("image-url")?.focus();
 }
@@ -1068,12 +1162,105 @@ document.getElementById("location-image-clear")?.addEventListener("click", () =>
   if (form) form.elements.image.value = "";
   updateImagePreview();
 });
-document.getElementById("image-url")?.addEventListener("input", updateImageUrlPreview);
-document.getElementById("image-save")?.addEventListener("click", () => {
+document.getElementById("image-save")?.addEventListener("click", async (event) => {
+  const urlInput = document.getElementById("image-url");
+  const errorMessage = document.getElementById("image-modal-error");
   const form = document.getElementById("location-form");
-  if (form) form.elements.image.value = document.getElementById("image-url")?.value.trim() || "";
-  updateImagePreview();
-  closeImageModal();
+  const value = urlInput?.value.trim() || "";
+  errorMessage.textContent = "";
+  if (!value) {
+    errorMessage.textContent = "Paste an image URL first.";
+    return;
+  }
+  const id = form?.elements.id.value || "";
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    if (id) {
+      await apiRequest(`/api/locations/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: value }) });
+      form.elements.image.value = value;
+      await loadLocations();
+      showToast("Image saved.");
+    } else {
+      form.elements.image.value = value;
+      showToast("Image staged. Save the location to keep it.");
+    }
+    urlInput.value = "";
+    galleryIndex = 0;
+    refreshImageGallery();
+  } catch (error) {
+    errorMessage.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+document.getElementById("image-upload")?.addEventListener("click", async (event) => {
+  const errorMessage = document.getElementById("image-modal-error");
+  const form = document.getElementById("location-form");
+  const id = form?.elements.id.value || "";
+  const picker = document.getElementById("image-file");
+  errorMessage.textContent = "";
+  const file = picker?.files?.[0];
+  if (!file) {
+    errorMessage.textContent = "Choose an image file first.";
+    return;
+  }
+  if (!id) {
+    errorMessage.textContent = "Save the location first, then upload files.";
+    return;
+  }
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    const body = new FormData();
+    body.append("file", file);
+    const response = await fetch(`/api/locations/${id}/images`, { method: "POST", body, credentials: "same-origin", headers: { Accept: "application/json" } });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.detail || "Upload failed. Try again.");
+    if (payload.image) {
+      const key = String(id);
+      sessionImages[key] = [...(sessionImages[key] || []), payload.image].filter(Boolean);
+    }
+    picker.value = "";
+    refreshImageGallery();
+    await loadLocations();
+    showToast("Image uploaded.");
+  } catch (error) {
+    errorMessage.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+document.getElementById("image-download-all")?.addEventListener("click", async (event) => {
+  const errorMessage = document.getElementById("image-modal-error");
+  const id = document.getElementById("location-form")?.elements.id.value || "";
+  errorMessage.textContent = "";
+  if (!id) {
+    errorMessage.textContent = "Save the location first.";
+    return;
+  }
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    const response = await fetch(`/api/locations/${id}/images`, { credentials: "same-origin", headers: { Accept: "application/zip" } });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload.detail || "Download failed. Try again.");
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `location_${id}_images.zip`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+  } catch (error) {
+    errorMessage.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
 });
 document.getElementById("image-modal-close")?.addEventListener("click", closeImageModal);
 document.getElementById("image-modal-cancel")?.addEventListener("click", closeImageModal);
@@ -1091,6 +1278,7 @@ document.getElementById("location-delete")?.addEventListener("click", async (eve
   button.disabled = true;
   try {
     await apiRequest(`/api/locations/${id}`, { method: "DELETE" });
+    delete sessionImages[id];
     closeLocationModal();
     await loadLocations();
     showToast("Location deleted.");
@@ -1148,11 +1336,20 @@ document.getElementById("location-form")?.addEventListener("submit", async (even
   errorMessage.textContent = "";
   button.disabled = true;
   try {
-    await apiRequest(id ? `/api/locations/${id}` : "/api/locations", { method: id ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-    resetLocationForm();
-    closeLocationModal();
-    await loadLocations();
-    showToast(id ? "Location updated." : "Location created.");
+    const saved = await apiRequest(id ? `/api/locations/${id}` : "/api/locations", { method: id ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    if (!id && saved && saved.id) {
+      form.elements.id.value = saved.id;
+      document.getElementById("location-modal-title").textContent = `Edit location #${saved.id}`;
+      const deleteButton = document.getElementById("location-delete");
+      if (deleteButton) deleteButton.hidden = false;
+      await loadLocations();
+      showToast("Location created. Add images or keep editing.");
+    } else {
+      resetLocationForm();
+      closeLocationModal();
+      await loadLocations();
+      showToast(id ? "Location updated." : "Location created.");
+    }
   } catch (error) { errorMessage.textContent = error.message; }
   finally { button.disabled = false; }
 });
@@ -1462,6 +1659,25 @@ async function runDebugHealth() {
     title.textContent = "API unreachable";
     text.textContent = `${error.message} Click Run health check to try again.`;
   }
+}
+
+function setSidebarCollapsed(collapsed) {
+  document.body.classList.toggle("nav-collapsed", collapsed);
+  try {
+    window.localStorage.setItem("aradlens-nav", collapsed ? "collapsed" : "open");
+  } catch {}
+  const button = document.getElementById("sidebar-collapse");
+  if (button) {
+    button.textContent = collapsed ? "»" : "«";
+    button.setAttribute("aria-expanded", String(!collapsed));
+    button.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+  }
+}
+document.getElementById("sidebar-collapse")?.addEventListener("click", () => {
+  setSidebarCollapsed(!document.body.classList.contains("nav-collapsed"));
+});
+if (readPreference("localStorage", "aradlens-nav", ["open", "collapsed"], "open") === "collapsed") {
+  setSidebarCollapsed(true);
 }
 
 const initialPage = window.location.hash.slice(1);
