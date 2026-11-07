@@ -14,6 +14,14 @@ The theme is applied two ways:
 - `html[data-theme="night"]` — global variable overrides on the `<html>` element.
 - `.theme-night` — a class added to the login view and the app shell.
 
+## Capture page theme
+
+The capture page (`capture.html`) has no toggle of its own. When an admin creates a
+capture link, `app.js` sends the active theme with the request, and the token keeps
+it for its 24-hour life. The phone reads it from `GET /api/capture/:token`, sets
+`html[data-theme]`, and updates the browser `theme-color` meta tag, so the page
+matches the console without relying on the phone's `localStorage`.
+
 ## Language
 
 1. Use either language picker (`EN` / `RO`, or English / Română).

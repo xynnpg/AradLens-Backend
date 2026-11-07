@@ -1,9 +1,12 @@
 const http = require("http");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
+const crypto = require("crypto");
 
 const root = __dirname;
 const apiOrigin = process.env.ARADLENS_API_ORIGIN || "https://api.aradlens.binarysquad.club";
+const publicOrigin = (process.env.PUBLIC_ORIGIN || "").replace(/\/+$/, "");
 const devMode = process.env.DEV_MODE === "true";
 const mime = {
   ".html": "text/html; charset=utf-8",
@@ -11,6 +14,28 @@ const mime = {
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
 };
+
+const CAPTURE_TTL_MS = 24 * 60 * 60 * 1000;
+const captureLinks = new Map();
+
+function validCaptureLink(token) {
+  const link = captureLinks.get(token);
+  if (!link) return null;
+  if (link.expiresAt <= Date.now()) {
+    captureLinks.delete(token);
+    return null;
+  }
+  return link;
+}
+
+function lanAddress() {
+  for (const infos of Object.values(os.networkInterfaces())) {
+    for (const info of infos || []) {
+      if (info.family === "IPv4" && !info.internal) return info.address;
+    }
+  }
+  return "";
+}
 
 function sendJson(res, status, payload, headers = {}) {
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", ...headers });
@@ -130,8 +155,14 @@ async function proxyApi(req, res, pathname) {
   const isLocationImages = /^\/api\/locations\/\d+\/images$/.test(pathname) && ["GET", "POST"].includes(req.method);
   const isLocationImagesWrite = isLocationImages && req.method === "POST";
   const isPublicLocationRead = isLocationsList || isLocationDetails;
+  const captureMatch = /^\/api\/capture\/([A-Za-z0-9_-]+)$/.exec(pathname);
+  const captureImageMatch = /^\/api\/capture\/([A-Za-z0-9_-]+)\/images$/.exec(pathname);
+  const isCaptureInfo = Boolean(captureMatch) && req.method === "GET";
+  const isCaptureCreate = Boolean(captureMatch) && req.method === "POST";
+  const isCaptureImage = Boolean(captureImageMatch) && req.method === "POST";
+  const isCaptureLinkCreate = pathname === "/api/capture-links" && req.method === "POST";
 
-  if (!isLogin && !isRegister && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isInviteEndpoint && !isPublicLocationRead && !isLocationWrite && !isLocationImages) return false;
+  if (!isLogin && !isRegister && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isInviteEndpoint && !isPublicLocationRead && !isLocationWrite && !isLocationImages && !isCaptureInfo && !isCaptureCreate && !isCaptureImage && !isCaptureLinkCreate) return false;
   if (devMode && isMe && token === "dev-token") {
     sendJson(res, 200, { username: "admin", role: "Administrator" });
     return true;
@@ -155,7 +186,7 @@ async function proxyApi(req, res, pathname) {
     return true;
   }
   const authorization = token ? `Bearer ${token}` : clientAuthorization;
-  if ((isMe || isPasswordChange || isAdminEndpoint || isInviteEndpoint || isLocationWrite || isLocationImagesWrite) && !authorization) {
+  if ((isMe || isPasswordChange || isAdminEndpoint || isInviteEndpoint || isLocationWrite || isLocationImagesWrite || isCaptureLinkCreate) && !authorization) {
     sendJson(res, 401, { detail: "Not authenticated" });
     return true;
   }
@@ -176,6 +207,100 @@ async function proxyApi(req, res, pathname) {
       sendJson(res, 400, { detail: error.message });
       return true;
     }
+  }
+  if (isCaptureLinkCreate) {
+    const token = crypto.randomBytes(24).toString("base64url");
+    const expiresAt = Date.now() + CAPTURE_TTL_MS;
+    const theme = payload && payload.theme === "night" ? "night" : "day";
+    captureLinks.set(token, { authorization, expiresAt, theme });
+    const host = req.headers["x-forwarded-host"] || req.headers.host || `localhost:${process.env.PORT || 4173}`;
+    const protocol = req.headers["x-forwarded-proto"] || "http";
+    let base = publicOrigin || `${protocol}://${host}`;
+    let lan = false;
+    if (!publicOrigin && /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i.test(base)) {
+      const address = lanAddress();
+      if (address) {
+        const port = /:\d+$/.test(host) ? host.slice(host.lastIndexOf(":")) : "";
+        base = `${protocol}://${address}${port}`;
+        lan = true;
+      }
+    }
+    sendJson(res, 200, {
+      token,
+      url: `${base}/capture/${token}`,
+      lan,
+      expires_at: new Date(expiresAt).toISOString(),
+    });
+    return true;
+  }
+  if (isCaptureInfo) {
+    const link = validCaptureLink(captureMatch[1]);
+    if (!link) {
+      sendJson(res, 404, { detail: "This capture link is invalid or has expired." });
+      return true;
+    }
+    sendJson(res, 200, { valid: true, theme: link.theme || "day", expires_at: new Date(link.expiresAt).toISOString() });
+    return true;
+  }
+  if (isCaptureCreate) {
+    const link = validCaptureLink(captureMatch[1]);
+    if (!link) {
+      sendJson(res, 404, { detail: "This capture link is invalid or has expired." });
+      return true;
+    }
+    const name = payload && typeof payload.name === "string" ? payload.name.trim() : "";
+    const latitude = Number(payload && payload.latitude);
+    const longitude = Number(payload && payload.longitude);
+    if (!name || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      sendJson(res, 422, { detail: "A place name and coordinates are required." });
+      return true;
+    }
+    const forwarded = { name, latitude, longitude };
+    if (payload.description) forwarded.description = String(payload.description);
+    try {
+      const upstream = await fetch(`${apiOrigin}/locations`, {
+        method: "POST",
+        headers: { Accept: "application/json", "Content-Type": "application/json", Authorization: link.authorization },
+        body: JSON.stringify(forwarded),
+      });
+      const text = await upstream.text();
+      let result;
+      try { result = text ? JSON.parse(text) : {}; } catch { result = { detail: "The API returned an invalid response." }; }
+      sendJson(res, upstream.status, result);
+    } catch {
+      sendJson(res, 502, { detail: "The AradLens API is unavailable. Try again shortly." });
+    }
+    return true;
+  }
+  if (isCaptureImage) {
+    const link = validCaptureLink(captureImageMatch[1]);
+    if (!link) {
+      sendJson(res, 404, { detail: "This capture link is invalid or has expired." });
+      return true;
+    }
+    const id = new URL(req.url, "http://localhost").searchParams.get("id") || "";
+    if (!/^\d+$/.test(id)) {
+      sendJson(res, 400, { detail: "A valid location id is required." });
+      return true;
+    }
+    if (!Buffer.isBuffer(payload)) {
+      sendJson(res, 400, { detail: "An image upload is required." });
+      return true;
+    }
+    try {
+      const upstream = await fetch(`${apiOrigin}/locations/${id}/images`, {
+        method: "POST",
+        headers: { Accept: "application/json", "Content-Type": req.headers["content-type"], Authorization: link.authorization },
+        body: payload,
+      });
+      const text = await upstream.text();
+      let result;
+      try { result = text ? JSON.parse(text) : {}; } catch { result = { detail: "The API returned an invalid response." }; }
+      sendJson(res, upstream.status, result);
+    } catch {
+      sendJson(res, 502, { detail: "The AradLens API is unavailable. Try again shortly." });
+    }
+    return true;
   }
   if (isAccounts) {
     const names = Object.keys(accounts);
@@ -274,9 +399,10 @@ const server = http.createServer((req, res) => {
     return;
   }
   const decodedPath = decodeURIComponent(requested);
-  proxyApi(req, res, decodedPath).then((handled) => {
+  const servedPath = /^\/capture\/[A-Za-z0-9_-]+$/.test(decodedPath) ? "/capture.html" : decodedPath;
+  proxyApi(req, res, servedPath).then((handled) => {
     if (handled) return;
-    serveStatic(req, res, decodedPath);
+    serveStatic(req, res, servedPath);
   }).catch(() => sendJson(res, 500, { detail: "Unexpected server error" }));
 });
 

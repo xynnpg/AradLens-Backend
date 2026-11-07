@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#251b35" />
+    <title>Record a location · AradLens</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23251b35'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M11 5H7a2 2 0 0 0-2 2v4M21 5h4a2 2 0 0 1 2 2v4M27 21v4a2 2 0 0 1-2 2h-4M11 27H7a2 2 0 0 1-2-2v-4'/%3E%3Ccircle cx='16' cy='16' r='5.2'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%239d8eff'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      .capture-body { min-height: 100vh; background: var(--concrete); color: var(--ink); display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px 48px; font-family: "DM Sans", sans-serif; }
+      .capture-card { width: min(560px, 100%); background: var(--blueprint); border: 2px solid var(--steel); padding: 22px; }
+      .capture-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+      .capture-logo { width: 26px; height: 26px; flex: 0 0 26px; fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; }
+      .capture-logo-dot { fill: var(--signal-plum); stroke: none; }
+      .capture-brand strong { font-family: "Space Grotesk", sans-serif; font-size: 18px; letter-spacing: -.05em; }
+      .capture-brand strong span { color: var(--signal-plum); }
+      .capture-title { font-family: "Space Grotesk", sans-serif; font-size: 24px; letter-spacing: -.03em; margin: 0 0 6px; }
+      .capture-copy { color: var(--print); margin: 0; font-size: 13px; line-height: 1.5; }
+      .capture-card .button { width: 100%; height: 48px; justify-self: stretch; font-size: 14px; }
+      .capture-coords { border: 2px dashed var(--steel); padding: 12px; font-size: 13px; color: var(--print); background: var(--concrete); }
+      .capture-coords.is-set { border-style: solid; border-color: var(--signal-plum); color: var(--ink); }
+      .capture-coords.is-recording { border-color: var(--signal-amber); color: var(--signal-amber); }
+      .capture-card .image-preview { margin: 0 0 8px; }
+      .capture-card .image-preview img { display: block; width: 100%; max-height: 260px; object-fit: cover; border: 2px solid var(--steel); }
+      .capture-state { padding: 14px; border: 2px solid var(--steel); color: var(--print); font-size: 13px; line-height: 1.5; }
+      .capture-state strong { color: var(--ink); }
+      .capture-done { border: 2px solid var(--signal-green); background: var(--mint-fill); color: var(--ink); padding: 14px; font-size: 14px; line-height: 1.5; }
+      .capture-photo-row { display: flex; align-items: stretch; gap: 8px; }
+      .capture-photo-row .capture-photo { flex: 1; }
+      .capture-remove { width: 48px; height: 48px; flex: 0 0 48px; border: 2px solid var(--signal-rust); background: transparent; color: var(--signal-rust); font-size: 16px; font-weight: 700; line-height: 1; }
+      .capture-remove:hover { background: var(--apricot-fill); }
+      .capture-photo-status { margin: 8px 0 0; font-size: 12px; color: var(--print); }
+      .capture-photo-status.is-ready { color: var(--signal-mint); }
+      .capture-note { display: flex; align-items: flex-start; gap: 8px; margin: 16px 0 0; font-size: 12px; color: var(--print); line-height: 1.5; }
+      .capture-note .button-icon { flex: 0 0 16px; margin-top: 1px; }
+      @media (max-width: 520px) { .capture-card { padding: 18px 14px; } }
+    </style>
+  </head>
+  <body class="capture-body">
+    <main class="capture-card">
+      <div class="capture-brand"><svg class="capture-logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M11 4.5H7A2.5 2.5 0 0 0 4.5 7v4M21 4.5h4A2.5 2.5 0 0 1 27.5 7v4M27.5 21v4a2.5 2.5 0 0 1-2.5 2.5h-4M11 27.5H7A2.5 2.5 0 0 1 4.5 25v-4" /><circle cx="16" cy="16" r="5.6" /><circle class="capture-logo-dot" cx="16" cy="16" r="1.8" /></svg><strong>Arad<span>Lens</span></strong></div>
+      <div id="capture-loading" class="capture-state">Checking this link…</div>
+      <div id="capture-invalid" class="capture-state" hidden><strong>Link expired.</strong> This capture link is invalid or has expired. Ask the admin for a new one.</div>
+      <section id="capture-panel" hidden>
+        <h1 class="capture-title">Record a location</h1>
+        <p class="capture-copy">Take a photo and record the GPS position, then save. No sign-in needed.</p>
+        <form id="capture-form" class="settings-form" novalidate>
+          <div class="setting-field">
+            <label for="capture-name">Place name</label>
+            <input id="capture-name" name="name" maxlength="255" autocomplete="off" required />
+          </div>
+          <div class="setting-field">
+            <label>Coordinates</label>
+            <div id="capture-coords" class="capture-coords">Not recorded yet</div>
+            <button id="capture-gps" class="button button-dark" type="button"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.6v3.5m0 11.8v3.5M2.6 12h3.5m11.8 0h3.5" /></svg><span>Record location</span></button>
+          </div>
+          <div class="setting-field">
+            <label>Photo</label>
+            <div id="capture-photo-preview" class="image-preview" hidden><img id="capture-photo-img" alt="Captured photo preview" /></div>
+            <div class="capture-photo-row">
+              <label class="button button-soft capture-photo" for="capture-photo"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.6h3.4l1.5-2.3h8.2l1.5 2.3H21V19H3z" /><circle cx="12" cy="13.4" r="3.3" /></svg><span id="capture-photo-label">Take photo</span></label>
+              <button id="capture-photo-remove" class="capture-remove" type="button" aria-label="Remove photo" hidden>×</button>
+            </div>
+            <p id="capture-photo-status" class="capture-photo-status"></p>
+            <input id="capture-photo" type="file" accept="image/*" capture="environment" hidden />
+          </div>
+          <div class="setting-field">
+            <label for="capture-description">Notes (optional)</label>
+            <textarea id="capture-description" name="description" rows="3"></textarea>
+          </div>
+          <p id="capture-error" class="form-error" role="alert"></p>
+          <button class="button button-dark" type="submit">Save location</button>
+          <p class="capture-note"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" /><path d="M12 11v6m0-9.2v.4" /></svg><span>Saving adds the point straight to the live AradLens locations, with your photo and GPS position.</span></p>
+        </form>
+      </section>
+      <div id="capture-done" class="capture-done" hidden><strong>Saved.</strong> The location was added. You can close this page.</div>
+    </main>
+    <script>
+      (function () {
+        var token = location.pathname.split("/").filter(Boolean).pop() || "";
+        var coords = null;
+        var photoFile = null;
+        var el = function (id) { return document.getElementById(id); };
+        var loading = el("capture-loading");
+        var invalid = el("capture-invalid");
+        var panel = el("capture-panel");
+        var done = el("capture-done");
+        var form = el("capture-form");
+        var error = el("capture-error");
+        var coordsBox = el("capture-coords");
+        var nameInput = el("capture-name");
+        var photoInput = el("capture-photo");
+        var photoPreview = el("capture-photo-preview");
+        var photoImg = el("capture-photo-img");
+        var photoLabel = el("capture-photo-label");
+        var photoStatus = el("capture-photo-status");
+        var photoRemove = el("capture-photo-remove");
+        var gpsButton = el("capture-gps");
+        var submitButton = form.querySelector("button[type=submit]");
+
+        function fail(message) { error.textContent = message; }
+
+        async function request(path, options) {
+          var response;
+          try {
+            response = await fetch(path, Object.assign({ credentials: "same-origin" }, options));
+          } catch (networkError) {
+            throw new Error("Could not reach the server. Check your connection and try again.");
+          }
+          var body = await response.json().catch(function () { return {}; });
+          if (!response.ok) throw new Error(body.detail || "Could not save the location. Try again.");
+          return body;
+        }
+
+        fetch("/api/capture/" + encodeURIComponent(token), { headers: { Accept: "application/json" } })
+          .then(function (response) { return response.ok ? response.json() : Promise.reject(new Error("invalid")); })
+          .then(function (info) {
+            if (info && info.theme === "night") {
+              document.documentElement.dataset.theme = "night";
+              var meta = document.querySelector('meta[name="theme-color"]');
+              if (meta) meta.setAttribute("content", "#191720");
+            }
+            loading.hidden = true;
+            panel.hidden = false;
+          })
+          .catch(function () { loading.hidden = true; invalid.hidden = false; });
+
+        gpsButton.addEventListener("click", function () {
+          if (!navigator.geolocation) { fail("Location is not available on this device."); return; }
+          fail("");
+          gpsButton.disabled = true;
+          coordsBox.classList.remove("is-set");
+          coordsBox.classList.add("is-recording");
+          coordsBox.textContent = "Recording your position…";
+          navigator.geolocation.getCurrentPosition(function (position) {
+            coords = {
+              latitude: Math.round(position.coords.latitude * 1e6) / 1e6,
+              longitude: Math.round(position.coords.longitude * 1e6) / 1e6,
+            };
+            coordsBox.textContent = coords.latitude + ", " + coords.longitude;
+            coordsBox.classList.remove("is-recording");
+            coordsBox.classList.add("is-set");
+            gpsButton.disabled = false;
+          }, function () {
+            fail("Could not record your position. Allow location access and try again.");
+            coordsBox.textContent = "Not recorded yet";
+            coordsBox.classList.remove("is-recording");
+            gpsButton.disabled = false;
+          }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+        });
+
+        photoInput.addEventListener("change", function () {
+          var file = photoInput.files && photoInput.files[0];
+          if (!file) return;
+          if (photoImg.src) URL.revokeObjectURL(photoImg.src);
+          photoFile = file;
+          photoImg.src = URL.createObjectURL(file);
+          photoPreview.hidden = false;
+          photoLabel.textContent = "Replace photo";
+          photoRemove.hidden = false;
+          photoStatus.textContent = "Photo attached — it uploads when you save.";
+          photoStatus.classList.add("is-ready");
+          fail("");
+        });
+
+        photoRemove.addEventListener("click", function () {
+          if (photoImg.src) URL.revokeObjectURL(photoImg.src);
+          photoImg.removeAttribute("src");
+          photoFile = null;
+          photoInput.value = "";
+          photoPreview.hidden = true;
+          photoLabel.textContent = "Take photo";
+          photoRemove.hidden = true;
+          photoStatus.textContent = "";
+          photoStatus.classList.remove("is-ready");
+        });
+
+        form.addEventListener("submit", async function (event) {
+          event.preventDefault();
+          var name = nameInput.value.trim();
+          if (!name) { fail("Enter a place name."); nameInput.focus(); return; }
+          if (!coords) { fail("Record the coordinates first."); return; }
+          fail("");
+          submitButton.disabled = true;
+          submitButton.textContent = "Saving…";
+          try {
+            var created = await request("/api/capture/" + encodeURIComponent(token), {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              body: JSON.stringify({
+                name: name,
+                latitude: coords.latitude,
+                longitude: coords.longitude,
+                description: el("capture-description").value.trim(),
+              }),
+            });
+            if (photoFile && created && created.id != null) {
+              var body = new FormData();
+              body.append("file", photoFile);
+              await fetch("/api/capture/" + encodeURIComponent(token) + "/images?id=" + encodeURIComponent(created.id), {
+                method: "POST",
+                credentials: "same-origin",
+                headers: { Accept: "application/json" },
+                body: body,
+              });
+            }
+            form.hidden = true;
+            done.hidden = false;
+          } catch (submitError) {
+            fail(submitError.message);
+            submitButton.disabled = false;
+            submitButton.textContent = "Save location";
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

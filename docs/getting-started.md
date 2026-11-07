@@ -72,14 +72,29 @@ Run syntax checks on the front end and server:
 npm run check
 ```
 
+## Record a location from a phone
+
+1. Sign in, open **Important points**, and choose **Generate link**.
+2. Open the copied link on the phone — no sign-in is needed.
+3. Record the GPS position, take a photo, and save.
+
+The link stays valid for 24 hours and can be reused. Tokens live in the memory of
+`server.js`, so restarting the server invalidates them, and the phone page opens in
+the theme that was active when the link was created.
+
+When the admin console runs on `localhost`, the proxy swaps in this machine's LAN
+address so a phone on the same network can open the link. Set `PUBLIC_ORIGIN` to pin
+a public address instead.
+
 ## Configuration
 
 Copy `.env.example` to `.env` to feed `docker compose`. For a local run, set the variables in your shell, or start with `node --env-file=.env server.js`.
 
-| Variable              | Default                                 | Purpose                             |
-| --------------------- | --------------------------------------- | ----------------------------------- |
-| `PORT`                | `4173`                                  | Local server port                   |
-| `ARADLENS_API_ORIGIN` | `https://api.aradlens.binarysquad.club` | Upstream API origin                 |
-| `DEV_MODE`            | _(unset)_                               | Set `true` to enable local login    |
+| Variable              | Default                                 | Purpose                                                        |
+| --------------------- | --------------------------------------- | -------------------------------------------------------------- |
+| `PORT`                | `4173`                                  | Local server port                                              |
+| `ARADLENS_API_ORIGIN` | `https://api.aradlens.binarysquad.club` | Upstream API origin                                            |
+| `DEV_MODE`            | _(unset)_                               | Set `true` to enable local login                               |
+| `PUBLIC_ORIGIN`       | _(unset)_                               | Base URL used in capture links; defaults to the request host  |
 
 Next: [architecture](./architecture.md).

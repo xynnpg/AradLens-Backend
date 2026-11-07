@@ -8,6 +8,7 @@ AradLens API and keeps the session token out of the browser.
 
 - Sign in, register via invite, and change password through same-origin `/api/*` routes.
 - Browse, search, filter, create, edit, and delete locations, including images.
+- Record a location on a phone without signing in: generate a 24-hour capture link.
 - Issue invite codes and manage administrator accounts.
 - Review the operations queue, location map picker, and API health.
 - Switch day/night theme and English/Romanian language.

@@ -5,7 +5,8 @@ Read this to see where a request goes and which file owns which concern.
 ## Pieces
 
 - **Static front end** — `index.html`, `app.js`, `styles.css`. No build step, no framework, no dependencies.
-- **Node proxy** — `server.js`. Serves the static files and forwards `/api/*` to the upstream API.
+- **Capture page** — `capture.html`. A standalone phone page served at `/capture/<token>`; it shares `styles.css` and does not load `app.js`.
+- **Node proxy** — `server.js`. Serves the static files, forwards `/api/*` to the upstream API, and answers `/api/capture/*` locally.
 - **HttpOnly cookie session** — the bearer token is stored in a cookie the browser JavaScript cannot read.
 - **Upstream API** — the AradLens API at `ARADLENS_API_ORIGIN`.
 
@@ -44,14 +45,27 @@ See [api](./api.md) for the route table and full auth rules.
 ```text
 index.html      Markup, inline styles, UI copy, illustration symbols
 app.js          UI state, rendering, translations, API client
+capture.html    No-login phone page for recording a location
 styles.css      Design tokens, day/night themes, component styles
-server.js       Static file server, API proxy, cookie session
+server.js       Static file server, API proxy, cookie session, capture-link store
 package.json    npm scripts (start, check)
 Dockerfile      Container image (node:22-alpine)
 compose.yaml    Docker Compose service definition
 .env.example    Environment variable template
 docs/           This documentation set
 LICENSE         GPL-3.0-or-later
+```
+
+## Capture links
+
+A signed-in admin asks `server.js` for a capture link. The proxy mints the token
+itself (`crypto.randomBytes`, no upstream call), keeps the creator's bearer token
+in memory for 24 hours, and returns a URL on this site. The phone opens
+`capture.html`, and the proxy replays the stored bearer token when the phone
+saves, so the visitor never signs in.
+
+```text
+Phone (capture.html)  ->  /api/capture/:token  ->  server.js (stored bearer)  ->  API
 ```
 
 ## Runtime facts

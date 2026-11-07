@@ -150,7 +150,24 @@ const uiTranslations = {
   "Changing password…": "Schimbarea parolei în curs…", "New passwords do not match.": "Parolele noi nu coincid.",
   "Password changed successfully. You'll stay signed in.": "Parola a fost schimbată. Vei rămâne autentificat.",
   "We couldn't change your password. Check your current password and try again.": "Nu am putut schimba parola. Verifică parola actuală și încearcă din nou.",
-  "This field is required.": "Acest câmp este obligatoriu.", "Use at least {min} characters.": "Folosește cel puțin {min} caractere."
+  "This field is required.": "Acest câmp este obligatoriu.", "Use at least {min} characters.": "Folosește cel puțin {min} caractere.",
+  "Generate link": "Generează link",
+  "Capture link": "Link de captură",
+  "Open this on a phone to record a location without signing in.": "Deschide acest link pe telefon pentru a înregistra o locație fără autentificare.",
+  "Copy link": "Copiază linkul",
+  "Share": "Distribuie",
+  "Done": "Gata",
+  "Record location": "Înregistrează locația",
+  "Take photo": "Fă o fotografie",
+  "Capture link copied.": "Linkul de captură a fost copiat.",
+  "Copy the selected link.": "Copiază linkul selectat.",
+  "Position recorded.": "Poziția a fost înregistrată.",
+  "On this phone": "Pe acest telefon",
+  "Photo ready — it uploads when you save.": "Fotografia este pregătită — se încarcă la salvare.",
+  "The photo could not be uploaded.": "Fotografia nu a putut fi încărcată.",
+  "Valid until": "Valabil până la",
+  "Reusable during that time.": "Reutilizabil în acest interval.",
+  "Localhost was swapped for this machine's network address so a phone can open the link. Set PUBLIC_ORIGIN to use a different address.": "Localhost a fost înlocuit cu adresa de rețea a acestui computer, ca telefonul să poată deschide linkul. Setează PUBLIC_ORIGIN pentru altă adresă."
 };
 
 function readPreference(storageName, key, allowed, fallback) {
@@ -461,6 +478,7 @@ document.addEventListener("keydown", (event) => {
     closeMenus();
     if (!document.getElementById("image-modal")?.classList.contains("is-hidden")) closeImageModal();
     else if (!document.getElementById("location-modal")?.classList.contains("is-hidden")) closeLocationModal();
+    else if (!document.getElementById("capture-modal")?.classList.contains("is-hidden")) closeCaptureModal();
   }
   if (event.key === "/" && document.activeElement?.tagName !== "INPUT") {
     event.preventDefault();
@@ -899,6 +917,8 @@ function resetLocationForm() {
   const title = document.getElementById("location-modal-title");
   if (title) title.textContent = "Add location";
   document.getElementById("location-form-error").textContent = "";
+  pendingLocationPhoto = null;
+  setLocationPhotoStatus("");
   updateImagePreview();
 }
 
@@ -1017,7 +1037,8 @@ function openLocationModal(id) {
       }
       pickerMap.invalidateSize();
       renderPickerPlaces(form.elements.id.value);
-      if (Number.isFinite(Number(latitude)) && Number.isFinite(Number(longitude))) {
+      const hasPoint = [latitude, longitude].every((value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)));
+      if (hasPoint) {
         pickerMap.setView([Number(latitude), Number(longitude)], zoom || 15);
         setPickerPoint(latitude, longitude);
       } else {
@@ -1031,6 +1052,8 @@ function openLocationModal(id) {
   if (id == null) {
     form.reset();
     form.elements.id.value = "";
+    pendingLocationPhoto = null;
+    setLocationPhotoStatus("");
     document.getElementById("location-modal-title").textContent = "Add location";
     if (deleteButton) deleteButton.hidden = true;
     clearPickerPoint();
@@ -1091,6 +1114,14 @@ function updateImagePreview() {
     box.hidden = true;
     if (addButton) addButton.textContent = "Add image";
   }
+}
+let pendingLocationPhoto = null;
+function setLocationPhotoStatus(text, state = "") {
+  const status = document.getElementById("location-photo-status");
+  if (!status) return;
+  status.textContent = text || "";
+  if (state) status.dataset.state = state;
+  else delete status.dataset.state;
 }
 const sessionImages = {};
 let galleryIndex = 0;
@@ -1161,6 +1192,61 @@ document.getElementById("location-image-clear")?.addEventListener("click", () =>
   const form = document.getElementById("location-form");
   if (form) form.elements.image.value = "";
   updateImagePreview();
+});
+async function uploadPendingLocationPhoto(locationId) {
+  const file = pendingLocationPhoto;
+  if (!file || !locationId) return;
+  const body = new FormData();
+  body.append("file", file);
+  const response = await fetch(`/api/locations/${locationId}/images`, { method: "POST", body, credentials: "same-origin", headers: { Accept: "application/json" } });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    setLocationPhotoStatus(t("The photo could not be uploaded."), "error");
+    throw new Error(result.detail || "The photo could not be uploaded.");
+  }
+  if (result.image) {
+    const key = String(locationId);
+    sessionImages[key] = [...(sessionImages[key] || []), result.image].filter(Boolean);
+  }
+  pendingLocationPhoto = null;
+  setLocationPhotoStatus("");
+}
+document.getElementById("location-record")?.addEventListener("click", (event) => {
+  const button = event.currentTarget;
+  const errorMessage = document.getElementById("location-form-error");
+  const label = button.textContent;
+  if (!navigator.geolocation) {
+    errorMessage.textContent = "Location is not available on this device.";
+    return;
+  }
+  errorMessage.textContent = "";
+  button.disabled = true;
+  button.textContent = "Recording…";
+  navigator.geolocation.getCurrentPosition((position) => {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    if (pickerMap) pickerMap.setView([latitude, longitude], 16);
+    setPickerPoint(latitude, longitude);
+    showToast("Position recorded.");
+    button.disabled = false;
+    button.textContent = label;
+  }, () => {
+    errorMessage.textContent = "Could not record your position. Allow location access and try again.";
+    button.disabled = false;
+    button.textContent = label;
+  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+});
+document.getElementById("location-photo")?.addEventListener("change", (event) => {
+  const input = event.currentTarget;
+  const file = input.files?.[0];
+  if (!file) return;
+  pendingLocationPhoto = file;
+  setLocationPhotoStatus(t("Photo ready — it uploads when you save."), "ready");
+  const preview = document.getElementById("location-image-preview");
+  const img = document.getElementById("location-image-img");
+  if (preview && img) { img.src = URL.createObjectURL(file); preview.hidden = false; }
+  document.getElementById("location-form-error").textContent = "";
+  input.value = "";
 });
 document.getElementById("image-save")?.addEventListener("click", async (event) => {
   const urlInput = document.getElementById("image-url");
@@ -1265,6 +1351,58 @@ document.getElementById("image-download-all")?.addEventListener("click", async (
 document.getElementById("image-modal-close")?.addEventListener("click", closeImageModal);
 document.getElementById("image-modal-cancel")?.addEventListener("click", closeImageModal);
 document.querySelector("#image-modal [data-close-image-modal]")?.addEventListener("click", closeImageModal);
+function setCaptureLinkError(message) {
+  const error = document.getElementById("capture-link-error");
+  if (error) error.textContent = message || "";
+}
+function closeCaptureModal() {
+  document.getElementById("capture-modal")?.classList.add("is-hidden");
+}
+document.getElementById("capture-link-button")?.addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  const input = document.getElementById("capture-link-input");
+  const expiry = document.getElementById("capture-link-expiry");
+  const shareButton = document.getElementById("capture-link-share");
+  setCaptureLinkError("");
+  button.disabled = true;
+  try {
+    const result = await apiRequest("/api/capture-links", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ theme: currentTheme }) });
+    if (input) input.value = result.url || "";
+    if (expiry) expiry.textContent = result.expires_at ? `${t("Valid until")} ${new Date(result.expires_at).toLocaleString()}. ${t("Reusable during that time.")}` : "";
+    const note = document.getElementById("capture-link-note");
+    if (note) {
+      note.textContent = result.lan ? t("Localhost was swapped for this machine's network address so a phone can open the link. Set PUBLIC_ORIGIN to use a different address.") : "";
+      note.hidden = !result.lan;
+    }
+    if (shareButton) shareButton.hidden = !navigator.share;
+    document.getElementById("capture-modal")?.classList.remove("is-hidden");
+    input?.select();
+  } catch (error) {
+    showToast(error.message);
+  } finally {
+    button.disabled = false;
+  }
+});
+document.getElementById("capture-link-copy")?.addEventListener("click", async () => {
+  const input = document.getElementById("capture-link-input");
+  const url = input?.value || "";
+  if (!url) return;
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast("Capture link copied.");
+  } catch {
+    input?.select();
+    showToast("Copy the selected link.");
+  }
+});
+document.getElementById("capture-link-share")?.addEventListener("click", async () => {
+  const url = document.getElementById("capture-link-input")?.value || "";
+  if (!url || !navigator.share) return;
+  try { await navigator.share({ title: "AradLens — record a location", url }); } catch { /* Share dismissed. */ }
+});
+document.getElementById("capture-modal-close")?.addEventListener("click", closeCaptureModal);
+document.getElementById("capture-modal-done")?.addEventListener("click", closeCaptureModal);
+document.querySelector("#capture-modal [data-close-capture-modal]")?.addEventListener("click", closeCaptureModal);
 document.getElementById("location-cancel")?.addEventListener("click", closeLocationModal);
 document.getElementById("location-modal-close")?.addEventListener("click", closeLocationModal);
 document.querySelector("#location-modal [data-close-modal]")?.addEventListener("click", closeLocationModal);
@@ -1342,9 +1480,15 @@ document.getElementById("location-form")?.addEventListener("submit", async (even
       document.getElementById("location-modal-title").textContent = `Edit location #${saved.id}`;
       const deleteButton = document.getElementById("location-delete");
       if (deleteButton) deleteButton.hidden = false;
+      if (pendingLocationPhoto) {
+        try { await uploadPendingLocationPhoto(saved.id); } catch (error) { showToast(error.message); }
+      }
       await loadLocations();
       showToast("Location created. Add images or keep editing.");
     } else {
+      if (pendingLocationPhoto && id) {
+        try { await uploadPendingLocationPhoto(id); } catch (error) { showToast(error.message); }
+      }
       resetLocationForm();
       closeLocationModal();
       await loadLocations();
