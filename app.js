@@ -11,7 +11,7 @@ document.addEventListener("click", (event) => {
   openLocationModal(null);
   showPage("points");
 }, true);
-const pageNames = { overview: "Overview", points: "Important points", tours: "Tours", users: "Administrators", debug: "Debug", admins: "Access control", settings: "Settings" };
+const pageNames = { overview: "Overview", points: "Important points", tours: "Tours", attention: "Attention", users: "Administrators", debug: "Debug", admins: "Access control", settings: "Settings" };
 const translations = {
   en: { username: "Username", password: "Password", signIn: "Sign in", loginHint: "Use your AradLens administrator account.", forgotPassword: "Forgot password?", day: "Day", night: "Night", switchDay: "Switch to day theme", switchNight: "Switch to night theme" },
   ro: { username: "Nume de utilizator", password: "Parolă", signIn: "Autentificare", loginHint: "Folosește contul de administrator AradLens.", forgotPassword: "Ai uitat parola?", day: "Zi", night: "Noapte", switchDay: "Schimbă la tema de zi", switchNight: "Schimbă la tema de noapte" },
@@ -20,6 +20,20 @@ const romanianText = {
   "Arad city guide": "Ghidul orașului Arad", "Admin workspace": "Spațiu de administrare", "Workspace": "Spațiu de lucru", "Monitor": "Monitorizare", Overview: "Prezentare generală", "Important points": "Obiective importante", Users: "Utilizatori", Debug: "Diagnosticare", "Activity log": "Jurnal de activitate", Settings: "Setări", "Sign out": "Deconectare", "Admin workspace": "Spațiu de administrare", "Good morning, Alex": "Bună dimineața, Alex", "Here’s the pulse of your Arad guide today.": "Iată starea ghidului Arad astăzi.", "Add important point": "Adaugă un obiectiv", "Published points": "Obiective publicate", "New users": "Utilizatori noi", "Needs attention": "Necesită atenție", "vs last month": "față de luna trecută", "since yesterday": "din ieri", "Guide health": "Starea ghidului", "Everything your visitors rely on, at a glance.": "Tot ce folosesc vizitatorii, dintr-o privire.", "View debug ↗": "Vezi diagnosticarea ↗", "Looking good": "Totul arată bine", "Last checked 4 min ago": "Verificat acum 4 minute", "Recent activity": "Activitate recentă", "The latest changes across your workspace.": "Cele mai recente modificări din spațiul de lucru.", "View activity ↗": "Vezi activitatea ↗", "Content library": "Biblioteca de conținut", "The places that make Arad worth finding.": "Locurile care merită descoperite în Arad.", "All categories": "Toate categoriile", "All statuses": "Toate stările", "List view": "Vizualizare listă", "Grid view": "Vizualizare grilă", Nature: "Natură", Leisure: "Timp liber", Culture: "Cultură", Parks: "Parcuri", Published: "Publicat", "Needs review": "Necesită verificare", "People using AradLens": "Persoane care folosesc AradLens", "A clear view of who’s discovering the city.": "O imagine clară asupra celor care descoperă orașul.", "Download CSV ↘": "Descarcă CSV ↘", "All users": "Toți utilizatorii", "Active this week": "Activi săptămâna aceasta", "New this month": "Noi luna aceasta", Returning: "Reveniți", Active: "Activ", Inactive: "Inactiv", "Debug & device health": "Diagnosticare și starea dispozitivelor", Monitor: "Monitorizare", "Stay ahead of the small things before they become a bad experience.": "Rezolvă lucrurile mici înainte să devină probleme.", "Run health check ↻": "Verifică starea ↻", "No active incidents": "Nu există incidente active", "All core services are responding normally. Last check completed 4 minutes ago.": "Toate serviciile răspund normal. Ultima verificare a fost acum 4 minute.", "Auto-refreshing": "Actualizare automată", "Device health": "Starea dispozitivelor", "Recent incidents": "Incidente recente", "0 open": "0 deschise", "No crashes or unresolved bugs in the last 24 hours.": "Nu există erori sau probleme nerezolvate în ultimele 24 de ore.", "Activity log": "Jurnal de activitate", "Workspace history": "Istoricul spațiului de lucru", "A readable trail of changes, reviews, and people at work.": "Un istoric clar al modificărilor și verificărilor.", "Export log ↘": "Exportă jurnalul ↘", "All activity": "Toată activitatea", "Showing the latest 50 changes.": "Sunt afișate ultimele 50 de modificări.", "Workspace preferences": "Preferințele spațiului de lucru", "Keep your admin workspace tuned to the way you work.": "Configurează spațiul de lucru după modul tău de lucru.", "Save changes": "Salvează modificările", Notifications: "Notificări", "Choose which updates deserve your attention.": "Alege actualizările care necesită atenția ta.", "Incident alerts": "Alerte de incidente", "Editorial reminders": "Mementouri editoriale", "Weekly activity digest": "Rezumat săptămânal de activitate", "Account security": "Securitatea contului", "Current password": "Parola actuală", "New password": "Parolă nouă", "Change password": "Schimbă parola", "Password recovery will be available when account recovery is connected.": "Recuperarea parolei va fi disponibilă după conectarea serviciului.", "Workspace switching will be available when multiple guides are connected.": "Schimbarea spațiului va fi disponibilă când sunt conectate mai multe ghiduri.", "Search points": "Caută obiective", Notifications: "Notificări", "AradLens API is healthy.": "API-ul AradLens funcționează corect.", "The API responded with an unexpected status.": "API-ul a răspuns cu o stare neașteptată.", "Check your connection and try again.": "Verifică conexiunea și încearcă din nou.", "Checking…": "Se verifică…", "Signing in…": "Se autentifică…"
 };
 const uiTranslations = {
+  "Attention": "Atenție",
+  "Every problem across your guide, in one place.": "Toate problemele ghidului tău, într-un singur loc.",
+  "Nothing needs attention": "Nimic nu necesită atenție",
+  "Every point has a photo, a description and a place on the map.": "Fiecare punct are o fotografie, o descriere și o poziție pe hartă.",
+  "Refresh": "Reîmprospătează",
+  "Fix": "Rezolvă",
+  "No photo": "Fără fotografie",
+  "Add at least one image": "Adaugă cel puțin o imagine",
+  "No description": "Fără descriere",
+  "Say what makes it worth visiting": "Spune ce o face merită vizitată",
+  "Not on the map": "În afara hărții",
+  "Set the real position": "Setează poziția reală",
+  "No category": "Fără categorie",
+  "Choose where it belongs": "Alege unde se încadrează",
   "AradLens — Admin workspace": "AradLens — Spațiu de administrare",
   "Admin workspace": "Spațiu de administrare",
   "Keep Arad": "Păstrează Aradul",
@@ -192,7 +206,23 @@ const uiTranslations = {
   "The photo could not be uploaded.": "Fotografia nu a putut fi încărcată.",
   "Valid until": "Valabil până la",
   "Reusable during that time.": "Reutilizabil în acest interval.",
-  "Localhost was swapped for this machine's network address so a phone can open the link. Set PUBLIC_ORIGIN to use a different address.": "Localhost a fost înlocuit cu adresa de rețea a acestui computer, ca telefonul să poată deschide linkul. Setează PUBLIC_ORIGIN pentru altă adresă."
+  "Localhost was swapped for this machine's network address so a phone can open the link. Set PUBLIC_ORIGIN to use a different address.": "Localhost a fost înlocuit cu adresa de rețea a acestui computer, ca telefonul să poată deschide linkul. Setează PUBLIC_ORIGIN pentru altă adresă.",
+  "Category": "Categorie",
+  "No category": "Fără categorie",
+  "Manage categories": "Gestionează categoriile",
+  "Categories": "Categorii",
+  "Existing categories": "Categorii existente",
+  "New category": "Categorie nouă",
+  "Category name": "Numele categoriei",
+  "Add category": "Adaugă categoria",
+  "No categories yet. Add the first one.": "Încă nu există categorii. Adaugă prima.",
+  "Give the category a name.": "Dă categoriei un nume.",
+  "Rename": "Redenumește",
+  "Delete": "Șterge",
+  "Save": "Salvează",
+  "Cancel": "Anulează",
+  "OpenStreetMap suggests": "OpenStreetMap sugerează",
+  "Category deleted.": "Categoria a fost ștearsă."
 };
 
 function readPreference(storageName, key, allowed, fallback) {
@@ -321,6 +351,7 @@ function setAuthenticated(isAuthenticated, admin = null) {
   if (!isAuthenticated) {
     document.getElementById("admins-list").replaceChildren();
     document.getElementById("location-modal")?.classList.add("is-hidden");
+    document.getElementById("category-modal")?.classList.add("is-hidden");
     document.getElementById("image-modal")?.classList.add("is-hidden");
     document.getElementById("users-admins-list")?.replaceChildren();
     document.getElementById("invites-list")?.replaceChildren();
@@ -328,6 +359,7 @@ function setAuthenticated(isAuthenticated, admin = null) {
     document.getElementById("tours-list")?.replaceChildren();
     cachedLocations = [];
     cachedTours = [];
+    cachedCategories = [];
     ["stat-admins-total", "stat-admins-active", "stat-admins-inactive", "stat-admins-super"].forEach((id) => {
       const element = document.getElementById(id);
       if (element) element.textContent = "—";
@@ -348,6 +380,7 @@ function setAuthenticated(isAuthenticated, admin = null) {
     loginError.textContent = "";
     updateAccountChrome();
     refreshAccounts();
+    loadCategories().catch(() => {});
   }
   showPage(currentPage, false, true);
 }
@@ -372,6 +405,7 @@ function showPage(page, updateUrl = true, force = false) {
   if (page === "admins" && authenticatedAdmin) loadInvites();
   if (page === "points" && (previousPage !== "points" || force)) loadLocations();
   if (page === "tours" && (previousPage !== "tours" || force)) loadTours();
+  if (page === "attention") { if (previousPage !== "attention" || force) loadLocations().catch(() => {}); renderAttention(); }
   if (page === "overview") loadOverview();
   if (page === "debug") runDebugHealth();
   if (page === "settings") fillAccountForm();
@@ -778,6 +812,7 @@ function suggestOsmName(lat, lng) {
         const generated = osmDescription(data);
         if (generated) descriptionInput.value = generated;
       }
+      applyOsmCategory(data);
     })
     .catch(() => {});
 }
@@ -1008,7 +1043,13 @@ function resetLocationForm() {
   const title = document.getElementById("location-modal-title");
   if (title) title.textContent = "Add location";
   document.getElementById("location-form-error").textContent = "";
+  const categoryHint = document.getElementById("location-category-hint");
+  if (categoryHint) categoryHint.textContent = "";
   pendingLocationPhoto = null;
+  if (pendingPhotoPreviewUrl) {
+    URL.revokeObjectURL(pendingPhotoPreviewUrl);
+    pendingPhotoPreviewUrl = "";
+  }
   setLocationPhotoStatus("");
   updateImagePreview();
 }
@@ -1065,14 +1106,20 @@ function locationKind(name, description) {
 
 function renderLocationCard(location) {
   const kind = locationKind(location.name, location.description);
+  const categoryName = location.category?.name || "";
+  const imageIds = Array.isArray(location.images) ? location.images : [];
   const card = document.createElement("article");
   card.className = "point-card";
   card.dataset.live = "true";
   card.dataset.drawing = kind.drawing;
-  card.dataset.hasPhoto = location.image ? "true" : "false";
-  card.dataset.hasText = location.description ? "true" : "false";
+  card.dataset.hasPhoto = hasPhoto(location) ? "true" : "false";
+  card.dataset.hasText = String(location.description).trim() ? "true" : "false";
+  card.dataset.category = location.category?.id === undefined || location.category?.id === null ? "" : String(location.category.id);
+  const categoryChip = categoryName ? `<span class="point-category" data-value="${escapeHtml(categoryName)}">${escapeHtml(categoryName)}</span>` : "";
+  const photo = imageIds.length ? `<img class="point-photo" src="${imageFileUrl(imageIds[0])}" alt="" loading="lazy" />` : "";
+  if (photo) card.classList.add("has-photo");
   card.innerHTML =
-    `<div class="point-image"><svg class="point-drawing" viewBox="0 0 120 80" aria-hidden="true"><use href="#draw-${kind.drawing}"></use></svg><span class="point-badge">P</span><span class="point-category" data-value="${kind.category}">${kind.category}</span></div>` +
+    `<div class="point-image">${photo}<svg class="point-drawing" viewBox="0 0 120 80" aria-hidden="true"><use href="#draw-${kind.drawing}"></use></svg><span class="point-badge">P</span>${categoryChip}</div>` +
     `<div class="point-body"><div><h3>${escapeHtml(location.name)}</h3><p>${escapeHtml(location.description || "—")}</p></div><span class="status-tag status-live" data-value="Published">Live</span></div>` +
     `<div class="point-meta"><span>#${location.id} · ${escapeHtml(`${location.latitude}, ${location.longitude}`)}</span></div>`;
   const open = document.createElement("button");
@@ -1099,7 +1146,10 @@ async function loadLocations() {
     if (requestId !== locationsRequestId) return;
     if (!Array.isArray(locations)) throw new Error("The API returned an invalid location list.");
     cachedLocations = locations;
-    for (const location of locations) grid.append(renderLocationCard(location));
+    for (const location of locations) {
+      seedLocationImages(location.id, location.images);
+      grid.append(renderLocationCard(location));
+    }
     filterLiveCards();
     const navCount = document.querySelector('.nav-item[data-page="points"] .nav-count');
     if (navCount) navCount.textContent = String(locations.length);
@@ -1110,6 +1160,290 @@ async function loadLocations() {
 }
 
 let locationModalOpener = null;
+let categoryModalOpener = null;
+let categoriesRequestId = 0;
+let cachedCategories = [];
+
+function categorySelect() {
+  return document.getElementById("location-category");
+}
+
+function normalizeCategoryName(value) {
+  return String(value || "")
+    .toLocaleLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function categoryWords(value) {
+  return normalizeCategoryName(value).split(" ").filter(Boolean);
+}
+
+function containsCategoryPhrase(words, phrase) {
+  const parts = phrase.split(" ").filter(Boolean);
+  if (!parts.length || words.length < parts.length) return false;
+  for (let index = 0; index + parts.length <= words.length; index++) {
+    let matched = true;
+    for (let offset = 0; offset < parts.length; offset++) {
+      if (words[index + offset] !== parts[offset]) { matched = false; break; }
+    }
+    if (matched) return true;
+  }
+  return false;
+}
+
+const osmCategoryHints = {
+  biserici: ["place of worship", "church", "cathedral", "chapel", "monastery", "mosque", "synagogue", "parish", "biserica", "biserici", "catedrala", "capela", "manastirea"],
+  muzee: ["museum", "muzee", "muzeu", "muzeul"],
+  "galerii de arta": ["gallery", "art gallery", "galerie", "galeria", "galerii"],
+  monumente: ["monument", "memorial", "ruins", "castle", "fortress", "archaeological site", "tomb", "monumentul", "monumente", "cetatea"],
+  "cladiri istorice": ["historic", "heritage", "town hall", "townhall", "palace", "manor", "old town", "neoclassical", "architecture", "cladirea", "cladirile", "palatul", "primaria"],
+  parcuri: ["park", "parkland", "garden", "nature reserve", "parc", "parcuri", "parcul", "gradina"],
+  piete: ["marketplace", "market", "bazaar", "fair", "piata", "piete", "pietei"],
+  poduri: ["bridge", "viaduct", "pod", "poduri", "podul"],
+  restaurante: ["restaurant", "fast food", "pizza", "food court", "restaurante", "restaurantul"],
+  cafenele: ["cafe", "coffee shop", "bar", "pub", "bistro", "tea house", "cafenele", "cafenea", "cafeneaua"],
+  statui: ["statue", "sculpture", "artwork", "statui", "statuia", "statuie"],
+  turnuri: ["tower", "lighthouse", "minaret", "watchtower", "turn", "turnul", "turnuri"],
+};
+
+function osmSuggestedCategory(data) {
+  if (!data || !cachedCategories.length) return null;
+  const typeWords = categoryWords(`${data.type || ""} ${data.addresstype || ""}`);
+  const nameWords = categoryWords(`${data.name || ""} ${Object.values(data.extratags || {}).join(" ")}`);
+  const addressWords = categoryWords(Object.values(data.address || {}).join(" "));
+  const kindWords = categoryWords(`${data.category || ""}`);
+  let best = null;
+  let bestScore = 0;
+  for (const category of cachedCategories) {
+    const name = normalizeCategoryName(category.name);
+    const hints = osmCategoryHints[name] || [];
+    let score = 0;
+    for (const hint of hints) {
+      if (containsCategoryPhrase(typeWords, hint)) score = Math.max(score, 4);
+      else if (containsCategoryPhrase(nameWords, hint)) score = Math.max(score, 3);
+      else if (containsCategoryPhrase(addressWords, hint)) score = Math.max(score, 2);
+      else if (containsCategoryPhrase(kindWords, hint)) score = Math.max(score, 1);
+    }
+    if (name && containsCategoryPhrase(typeWords, name)) score = Math.max(score, 3);
+    else if (name && containsCategoryPhrase(nameWords, name)) score = Math.max(score, 2);
+    if (score > bestScore) {
+      bestScore = score;
+      best = category;
+    }
+  }
+  return best;
+}
+
+function applyOsmCategory(data) {
+  const select = categorySelect();
+  if (!select) return;
+  const hint = document.getElementById("location-category-hint");
+  const suggested = osmSuggestedCategory(data);
+  if (!suggested) {
+    if (hint && !select.value) hint.textContent = "";
+    return;
+  }
+  if (select.value) return;
+  select.value = String(suggested.id);
+  if (hint) hint.textContent = `${t("OpenStreetMap suggests")} “${suggested.name}”.`;
+}
+
+async function loadCategories(force = false) {
+  if (!force && cachedCategories.length) return cachedCategories;
+  const requestId = ++categoriesRequestId;
+  const categories = await apiRequest("/api/categories");
+  if (requestId !== categoriesRequestId) return cachedCategories;
+  cachedCategories = Array.isArray(categories) ? categories.filter((entry) => entry && entry.id !== undefined && entry.name) : [];
+  renderCategoryOptions();
+  renderCategoryList();
+  return cachedCategories;
+}
+
+function renderCategoryOptions(selectedId) {
+  const select = categorySelect();
+  if (!select) return;
+  const current = selectedId === undefined ? select.value : selectedId;
+  select.replaceChildren();
+  const empty = document.createElement("option");
+  empty.value = "";
+  empty.textContent = t("No category");
+  select.append(empty);
+  for (const category of cachedCategories) {
+    const option = document.createElement("option");
+    option.value = String(category.id);
+    option.textContent = category.name;
+    select.append(option);
+  }
+  select.value = current === undefined || current === null ? "" : String(current);
+}
+
+function renderCategoryList() {
+  const list = document.getElementById("category-list");
+  if (!list) return;
+  list.replaceChildren();
+  if (!cachedCategories.length) {
+    const empty = document.createElement("li");
+    empty.className = "tour-empty";
+    empty.textContent = "No categories yet. Add the first one.";
+    list.append(empty);
+    return;
+  }
+  for (const category of cachedCategories) {
+    const row = document.createElement("li");
+    row.className = "category-row";
+    const name = document.createElement("span");
+    name.className = "category-name";
+    name.textContent = category.name;
+    const actions = document.createElement("span");
+    actions.className = "category-actions";
+    const rename = document.createElement("button");
+    rename.type = "button";
+    rename.className = "category-action";
+    rename.textContent = t("Rename");
+    rename.setAttribute("aria-label", `Rename ${category.name}`);
+    rename.addEventListener("click", () => startCategoryRename(category, row));
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "category-action is-danger";
+    remove.textContent = t("Delete");
+    remove.setAttribute("aria-label", `Delete ${category.name}`);
+    remove.addEventListener("click", () => removeCategory(category));
+    actions.append(rename, remove);
+    row.append(name, actions);
+    list.append(row);
+  }
+}
+
+function startCategoryRename(category, row) {
+  row.classList.add("is-editing");
+  row.replaceChildren();
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "category-rename-input";
+  input.value = category.name;
+  input.maxLength = 100;
+  input.setAttribute("aria-label", `Rename ${category.name}`);
+  const actions = document.createElement("span");
+  actions.className = "category-actions";
+  const save = document.createElement("button");
+  save.type = "button";
+  save.className = "button button-dark";
+  save.textContent = t("Save");
+  const cancel = document.createElement("button");
+  cancel.type = "button";
+  cancel.className = "button button-soft";
+  cancel.textContent = t("Cancel");
+  actions.append(save, cancel);
+  const commit = async () => {
+    const name = input.value.trim();
+    if (!name) {
+      setCategoryError("Give the category a name.");
+      input.focus();
+      return;
+    }
+    save.disabled = true;
+    try {
+      await apiRequest(`/api/categories/${category.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
+      await loadCategories(true);
+      showToast(`Category renamed: ${name}`);
+    } catch (error) {
+      setCategoryError(error.message);
+    } finally {
+      save.disabled = false;
+    }
+  };
+  save.addEventListener("click", commit);
+  cancel.addEventListener("click", () => renderCategoryList());
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") { event.preventDefault(); commit(); }
+    if (event.key === "Escape") renderCategoryList();
+  });
+  row.append(input, actions);
+  input.focus();
+  input.select();
+}
+
+function setCategoryError(message) {
+  const element = document.getElementById("category-modal-error");
+  if (element) element.textContent = message || "";
+}
+
+async function createCategory(name) {
+  const created = await apiRequest("/api/categories", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
+  await loadCategories(true);
+  showToast(`Category created: ${created?.name || name}`);
+  return created;
+}
+
+async function removeCategory(category) {
+  if (!window.confirm(`Delete category “${category.name}”? Locations that use it lose the category.`)) return;
+  try {
+    await apiRequest(`/api/categories/${category.id}`, { method: "DELETE" });
+    await loadCategories(true);
+    showToast("Category deleted.");
+  } catch (error) {
+    setCategoryError(error.message);
+  }
+}
+
+function openCategoryModal() {
+  const modal = document.getElementById("category-modal");
+  if (!modal) return;
+  categoryModalOpener = document.activeElement;
+  setCategoryError("");
+  const input = document.getElementById("category-name-input");
+  if (input) input.value = "";
+  renderCategoryList();
+  modal.classList.remove("is-hidden");
+  loadCategories(true).then(() => input?.focus()).catch((error) => setCategoryError(error.message));
+}
+
+function closeCategoryModal() {
+  document.getElementById("category-modal")?.classList.add("is-hidden");
+  if (categoryModalOpener && document.contains(categoryModalOpener)) categoryModalOpener.focus();
+  categoryModalOpener = null;
+}
+
+document.getElementById("categories-manage-button")?.addEventListener("click", openCategoryModal);
+document.getElementById("location-category-manage")?.addEventListener("click", openCategoryModal);
+document.getElementById("category-modal-close")?.addEventListener("click", closeCategoryModal);
+document.getElementById("category-modal-done")?.addEventListener("click", closeCategoryModal);
+document.querySelector("#category-modal [data-close-category-modal]")?.addEventListener("click", closeCategoryModal);
+document.getElementById("category-create")?.addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  const input = document.getElementById("category-name-input");
+  const name = input?.value.trim() || "";
+  if (!name) {
+    setCategoryError("Give the category a name.");
+    input?.focus();
+    return;
+  }
+  setCategoryError("");
+  button.disabled = true;
+  try {
+    const created = await createCategory(name);
+    if (input) input.value = "";
+    const select = categorySelect();
+    if (select && created?.id) select.value = String(created.id);
+    input?.focus();
+  } catch (error) {
+    setCategoryError(error.message);
+  } finally {
+    button.disabled = false;
+  }
+});
+document.getElementById("category-name-input")?.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  document.getElementById("category-create")?.click();
+});
+document.getElementById("location-category")?.addEventListener("change", () => {
+  const hint = document.getElementById("location-category-hint");
+  if (hint) hint.textContent = "";
+});
 function openLocationModal(id) {
   const modal = document.getElementById("location-modal");
   const form = document.getElementById("location-form");
@@ -1117,6 +1451,8 @@ function openLocationModal(id) {
   locationModalOpener = document.activeElement;
   const errorMessage = document.getElementById("location-form-error");
   errorMessage.textContent = "";
+  const categoryHint = document.getElementById("location-category-hint");
+  if (categoryHint) categoryHint.textContent = "";
   const deleteButton = document.getElementById("location-delete");
   const showPicker = (latitude, longitude, zoom) => {
     modal.classList.remove("is-hidden");
@@ -1133,10 +1469,17 @@ function openLocationModal(id) {
       else clearPickerPoint();
     });
   };
+  loadCategories().catch(() => {});
   if (id == null) {
     form.reset();
     form.elements.id.value = "";
+    renderCategoryOptions("");
+    setLocationImages("", []);
     pendingLocationPhoto = null;
+    if (pendingPhotoPreviewUrl) {
+      URL.revokeObjectURL(pendingPhotoPreviewUrl);
+      pendingPhotoPreviewUrl = "";
+    }
     setLocationPhotoStatus("");
     document.getElementById("location-modal-title").textContent = "Add location";
     if (deleteButton) deleteButton.hidden = true;
@@ -1145,11 +1488,12 @@ function openLocationModal(id) {
     return;
   }
   const message = document.getElementById("locations-message");
-  apiRequest(`/api/locations/${id}`).then((record) => {
+  Promise.all([apiRequest(`/api/locations/${id}`), loadCategories().catch(() => [])]).then(([record]) => {
     form.elements.id.value = record.id;
     form.elements.name.value = record.name || "";
     form.elements.description.value = record.description || "";
-    form.elements.image.value = record.image || "";
+    setLocationImages(record.id, record.images);
+    renderCategoryOptions(record.category?.id === undefined || record.category?.id === null ? "" : record.category.id);
     updateImagePreview();
     document.getElementById("location-modal-title").textContent = `Edit location #${record.id}`;
     if (deleteButton) deleteButton.hidden = false;
@@ -1172,30 +1516,73 @@ document.getElementById("osm-suggest-apply")?.addEventListener("click", () => {
   hideOsmSuggestion();
 });
 
-function resolveImageUrl(path) {
-  if (!path) return "";
-  if (/^https?:\/\//i.test(path)) return path;
-  const origin = (document.querySelector('meta[name="aradlens-api-origin"]')?.content || "https://api.aradlens.binarysquad.club").replace(/\/$/, "");
-  return path.startsWith("/") ? `${origin}${path}` : `${origin}/${path}`;
+/* Images live in their own table upstream. A location carries `images` as an
+   array of image ids; every id is served as a file through
+   `/api/locations/images/:id`, so the admin app never links to the API
+   origin directly (the page CSP only allows same-origin images). */
+const locationImages = new Map();
+
+function imageFileUrl(imageId) {
+  return `/api/locations/images/${encodeURIComponent(imageId)}`;
+}
+function currentLocationId() {
+  return document.getElementById("location-form")?.elements.id.value || "";
+}
+function locationImageIds(locationId) {
+  const key = String(locationId ?? "");
+  if (!key) return [];
+  return locationImages.get(key) || [];
+}
+function setLocationImages(locationId, ids) {
+  const key = String(locationId ?? "");
+  if (!key) return;
+  const list = Array.isArray(ids) ? ids.map(Number).filter((value) => Number.isFinite(value)) : [];
+  locationImages.set(key, list);
+}
+function seedLocationImages(locationId, ids) {
+  const key = String(locationId ?? "");
+  if (!key || locationImages.has(key)) return;
+  const list = Array.isArray(ids) ? ids.map(Number).filter((value) => Number.isFinite(value)) : [];
+  locationImages.set(key, list);
+}
+function addLocationImage(locationId, imageId) {
+  const key = String(locationId ?? "");
+  const id = Number(imageId);
+  if (!key || !Number.isFinite(id)) return;
+  const list = locationImages.get(key) || [];
+  if (!list.includes(id)) locationImages.set(key, [...list, id]);
+}
+function removeLocationImage(locationId, imageId) {
+  const key = String(locationId ?? "");
+  const id = Number(imageId);
+  locationImages.set(key, (locationImages.get(key) || []).filter((value) => value !== id));
 }
 function updateImagePreview() {
-  const form = document.getElementById("location-form");
-  const value = form?.elements.image.value || "";
+  const ids = locationImageIds(currentLocationId());
   const box = document.getElementById("location-image-preview");
   const img = document.getElementById("location-image-img");
   const addButton = document.getElementById("location-image-button");
+  const count = document.getElementById("location-image-count");
+  if (count) count.textContent = ids.length ? `${ids.length} photo${ids.length === 1 ? "" : "s"}` : "No photos yet.";
   if (!box || !img) return;
-  if (value) {
-    img.src = resolveImageUrl(value);
+  if (pendingLocationPhoto && pendingPhotoPreviewUrl) {
+    img.src = pendingPhotoPreviewUrl;
     box.hidden = false;
-    if (addButton) addButton.textContent = "Change image";
+    if (addButton) addButton.textContent = "Manage photos";
+    return;
+  }
+  if (ids.length) {
+    img.src = imageFileUrl(ids[0]);
+    box.hidden = false;
+    if (addButton) addButton.textContent = "Manage photos";
   } else {
     img.removeAttribute("src");
     box.hidden = true;
-    if (addButton) addButton.textContent = "Add image";
+    if (addButton) addButton.textContent = "Add photo";
   }
 }
 let pendingLocationPhoto = null;
+let pendingPhotoPreviewUrl = "";
 function setLocationPhotoStatus(text, state = "") {
   const status = document.getElementById("location-photo-status");
   if (!status) return;
@@ -1203,49 +1590,54 @@ function setLocationPhotoStatus(text, state = "") {
   if (state) status.dataset.state = state;
   else delete status.dataset.state;
 }
-const sessionImages = {};
 let galleryIndex = 0;
-function locationImageList() {
-  const form = document.getElementById("location-form");
-  const id = form?.elements.id.value || "new";
-  const list = [];
-  const cover = form?.elements.image.value || "";
-  if (cover) list.push(cover);
-  for (const path of sessionImages[id] || []) if (!list.includes(path)) list.push(path);
-  return list;
-}
 function refreshImageGallery() {
   const strip = document.getElementById("image-strip");
   const preview = document.getElementById("image-gallery-img");
   const box = document.getElementById("image-gallery-preview");
   const errorMessage = document.getElementById("image-modal-error");
-  const list = locationImageList();
-  if (galleryIndex >= list.length) galleryIndex = 0;
+  const ids = locationImageIds(currentLocationId());
+  if (galleryIndex >= ids.length) galleryIndex = 0;
   if (strip) {
     strip.replaceChildren();
-    list.forEach((path, index) => {
-      const thumb = document.createElement("button");
-      thumb.type = "button";
-      thumb.setAttribute("role", "option");
-      thumb.setAttribute("aria-selected", String(index === galleryIndex));
-      thumb.setAttribute("aria-label", `Show image ${index + 1}`);
+    if (!ids.length) {
+      const empty = document.createElement("p");
+      empty.className = "tour-empty";
+      empty.textContent = "No photos yet. Drop a file below to add one.";
+      strip.append(empty);
+    }
+    ids.forEach((imageId, index) => {
+      const thumb = document.createElement("span");
+      thumb.className = "image-thumb";
+      const select = document.createElement("button");
+      select.type = "button";
+      select.className = "image-thumb-select";
+      select.setAttribute("aria-pressed", String(index === galleryIndex));
+      select.setAttribute("aria-label", `Show photo ${index + 1}`);
       const img = document.createElement("img");
-      img.src = resolveImageUrl(path);
+      img.src = imageFileUrl(imageId);
       img.alt = "";
       img.loading = "lazy";
-      thumb.append(img);
-      thumb.addEventListener("click", () => {
+      select.append(img);
+      select.addEventListener("click", () => {
         galleryIndex = index;
         refreshImageGallery();
       });
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "image-thumb-delete";
+      remove.textContent = "×";
+      remove.setAttribute("aria-label", `Delete photo ${index + 1}`);
+      remove.addEventListener("click", () => deleteLocationImage(imageId));
+      thumb.append(select, remove);
       strip.append(thumb);
     });
   }
   if (preview && box) {
     preview.onload = () => { if (errorMessage) errorMessage.textContent = ""; };
     preview.onerror = () => { if (preview.src && errorMessage) errorMessage.textContent = "An image failed to load. Try again in a moment."; };
-    if (list.length) {
-      preview.src = resolveImageUrl(list[galleryIndex]);
+    if (ids.length) {
+      preview.src = imageFileUrl(ids[galleryIndex]);
       box.hidden = false;
     } else {
       preview.removeAttribute("src");
@@ -1267,11 +1659,6 @@ function closeImageModal() {
   document.getElementById("image-modal")?.classList.add("is-hidden");
 }
 document.getElementById("location-image-button")?.addEventListener("click", openImageModal);
-document.getElementById("location-image-clear")?.addEventListener("click", () => {
-  const form = document.getElementById("location-form");
-  if (form) form.elements.image.value = "";
-  updateImagePreview();
-});
 async function prepareImageForUpload(file) {
   if (!file || !file.type.startsWith("image/") || ["image/gif", "image/svg+xml"].includes(file.type)) return file;
   try {
@@ -1309,11 +1696,12 @@ async function uploadPendingLocationPhoto(locationId) {
     setLocationPhotoStatus(t("The photo could not be uploaded."), "error");
     throw new Error(result.detail || "The photo could not be uploaded.");
   }
-  if (result.image) {
-    const key = String(locationId);
-    sessionImages[key] = [...(sessionImages[key] || []), result.image].filter(Boolean);
-  }
+  if (result.id) addLocationImage(locationId, result.id);
   pendingLocationPhoto = null;
+  if (pendingPhotoPreviewUrl) {
+    URL.revokeObjectURL(pendingPhotoPreviewUrl);
+    pendingPhotoPreviewUrl = "";
+  }
   setLocationPhotoStatus("");
 }
 document.getElementById("location-record")?.addEventListener("click", (event) => {
@@ -1349,7 +1737,12 @@ document.getElementById("location-photo")?.addEventListener("change", (event) =>
   setLocationPhotoStatus(t("Photo ready — it uploads when you save."), "ready");
   const preview = document.getElementById("location-image-preview");
   const img = document.getElementById("location-image-img");
-  if (preview && img) { img.src = URL.createObjectURL(file); preview.hidden = false; }
+  if (preview && img) {
+    if (pendingPhotoPreviewUrl) URL.revokeObjectURL(pendingPhotoPreviewUrl);
+    pendingPhotoPreviewUrl = URL.createObjectURL(file);
+    img.src = pendingPhotoPreviewUrl;
+    preview.hidden = false;
+  }
   document.getElementById("location-form-error").textContent = "";
   input.value = "";
 });
@@ -1382,10 +1775,7 @@ async function uploadImageFiles(fileList) {
       const response = await fetch(`/api/locations/${id}/images`, { method: "POST", body, credentials: "same-origin", headers: { Accept: "application/json" } });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.detail || "Upload failed. Try again.");
-      if (payload.image) {
-        const key = String(id);
-        sessionImages[key] = [...(sessionImages[key] || []), payload.image].filter(Boolean);
-      }
+      if (payload.id) addLocationImage(id, payload.id);
     }
     if (imagePicker) imagePicker.value = "";
     refreshImageGallery();
@@ -1416,36 +1806,53 @@ imageDropzone?.addEventListener("drop", (event) => {
   const modal = document.getElementById("image-modal");
   if (modal && !modal.classList.contains("is-hidden")) event.preventDefault();
 }));
-document.getElementById("image-download-all")?.addEventListener("click", async (event) => {
+async function refreshLocationImages(locationId) {
+  try {
+    const record = await apiRequest(`/api/locations/${locationId}`);
+    setLocationImages(locationId, record.images);
+  } catch {
+    /* keep the cached list when the detail call fails */
+  }
+}
+async function deleteLocationImage(imageId) {
   const errorMessage = document.getElementById("image-modal-error");
-  const id = document.getElementById("location-form")?.elements.id.value || "";
-  errorMessage.textContent = "";
-  if (!id) {
-    errorMessage.textContent = "Save the location first.";
+  const locationId = currentLocationId();
+  if (!locationId) {
+    if (errorMessage) errorMessage.textContent = "Save the location first.";
     return;
   }
-  const button = event.currentTarget;
-  button.disabled = true;
+  if (!window.confirm("Delete this photo? It cannot be undone.")) return;
   try {
-    const response = await fetch(`/api/locations/${id}/images`, { credentials: "same-origin", headers: { Accept: "application/zip" } });
+    const response = await fetch(`/api/locations/${locationId}/images/${imageId}`, { method: "DELETE", credentials: "same-origin", headers: { Accept: "application/json" } });
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
-      throw new Error(payload.detail || "Download failed. Try again.");
+      throw new Error(payload.detail || "The photo could not be deleted.");
     }
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `location_${id}_images.zip`;
-    document.body.append(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+    removeLocationImage(locationId, imageId);
+    await refreshLocationImages(locationId);
+    refreshImageGallery();
+    await loadLocations();
+    showToast("Photo deleted.");
   } catch (error) {
-    errorMessage.textContent = error.message;
-  } finally {
-    button.disabled = false;
+    if (errorMessage) errorMessage.textContent = error.message;
   }
+}
+document.getElementById("image-download")?.addEventListener("click", (event) => {
+  const errorMessage = document.getElementById("image-modal-error");
+  const locationId = currentLocationId();
+  const ids = locationImageIds(locationId);
+  const imageId = ids[galleryIndex];
+  if (errorMessage) errorMessage.textContent = "";
+  if (!imageId) {
+    if (errorMessage) errorMessage.textContent = "There is no photo to download.";
+    return;
+  }
+  const link = document.createElement("a");
+  link.href = imageFileUrl(imageId);
+  link.download = `location_${locationId}_photo_${imageId}.jpg`;
+  document.body.append(link);
+  link.click();
+  link.remove();
 });
 document.getElementById("image-modal-close")?.addEventListener("click", closeImageModal);
 document.getElementById("image-modal-cancel")?.addEventListener("click", closeImageModal);
@@ -1515,7 +1922,7 @@ document.getElementById("location-delete")?.addEventListener("click", async (eve
   button.disabled = true;
   try {
     await apiRequest(`/api/locations/${id}`, { method: "DELETE" });
-    delete sessionImages[id];
+    locationImages.delete(String(id));
     closeLocationModal();
     await loadLocations();
     showToast("Location deleted.");
@@ -1580,7 +1987,10 @@ async function saveLocation() {
   }
   const payload = { name, latitude: Number(form.elements.latitude.value), longitude: Number(form.elements.longitude.value) };
   if (form.elements.description.value) payload.description = form.elements.description.value;
-  if (form.elements.image.value) payload.image = form.elements.image.value;
+  const categoryField = form.elements.category_id;
+  if (categoryField && categoryField.options.length > 1) {
+    payload.category_id = categoryField.value ? Number(categoryField.value) : null;
+  }
   errorMessage.textContent = "";
   button.disabled = true;
   try {
@@ -1898,15 +2308,43 @@ function setOverviewStat(id, value) {
   if (element) element.textContent = String(value);
 }
 
+/* The API sends `images` as an array of ids and `category` as an object.
+   Older builds looked for a flat `image` field that no longer exists, which
+   reported every point as missing a photo. */
+function hasPhoto(location) {
+  if (Array.isArray(location?.images)) return location.images.length > 0;
+  return Boolean(location?.image);
+}
+
+function locationCategoryName(location) {
+  return location?.category?.name ? String(location.category.name) : "";
+}
+
+const problemKinds = [
+  { key: "photo", label: "No photo", note: "Add at least one image" },
+  { key: "description", label: "No description", note: "Say what makes it worth visiting" },
+  { key: "position", label: "Not on the map", note: "Set the real position" },
+  { key: "category", label: "No category", note: "Choose where it belongs" },
+];
+
+function locationProblems(location) {
+  const problems = [];
+  if (!hasPhoto(location)) problems.push(problemKinds[0]);
+  if (!String(location?.description || "").trim()) problems.push(problemKinds[1]);
+  if (!usableCoordinate(location?.latitude, location?.longitude)) problems.push(problemKinds[2]);
+  if (!location?.category?.name) problems.push(problemKinds[3]);
+  return problems;
+}
+
 function renderOverviewQueue(places) {
   const list = document.getElementById("overview-queue");
   const badge = document.getElementById("overview-queue-count");
   if (!list) return;
   list.replaceChildren();
   const items = [];
-  const missingPhoto = places.filter((place) => !place.image);
+  const missingPhoto = places.filter((place) => !hasPhoto(place));
   if (missingPhoto.length) items.push({ marker: "!", markerClass: "marker-yellow", title: `${missingPhoto.length} place(s) missing a photo`, sub: "Could use a little love" });
-  const missingDescription = places.filter((place) => !place.description);
+  const missingDescription = places.filter((place) => !String(place.description || "").trim());
   if (missingDescription.length) items.push({ marker: "…", markerClass: "marker-fog", title: `${missingDescription.length} place(s) missing a description`, sub: "Add details from the Important points page" });
   if (badge) badge.textContent = String(items.length);
   if (!items.length) {
@@ -1938,6 +2376,113 @@ function renderOverviewQueue(places) {
     list.append(button);
   }
 }
+
+function renderAttention() {
+  const summary = document.getElementById("attention-summary");
+  const groups = document.getElementById("attention-groups");
+  if (!summary || !groups) return;
+  const places = cachedLocations;
+  summary.replaceChildren();
+  groups.replaceChildren();
+
+  const buckets = new Map();
+  for (const kind of problemKinds) buckets.set(kind.key, { kind, items: [] });
+  let total = 0;
+  for (const place of places) {
+    for (const problem of locationProblems(place)) {
+      buckets.get(problem.key).items.push(place);
+      total += 1;
+    }
+  }
+
+  if (!places.length) {
+    const loading = document.createElement("p");
+    loading.className = "attention-empty";
+    loading.textContent = "Loading the guide…";
+    groups.append(loading);
+    return;
+  }
+
+  for (const kind of problemKinds) {
+    const count = buckets.get(kind.key).items.length;
+    const card = document.createElement("div");
+    card.className = count ? "attention-stat attention-stat-bad" : "attention-stat attention-stat-clear";
+    const number = document.createElement("b");
+    number.textContent = String(count);
+    const label = document.createElement("span");
+    label.textContent = kind.label;
+    card.append(number, label);
+    summary.append(card);
+  }
+
+  if (!total) {
+    const empty = document.createElement("div");
+    empty.className = "panel attention-clear";
+    const badge = document.createElement("span");
+    badge.className = "attention-clear-mark";
+    badge.setAttribute("aria-hidden", "true");
+    badge.textContent = "✓";
+    const title = document.createElement("strong");
+    title.textContent = "Nothing needs attention";
+    const note = document.createElement("p");
+    note.textContent = "Every point has a photo, a description and a place on the map.";
+    empty.append(badge, title, note);
+    groups.append(empty);
+    return;
+  }
+
+  for (const kind of problemKinds) {
+    const bucket = buckets.get(kind.key);
+    if (!bucket.items.length) continue;
+    const panel = document.createElement("section");
+    panel.className = "panel attention-group";
+    const heading = document.createElement("div");
+    heading.className = "panel-heading";
+    const copy = document.createElement("div");
+    const title = document.createElement("h3");
+    title.textContent = kind.label;
+    const sub = document.createElement("p");
+    sub.textContent = kind.note;
+    copy.append(title, sub);
+    const badge = document.createElement("span");
+    badge.className = "badge";
+    badge.textContent = String(bucket.items.length);
+    heading.append(copy, badge);
+    const list = document.createElement("div");
+    list.className = "attention-list";
+    for (const place of bucket.items) {
+      const row = document.createElement("div");
+      row.className = "attention-row";
+      const marker = document.createElement("span");
+      marker.className = "attention-marker";
+      marker.setAttribute("aria-hidden", "true");
+      marker.textContent = kind.key === "photo" ? "!" : kind.key === "description" ? "…" : kind.key === "position" ? "@" : "·";
+      const text = document.createElement("span");
+      const name = document.createElement("strong");
+      name.textContent = place.name || `Location #${place.id}`;
+      const detail = document.createElement("small");
+      detail.textContent = `#${place.id}`;
+      text.append(name, detail);
+      const fix = document.createElement("button");
+      fix.className = "button button-soft";
+      fix.type = "button";
+      fix.textContent = "Fix";
+      fix.addEventListener("click", () => {
+        showPage("points");
+        openLocationModal(place.id);
+      });
+      row.append(marker, text, fix);
+      list.append(row);
+    }
+    panel.append(heading, list);
+    groups.append(panel);
+  }
+}
+
+document.getElementById("attention-refresh")?.addEventListener("click", async () => {
+  await loadLocations().catch(() => {});
+  renderAttention();
+});
 
 function renderOverviewLatest(places) {
   const list = document.getElementById("overview-latest-list");
@@ -1986,7 +2531,7 @@ async function loadOverview() {
   const places = cachedLocations;
   setOverviewStat("stat-points-published", places.length);
   setOverviewStat("stat-admins-overview", cachedAdmins.length);
-  setOverviewStat("stat-attention-overview", places.filter((place) => !place.image || !place.description).length);
+  setOverviewStat("stat-attention-overview", places.filter((place) => locationProblems(place).length).length);
   const started = performance.now();
   try {
     const health = await apiRequest("/api/health");
