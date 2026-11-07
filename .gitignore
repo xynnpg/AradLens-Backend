@@ -40,3 +40,8 @@ aradlens-night-theme.png
 # Local consent/audit records (personal data)
 data/
 
+# Local security audit artifacts (never commit)
+.audit-scratch/
+strix_runs/
+vulnerabilities.md
+

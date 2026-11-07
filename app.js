@@ -706,8 +706,10 @@ function renderPickerPlaces(exceptId) {
     const latitude = Number(location.latitude);
     const longitude = Number(location.longitude);
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) continue;
+    const tooltip = document.createElement("span");
+    tooltip.textContent = String(location.name || `#${location.id}`);
     window.L.circleMarker([latitude, longitude], { radius: 5, weight: 2, fillOpacity: 0.7 })
-      .bindTooltip(String(location.name || `#${location.id}`))
+      .bindTooltip(tooltip)
       .addTo(pickerPlacesLayer);
   }
 }

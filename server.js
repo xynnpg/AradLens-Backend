@@ -21,6 +21,28 @@ const mime = {
   ".ico": "image/x-icon",
   ".txt": "text/plain; charset=utf-8",
 };
+const PUBLIC_STATIC_FILES = new Map([
+  ["/", "index.html"],
+  ["/index.html", "index.html"],
+  ["/capture.html", "capture.html"],
+  ["/terms.html", "terms.html"],
+  ["/privacy.html", "privacy.html"],
+  ["/cookies.html", "cookies.html"],
+  ["/content-policy.html", "content-policy.html"],
+  ["/accessibility.html", "accessibility.html"],
+  ["/styles.css", "styles.css"],
+  ["/app.js", "app.js"],
+  ["/fonts.css", "fonts.css"],
+  ["/legal.css", "legal.css"],
+]);
+const PUBLIC_ASSET_EXTENSIONS = new Set([".css", ".js", ".woff2", ".png", ".svg", ".ico", ".txt"]);
+const rootRealPath = (() => {
+  try {
+    return fs.realpathSync(root);
+  } catch {
+    return root;
+  }
+})();
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -602,7 +624,17 @@ const server = http.createServer((req, res) => {
     res.end("Bad request");
     return;
   }
-  const decodedPath = decodeURIComponent(requested);
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(requested);
+  } catch {
+    sendPlain(res, req, 400, "Bad request");
+    return;
+  }
+  if (decodedPath.includes("\0")) {
+    sendPlain(res, req, 400, "Bad request");
+    return;
+  }
   const servedPath = /^\/capture\/[A-Za-z0-9_-]+$/.test(decodedPath) ? "/capture.html" : decodedPath;
   proxyApi(req, res, servedPath).then((handled) => {
     if (handled) return;
@@ -630,44 +662,90 @@ function assetVersion() {
   return hash.toString(36);
 }
 
+function sendPlain(res, req, status, message) {
+  res.writeHead(status, { "Content-Type": "text/plain; charset=utf-8", ...securityHeaders(req) });
+  res.end(message);
+}
+
+function isInside(base, candidate) {
+  const relative = path.relative(base, candidate);
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+function publicFileForPath(decodedPath) {
+  const mapped = PUBLIC_STATIC_FILES.get(decodedPath);
+  if (mapped) return mapped;
+  if (!decodedPath.startsWith("/assets/") || decodedPath.includes("\\") || decodedPath.includes("\0")) return null;
+  const segments = decodedPath.slice(1).split("/");
+  if (segments.some((segment) => !segment || segment === "." || segment === ".." || segment.startsWith("."))) return null;
+  if (!PUBLIC_ASSET_EXTENSIONS.has(path.extname(decodedPath).toLowerCase())) return null;
+  return decodedPath.slice(1);
+}
+
+function allowedRealPath(relativeFile, realFilePath) {
+  if (relativeFile.startsWith("assets/")) {
+    const assetsRoot = path.join(rootRealPath, "assets");
+    if (!isInside(assetsRoot, realFilePath)) return false;
+    if (!PUBLIC_ASSET_EXTENSIONS.has(path.extname(realFilePath).toLowerCase())) return false;
+    return !path.relative(assetsRoot, realFilePath).split(path.sep).some((segment) => segment === ".." || segment.startsWith("."));
+  }
+  const expected = path.resolve(rootRealPath, relativeFile);
+  return process.platform === "win32"
+    ? expected.toLowerCase() === realFilePath.toLowerCase()
+    : expected === realFilePath;
+}
+
 function serveStatic(req, res, decodedPath) {
-  const filePath = path.resolve(root, decodedPath === "/" ? "index.html" : `.${decodedPath}`);
-  if (filePath !== root && !filePath.startsWith(`${root}${path.sep}`)) {
-    res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8", ...securityHeaders(req) });
-    res.end("Forbidden");
+  const relativeFile = publicFileForPath(decodedPath);
+  if (!relativeFile) {
+    sendPlain(res, req, 404, "Not found");
     return;
   }
-  const extension = path.extname(filePath).toLowerCase();
-  fs.readFile(filePath, (error, data) => {
-    if (error) {
-      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8", ...securityHeaders(req) });
-      res.end("Not found");
+  const filePath = path.resolve(root, relativeFile);
+  if (!isInside(root, filePath)) {
+    sendPlain(res, req, 403, "Forbidden");
+    return;
+  }
+  fs.realpath(filePath, (realError, realFilePath) => {
+    if (realError) {
+      sendPlain(res, req, 404, "Not found");
       return;
     }
-    let body = data;
-    if (extension === ".html") {
-      const html = data.toString("utf8")
-        .replace(/(<meta name="aradlens-api-origin" content=")[^"]*(" \/>)/, `$1${escapeHtml(apiOrigin)}$2`)
-        /* Stamp the asset links with a version derived from the files
-           themselves, so a deploy that changes the CSS or the JS always
-           produces a new URL. A hand-kept query string silently rots the
-           moment someone forgets to bump it, and any caching proxy in
-           front of the app then keeps serving the old build. */
-        .replace(/(\?v=)[0-9a-z]*/gi, `$1${assetVersion()}`)
-        .replace(/(href|src)="(\/[^"?]+\.(?:css|js))"/gi, (match, attribute, url) => `${attribute}="${url}?v=${assetVersion()}"`);
-      body = Buffer.from(html, "utf8");
+    if (!isInside(rootRealPath, realFilePath) || !allowedRealPath(relativeFile, realFilePath)) {
+      sendPlain(res, req, 403, "Forbidden");
+      return;
     }
-    const cacheControl = extension === ".html" || extension === ".js" || extension === ".css"
-      ? "no-cache"
-      : extension === ".woff2" || extension === ".png" || extension === ".svg"
-        ? "public, max-age=31536000, immutable"
-        : "public, max-age=3600";
-    res.writeHead(200, {
-      "Content-Type": mime[extension] || "application/octet-stream",
-      "Cache-Control": cacheControl,
-      ...securityHeaders(req),
+    const extension = path.extname(filePath).toLowerCase();
+    fs.readFile(realFilePath, (error, data) => {
+      if (error) {
+        sendPlain(res, req, 404, "Not found");
+        return;
+      }
+      let body = data;
+      if (extension === ".html") {
+        const html = data.toString("utf8")
+          .replace(/(<meta name="aradlens-api-origin" content=")[^"]*(" \/>)/, `$1${escapeHtml(apiOrigin)}$2`)
+          /* Stamp the asset links with a version derived from the files
+             themselves, so a deploy that changes the CSS or the JS always
+             produces a new URL. A hand-kept query string silently rots the
+             moment someone forgets to bump it, and any caching proxy in
+             front of the app then keeps serving the old build. */
+          .replace(/(\?v=)[0-9a-z]*/gi, `$1${assetVersion()}`)
+          .replace(/(href|src)="(\/[^"?]+\.(?:css|js))"/gi, (match, attribute, url) => `${attribute}="${url}?v=${assetVersion()}"`);
+        body = Buffer.from(html, "utf8");
+      }
+      const cacheControl = extension === ".html" || extension === ".js" || extension === ".css"
+        ? "no-cache"
+        : extension === ".woff2" || extension === ".png" || extension === ".svg"
+          ? "public, max-age=31536000, immutable"
+          : "public, max-age=3600";
+      res.writeHead(200, {
+        "Content-Type": mime[extension] || "application/octet-stream",
+        "Cache-Control": cacheControl,
+        ...securityHeaders(req),
+      });
+      res.end(body);
     });
-    res.end(body);
   });
 }
 
