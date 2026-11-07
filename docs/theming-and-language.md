@@ -72,6 +72,22 @@ The system is called **Clay**. `styles.css` is organised in layers, in this orde
 6. **Responsive and motion** — breakpoints at `1100px`, `760px`, and `450px`; a
    `prefers-reduced-motion` block disables animation and transitions.
 
+### Type system
+
+Two families, self-hosted in `assets/fonts/` and declared once in `fonts.css`:
+
+- **Literata** (variable, with an optical-size axis) carries voice: the page
+  title, the login headline and the wordmark. It is set with
+  `font-optical-sizing: auto`, so the letterforms shift as the size changes.
+- **Public Sans** (variable) carries everything else, including every number.
+  Numbers are data, so they stay in the sans, where true tabular figures make
+  the metric column align.
+- Identifiers and code use the system monospace stack, so no third family is
+  downloaded.
+
+Both families are under the SIL Open Font License 1.1; the licence texts sit
+next to the font files in `assets/fonts/`.
+
 ### Rules
 
 - **Never use `--anchor` as ink.** `--anchor` is the rail colour; on the night
@@ -81,6 +97,9 @@ The system is called **Clay**. `styles.css` is organised in layers, in this orde
   not strong enough on mint, apricot or rose.
 - **The ink metric card inverts with the theme.** Its background is `--ink` and
   its text is `--canvas`, so both are set from tokens rather than literals.
+- **Never set a number in the display face.** Literata is for words. Metric
+  values, counters and timestamps belong to Public Sans, where the tabular
+  figures line up.
 - To restyle an element, prefer overriding a token over editing a component
   rule.
 

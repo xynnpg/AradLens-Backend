@@ -93,7 +93,7 @@
   --shadow:var(--shadow-2);
   color:var(--ink);
   background:var(--canvas);
-  font-family:"DM Sans",sans-serif;
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-synthesis:none;
 }
 * {
@@ -371,7 +371,7 @@ button:focus-visible,input:focus-visible {
   display:flex;
   align-items:center;
   gap:9px;
-  font-family:"Space Grotesk",sans-serif;
+  font-family:"Literata",Georgia,serif;
   font-weight:700;
   font-size:19px;
   letter-spacing:-.06em;
@@ -409,7 +409,7 @@ button:focus-visible,input:focus-visible {
   margin:0 0 13px;
 }
 .login-panel h1 {
-  font-family:"Space Grotesk",sans-serif;
+  font-family:"Literata",Georgia,serif;
   font-size:58px;
   line-height:.99;
   letter-spacing:-.07em;
@@ -484,7 +484,7 @@ button:focus-visible,input:focus-visible {
 }
 .button {
   height:43px;
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);
   padding:0 17px;
   font-size:13px;
   font-weight:700;
@@ -749,7 +749,7 @@ button:focus-visible,input:focus-visible {
   margin-bottom:32px;
 }
 .page-heading h2 {
-  font-family:"Space Grotesk",sans-serif;
+  font-family:"Literata",Georgia,serif;
   font-size:36px;
   letter-spacing:-.06em;
   margin:0 0 8px;
@@ -818,7 +818,7 @@ button:focus-visible,input:focus-visible {
 }
 .metric-card strong {
   display:block;
-  font-family:"Space Grotesk",sans-serif;
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-size:39px;
   letter-spacing:-.07em;
   margin-top:24px;
@@ -873,7 +873,7 @@ button:focus-visible,input:focus-visible {
   align-items:flex-start;
 }
 .panel h3 {
-  font-family:"Space Grotesk",sans-serif;
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-size:18px;
   letter-spacing:-.04em;
   margin:0 0 6px;
@@ -896,7 +896,7 @@ button:focus-visible,input:focus-visible {
   font-size:15px;
 }
 .badge {
-  font-family:"DM Sans",sans-serif;
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   background:var(--fog);
   color:var(--ink);
   font-size:10px;
@@ -940,7 +940,7 @@ button:focus-visible,input:focus-visible {
 .health-ring span {
   position:relative;
   z-index:1;
-  font-family:"Space Grotesk";
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-weight:700;
   font-size:18px;
 }
@@ -1097,7 +1097,7 @@ button:focus-visible,input:focus-visible {
   height:40px;
   background:var(--surface);
   border:1px solid var(--line);
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);
   display:flex;
   align-items:center;
   gap:7px;
@@ -1117,7 +1117,7 @@ button:focus-visible,input:focus-visible {
   height:40px;
   background:var(--surface);
   border:1px solid var(--line);
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);
   padding:0 13px;
   color:var(--muted);
   font-size:11px;
@@ -1244,7 +1244,7 @@ button:focus-visible,input:focus-visible {
   display:block;
 }
 .user-stat-row strong {
-  font-family:"Space Grotesk";
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-size:28px;
   display:block;
   margin-top:9px;
@@ -1387,7 +1387,7 @@ button:focus-visible,input:focus-visible {
   width:39px;
   height:22px;
   background:var(--surface-2);
-  border-radius:var(--r-pill);
+  border-radius:var(--r-lg);
   position:relative;
   flex:0 0 auto;
   transition:background .18s;
@@ -1424,7 +1424,7 @@ button:focus-visible,input:focus-visible {
   height:42px;
   background:var(--paper);
   border:1px solid var(--line);
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);
   padding:0 12px;
   color:var(--ink);
   font-size:12px;
@@ -2004,7 +2004,7 @@ html[data-theme="night"] .horizon {
   font-weight:700;
 }
 .button {
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);
   border:2px solid currentColor;
   transition:transform 80ms step-end,background 80ms step-end;
 }
@@ -2813,6 +2813,7 @@ html[data-theme="night"]{
 }
 .page-heading h2 {
   letter-spacing:-.02em;
+  font-optical-sizing:auto;
   line-height:1.05;
   text-wrap:balance;
 }
@@ -2923,7 +2924,7 @@ html[data-theme="night"]{
   border-color:var(--steel);
 }
 .auth-tabs .button {
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);
 }
 .queue-marker {
   border-radius:var(--r-sm);
@@ -3065,7 +3066,7 @@ html[data-theme="night"]{
   min-height:76px;
   background:var(--paper);
   border:1px solid var(--line);
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);
   padding:10px 12px;
   color:var(--ink);
   font:inherit;
@@ -3483,10 +3484,11 @@ body {
   line-height:1.45;
 }
 .page-heading h2 {
-  font-family:"Space Grotesk",system-ui,sans-serif;
+  font-family:"Literata",Georgia,serif;
   font-size:22px;
   line-height:1.25;
   letter-spacing:-.02em;
+  font-optical-sizing:auto;
   font-weight:600;
   text-transform:none;
   margin:0;
@@ -3502,7 +3504,7 @@ body {
   margin:3px 0 0;
 }
 .panel h3 {
-  font-family:"Space Grotesk",system-ui,sans-serif;
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-size:13px;
   line-height:1.45;
   letter-spacing:.01em;
@@ -3596,7 +3598,7 @@ body {
   font-weight:600;
 }
 .metric-card strong {
-  font-family:"DM Sans",system-ui,sans-serif;
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-size:26px;
   line-height:1.05;
   letter-spacing:-.03em;
@@ -3666,7 +3668,7 @@ body {
 }
 .search-field {
   height:34px;
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);
   gap:7px;
   padding:0 11px;
 }
@@ -3676,7 +3678,7 @@ body {
 .filter-button {
   height:34px;
   font-size:12.5px;
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);
   padding:0 12px;
 }
 .text-button {
@@ -3810,6 +3812,7 @@ body {
   font-size:clamp(38px,4.2vw,54px);
   line-height:1.02;
   letter-spacing:-.05em;
+  font-optical-sizing:auto;
   margin:0 0 18px;
   max-width:12ch;
 }
