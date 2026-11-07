@@ -15,6 +15,18 @@ AradLens API and keeps the session token out of the browser.
 - Review the operations queue, location map picker, and API health.
 - Switch day/night theme and English/Romanian language.
 
+## Development
+
+| Command | What it does |
+| --- | --- |
+| `npm start` | Run the proxy and serve the workspace on port 4173. |
+| `npm run check` | Syntax-check `app.js` and `server.js`. |
+| `npm run skills:commands` | Regenerate `.opencode/commands/` from `.agents/skills/`. |
+
+Every installed skill is also a slash command — `/code-review`, `/tdd`,
+`/wizard` — so it can be reached without remembering the skill's id. See
+[.opencode/COMMANDS.md](.opencode/COMMANDS.md).
+
 ## Quick start
 
 1. Open a terminal in the repo root.

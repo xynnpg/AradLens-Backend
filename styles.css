@@ -95,6 +95,10 @@
   background:var(--canvas);
   font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-synthesis:none;
+  /* Scrollbars are browser chrome nobody themes by default, and on a dark
+     rail the default light scrollbar is the loudest thing on screen. */
+  scrollbar-width:thin;
+  scrollbar-color:var(--border-strong) var(--canvas);
 }
 * {
   box-sizing:border-box;
@@ -538,20 +542,11 @@ button:focus-visible,input:focus-visible {
   padding:0 14px;
   margin-bottom:32px;
 }
-.workspace-switcher {
-  background:var(--anchor-2);
-  border-radius:var(--r-sm);
-  padding:11px 10px;
-  display:flex;
-  align-items:center;
-  gap:9px;
-  font-size:12px;
-}
-.workspace-switcher strong,.sidebar-footer strong {
+.sidebar-footer strong {
   font-size:12px;
   display:block;
 }
-.workspace-switcher small,.sidebar-footer small {
+.sidebar-footer small {
   display:block;
   color:var(--rail-muted);
   font-size:10px;
@@ -644,12 +639,6 @@ button:focus-visible,input:focus-visible {
   align-items:center;
   justify-content:center;
   flex:0 0 auto;
-}
-.avatar-small {
-  width:30px;
-  height:30px;
-  background:var(--rail-2);
-  color:var(--rail-fg);
 }
 .avatar-tiny {
   width:24px;
@@ -2032,28 +2021,7 @@ html[data-theme="night"] .horizon {
   padding:0 10px;
   margin-bottom:24px;
 }
-.workspace-switcher {
-  width:100%;
-  border-radius:var(--r-sm);
-  background:transparent;
-  border-top:1px solid var(--rail-border);
-  border-bottom:1px solid var(--rail-border);
-  padding:14px 10px;
-  text-align:left;
-  color:var(--rail-fg);
-}
-.workspace-switcher:hover {
-  background:var(--rail-2);
-}
-.workspace-copy {
-  min-width:0;
-}
-.workspace-copy strong,.workspace-copy small {
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.workspace-switcher .chevron {
+.chevron {
   width:14px;
   height:14px;
   fill:none;
@@ -2102,10 +2070,6 @@ html[data-theme="night"] .horizon {
   min-width:25px;
   text-align:center;
 }
-.nav-item[data-page="points"] .nav-count {
-  background:var(--soft-fill);
-  color:var(--ink);
-}
 .nav-status {
   margin-left:auto;
   display:inline-flex;
@@ -2126,7 +2090,7 @@ html[data-theme="night"] .horizon {
 .sidebar-footer {
   border-top:1px solid var(--rail-border);
 }
-.sidebar-footer small,.workspace-switcher small {
+.sidebar-footer small {
   color:var(--rail-muted);
 }
 .main-content {
@@ -2986,27 +2950,21 @@ html[data-theme="night"]{
 }
 
 /* Theme unity: menus, tabs and switchers speak blueprint everywhere */
-#account-menu,#admin-menu{border-radius:var(--r-md);border:1px solid var(--border);box-shadow:var(--shadow-3);background:var(--blueprint);color:var(--ink);padding:4px}
-#account-menu button,#admin-menu button {
+#account-menu{border-radius:var(--r-xl);border:0;box-shadow:var(--shadow-3);background:var(--blueprint);color:var(--ink);padding:6px}
+#account-menu button {
   border-radius:var(--r-sm);
   min-height:44px;
   color:var(--ink);
   font-size:13px;
 }
-#account-menu button:hover,#admin-menu button:hover {
+#account-menu button:hover {
   background:var(--soft-fill);
 }
-#account-menu button[aria-checked="true"],#admin-menu button[aria-checked="true"] {
-  box-shadow:inset 3px 0 0 var(--accent);
-}
-#account-menu .menu-label,#admin-menu .menu-label {
+#account-menu .menu-label {
   color:var(--print);
 }
-#account-menu .menu-separator,#admin-menu .menu-separator {
+#account-menu .menu-separator {
   background:var(--grid-line);
-}
-#account-menu .menu-check,#admin-menu .menu-check {
-  color:var(--accent);
 }
 .auth-tabs {
   border-radius:var(--r-lg);
@@ -3345,7 +3303,6 @@ html[data-theme="night"]{
   .button,
   .modal-panel,
   .account-menu,
-  .admin-menu,
   .image-dropzone,
   .image-strip button,
   .auth-tabs,
@@ -3360,7 +3317,7 @@ html[data-theme="night"]{
   .settings-form .capture-link-input,
   .language-picker select,
   .theme-toggle,
-  .workspace-switcher,
+  .account-button,
   .nav-item,
   .badge,
   .status-tag,
@@ -3386,7 +3343,6 @@ html[data-theme="night"]{
   .health-ring,
   .health-ring:after,
   .avatar,
-  .avatar-small,
   .avatar-tiny,
   .sky-sun,
   .sky-moon,
@@ -3442,7 +3398,6 @@ html[data-theme="night"]{
   box-shadow:none;
 }
 .account-menu,
-.admin-menu,
 .toast,
 .modal-panel{
   box-shadow:var(--shadow-3);
@@ -4196,32 +4151,24 @@ body {
 
 /* ============================================================
    15. COMPACT MENUS
-   The account menus float over the rail. They are menus, not
-   panels: small radius, tight rows, no wasted width.
+   The account menu floats over the rail. It is a menu, not a
+   panel: one radius, tight rows, no wasted width.
    ============================================================ */
-.account-menu,
-.admin-menu {
-  border-radius:var(--r-md);
-  padding:4px;
-  min-width:168px;
-  width:max-content;
-  max-width:212px;
+.account-menu {
+  border-radius:var(--r-xl);
+  padding:6px;
+  width:100%;
 }
-.account-menu button,
-.admin-menu button {
+.account-menu button {
   padding:7px 10px;
   gap:9px;
   font-size:12.5px;
   border-radius:var(--r-sm);
 }
-.account-menu .menu-label,
-.admin-menu .menu-label {
+.account-menu .menu-label {
   font-size:9.5px;
-  letter-spacing:.08em;
-  padding:7px 10px 3px;
-}
-.admin-menu {
-  min-width:196px;
+  letter-spacing:.1em;
+  padding:8px 10px 4px;
 }
 
 
@@ -4457,4 +4404,971 @@ body {
   text-align:center;
   color:var(--text-3);
   font-size:13px;
+}
+
+/* ============================================================
+   19. ACCESS CONTROL
+   Two tables with the same shape: who it is, what it can do,
+   what you can do to it. Every control sits in its own row, so
+   a change is one click and no hidden form.
+   ============================================================ */
+.access-panel {
+  gap:11px;
+  padding-bottom:8px;
+}
+.access-panel .users-table {
+  margin-top:0;
+}
+.access-panel .admin-list {
+  margin:0;
+  gap:0;
+}
+.panel-summary {
+  font-size:11.5px;
+  color:var(--text-3);
+  margin:0;
+}
+.panel-note {
+  font-size:11px;
+  color:var(--text-3);
+  text-align:right;
+  white-space:nowrap;
+}
+.panel-message {
+  margin:0 0 10px;
+  font-size:11.5px;
+  color:var(--text-3);
+}
+.panel-message:empty {
+  display:none;
+}
+.access-head,
+.access-row,
+.invite-head,
+.invite-row {
+  grid-template-columns:minmax(0,2.4fr) minmax(0,1.15fr) minmax(0,1fr) auto;
+  gap:16px;
+}
+.access-head,
+.invite-head {
+  font-size:10px;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  font-weight:600;
+  color:var(--text-3);
+  border-top:0;
+  border-bottom:1px solid var(--border);
+  padding:0 0 9px;
+  margin-bottom:0;
+}
+.access-row,
+.invite-row {
+  align-items:center;
+  padding:12px 0;
+  border-top:0;
+  border-bottom:1px solid var(--border);
+  font-size:12.5px;
+  color:var(--ink);
+}
+.access-row:last-child,
+.invite-row:last-child {
+  border-bottom:0;
+}
+.access-row .user-cell {
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:1px 8px;
+  min-width:0;
+}
+.access-row .user-cell strong {
+  grid-column:1;
+  grid-row:1;
+  font-size:13px;
+  font-weight:600;
+  color:var(--ink);
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.access-row .user-email {
+  grid-column:1 / -1;
+  grid-row:2;
+  font-size:11.5px;
+  color:var(--text-3);
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.access-badge {
+  grid-column:2;
+  grid-row:1;
+  justify-self:start;
+  display:inline-flex;
+  align-items:center;
+  height:18px;
+  padding:0 8px;
+  border-radius:var(--r-pill);
+  background:var(--accent-soft);
+  color:var(--accent-text);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.access-role-text {
+  font-size:12.5px;
+  color:var(--ink);
+}
+.access-row>.status-tag {
+  justify-self:start;
+}
+.user-row>.status-tag {
+  justify-self:start;
+}
+.switch {
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  cursor:pointer;
+}
+.switch .toggle {
+  flex:0 0 auto;
+}
+.switch-label {
+  font-size:12px;
+  color:var(--text-2);
+  white-space:nowrap;
+}
+.switch:has(.toggle-input:disabled) {
+  cursor:not-allowed;
+  opacity:.6;
+}
+.access-actions {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+}
+.access-actions .button {
+  height:30px;
+  padding:0 11px;
+  font-size:11.5px;
+}
+.button-danger {
+  background:transparent;
+  color:var(--bad-text);
+  border-color:color-mix(in srgb,var(--bad-text) 42%,transparent);
+}
+.button-danger:hover {
+  background:var(--bad-fill);
+  border-color:var(--bad-text);
+  transform:none;
+}
+.button-danger:disabled {
+  cursor:not-allowed;
+  opacity:.45;
+}
+.status-revoked {
+  background:var(--bad-fill);
+  color:var(--bad-text);
+}
+.invite-row .user-cell {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+.invite-code {
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:-.01em;
+  color:var(--ink);
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.invite-role {
+  font-size:12.5px;
+}
+.invite-expires {
+  font-size:12px;
+  color:var(--text-3);
+  font-variant-numeric:tabular-nums;
+}
+
+/* Invite codes live in a dialog, so each code is a small card
+   rather than a row in a table. */
+.modal-panel.invites-modal-panel {
+  width:min(480px,100%);
+}
+.invites-modal-panel .admin-list {
+  margin:0;
+  gap:0;
+}
+.invite-line {
+  display:grid;
+  gap:7px;
+  padding:12px 0;
+  border-top:1px solid var(--border);
+}
+.invite-line:first-child {
+  border-top:0;
+  padding-top:0;
+}
+.invite-line-top {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.invite-line-meta {
+  margin:0;
+  font-size:11.5px;
+  color:var(--text-3);
+}
+.invite-line-actions {
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.invite-line-actions .button {
+  height:30px;
+  padding:0 11px;
+  font-size:11.5px;
+}
+.invite-created {
+  display:grid;
+  gap:8px;
+  padding:12px;
+  border:1px solid var(--accent);
+  border-radius:var(--r-md);
+  background:var(--accent-soft);
+}
+.invite-created-label {
+  font-size:10.5px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  font-weight:600;
+  color:var(--accent-text);
+}
+.invite-created-row {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.invite-created-row .invite-code {
+  font-size:13px;
+  overflow-wrap:anywhere;
+}
+.access-hint {
+  margin:12px 0 0;
+  padding-top:12px;
+  border-top:1px solid var(--border);
+}
+.invite-form {
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px solid var(--border);
+  gap:12px;
+}
+.panel h3.settings-form-title {
+  font-size:11px;
+  letter-spacing:.1em;
+  color:var(--text-3);
+  margin:0;
+}
+.invite-form-grid {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:14px;
+}
+
+/* ============================================================
+   20. SETTINGS
+   One wide column for the things you change about yourself, one
+   narrow column for the things that describe the workspace.
+   ============================================================ */
+.settings-layout {
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);
+  gap:16px;
+  align-items:start;
+}
+.settings-column {
+  display:grid;
+  gap:16px;
+  align-content:start;
+}
+.settings-card {
+  gap:14px;
+}
+.settings-field-grid {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:14px;
+}
+.settings-row-card {
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:16px;
+}
+.settings-row-card h3 {
+  margin-bottom:4px;
+}
+.settings-row-card p {
+  margin:0;
+  font-size:12.5px;
+  line-height:1.5;
+  color:var(--text-3);
+  max-width:52ch;
+}
+.account-summary {
+  display:grid;
+  margin:0;
+}
+.account-summary>div {
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:16px;
+  padding:9px 0;
+  border-bottom:1px solid var(--border);
+}
+.account-summary>div:last-child {
+  border-bottom:0;
+  padding-bottom:0;
+}
+.account-summary dt {
+  font-size:11.5px;
+  color:var(--text-3);
+}
+.account-summary dd {
+  margin:0;
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--ink);
+  text-align:right;
+  overflow-wrap:anywhere;
+}
+.segmented {
+  display:inline-flex;
+  gap:4px;
+  padding:3px;
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  background:var(--surface-2);
+}
+.segmented .button {
+  height:28px;
+  padding:0 15px;
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--text-3);
+  font-size:12px;
+  font-weight:600;
+}
+.segmented .button[aria-pressed="true"] {
+  background:var(--surface);
+  color:var(--ink);
+  border-color:var(--border-strong);
+  font-weight:700;
+  box-shadow:var(--shadow-1);
+}
+.segmented .button:focus-visible {
+  outline:2px solid var(--focus);
+  outline-offset:-2px;
+}
+
+/* ============================================================
+   21. CONFIRM DIALOG
+   One pattern for every destructive action: say what happens,
+   name the thing, then let the person decide.
+   ============================================================ */
+.modal-panel {
+  box-shadow:var(--shadow-3);
+}
+.modal-panel.confirm-panel {
+  width:min(430px,100%);
+  grid-template-columns:auto minmax(0,1fr);
+  gap:12px 13px;
+  align-items:start;
+}
+.confirm-mark {
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:var(--r-pill);
+  background:var(--bad-fill);
+  color:var(--bad-text);
+  font-size:16px;
+  font-weight:700;
+}
+.confirm-panel h3 {
+  font-size:14px;
+  letter-spacing:-.01em;
+  text-transform:none;
+  margin:0;
+}
+.confirm-panel p {
+  margin:3px 0 0;
+  font-size:12.5px;
+  line-height:1.5;
+  color:var(--text-2);
+}
+.confirm-detail {
+  grid-column:1 / -1;
+  margin:2px 0 0;
+  padding:10px 12px;
+  border-radius:var(--r-md);
+  background:var(--surface-2);
+  color:var(--ink);
+  font-size:12.5px;
+  font-weight:600;
+  overflow-wrap:anywhere;
+}
+.confirm-detail:empty {
+  display:none;
+}
+.confirm-panel .modal-actions {
+  grid-column:1 / -1;
+  justify-content:flex-end;
+  margin-top:2px;
+}
+
+/* ============================================================
+   22. SMALL SCREENS
+   The tables become two columns: the person, the action, and
+   everything else underneath.
+   ============================================================ */
+@media (max-width:1080px){
+  .settings-layout {
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width:760px){
+  .access-head,
+  .invite-head {
+    display:none;
+  }
+  .access-row {
+    grid-template-columns:minmax(0,1fr) auto;
+    row-gap:9px;
+    align-items:center;
+    padding:13px 0;
+  }
+  .access-row>:nth-child(1) {
+    grid-column:1;
+    grid-row:1;
+  }
+  .access-row>:nth-child(2) {
+    display:block;
+    grid-column:1;
+    grid-row:2;
+    font-size:11.5px;
+    color:var(--text-3);
+  }
+  .access-row>:nth-child(3) {
+    display:inline-flex;
+    grid-column:2;
+    grid-row:1;
+    justify-self:end;
+  }
+  .access-row>:nth-child(4) {
+    grid-column:1 / -1;
+    grid-row:3;
+    justify-content:flex-start;
+  }
+  .invite-form-grid {
+    grid-template-columns:1fr;
+  }
+  .settings-field-grid {
+    grid-template-columns:1fr;
+  }
+  .settings-row-card {
+    grid-template-columns:1fr;
+    align-items:start;
+  }
+  .panel-note {
+    display:none;
+  }
+}
+
+/* ============================================================
+   23. RAIL ACCOUNT LINES
+   A long username must never push the "···" button out of the
+   rail. The name truncates instead; the button always stays put.
+   ============================================================ */
+.sidebar-footer .footer-copy {
+  flex:1 1 auto;
+  min-width:0;
+  overflow:hidden;
+}
+.sidebar-footer .footer-copy strong,
+.sidebar-footer .footer-copy small {
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.sidebar-footer .more-button {
+  flex:0 0 auto;
+}
+
+/* ============================================================
+   24. ACCOUNT SWITCHER MENU
+   The switcher above already says who you are, so the menu
+   only lists the accounts and how to add one. The active
+   account is filled with clay instead of carrying a bar down
+   its left edge.
+   ============================================================ */
+#account-menu {
+  min-width:196px;
+  max-width:248px;
+  padding:5px;
+}
+#account-menu .menu-label {
+  display:block;
+  font-size:11.5px;
+  letter-spacing:0;
+  text-transform:none;
+  font-weight:500;
+  color:var(--text-3);
+  padding:7px 10px;
+}
+#account-menu button {
+  min-height:38px;
+  padding:6px 9px;
+  gap:9px;
+  border-radius:var(--r-sm);
+}
+#account-menu button:hover {
+  background:var(--surface-2);
+}
+#account-menu .avatar-tiny {
+  background:var(--surface-2);
+  color:var(--text-2);
+}
+#account-menu .menu-name {
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#account-menu .avatar-tiny {
+  flex:0 0 auto;
+}
+#account-menu .menu-separator {
+  margin:5px 7px;
+}
+#account-menu .menu-add {
+  color:var(--accent-text);
+}
+
+/* The login page's escape hatch sits under the form: same width
+   as the sign-in button, a little lower so the two never read
+   as one control. */
+#login-back-button {
+  width:100%;
+  max-width:380px;
+  margin-top:16px;
+}
+
+/* ============================================================
+   25. MOTION
+   Five small movements: the page arrives, a dialog opens, a
+   menu drops, a nav tile settles, a list fills in. One curve,
+   colour and transform only, and the reduced-motion block
+   earlier in this file switches all of it off.
+   ============================================================ */
+@keyframes page-arrive {
+  from { opacity:0; transform:translateY(8px); }
+  to { opacity:1; transform:none; }
+}
+@keyframes veil-in {
+  from { opacity:0; }
+  to { opacity:1; }
+}
+@keyframes dialog-arrive {
+  from { opacity:0; transform:translateY(12px) scale(.985); }
+  to { opacity:1; transform:none; }
+}
+@keyframes menu-drop {
+  from { opacity:0; transform:translateY(-6px); }
+  to { opacity:1; transform:none; }
+}
+@keyframes tile-settle {
+  from { opacity:.55; transform:scale(.96); }
+  to { opacity:1; transform:none; }
+}
+@keyframes row-arrive {
+  from { opacity:0; transform:translateY(5px); }
+  to { opacity:1; transform:none; }
+}
+
+.page.active-page {
+  animation:page-arrive var(--dur-3) var(--ease) backwards;
+}
+.modal:not(.is-hidden) .modal-backdrop {
+  animation:veil-in var(--dur-2) var(--ease) backwards;
+}
+.modal:not(.is-hidden) .modal-panel {
+  animation:dialog-arrive var(--dur-3) var(--ease) backwards;
+}
+.account-menu:not(.is-hidden),
+.account-menu:not(.is-hidden) {
+  animation:menu-drop var(--dur-2) var(--ease) backwards;
+}
+.nav-item.is-active {
+  animation:tile-settle var(--dur-2) var(--ease) backwards;
+}
+.admin-list>*,
+#users-admins-list>.user-row {
+  animation:row-arrive var(--dur-2) var(--ease) backwards;
+}
+.admin-list>*:nth-child(1),
+#users-admins-list>.user-row:nth-child(1) { animation-delay:0ms; }
+.admin-list>*:nth-child(2),
+#users-admins-list>.user-row:nth-child(2) { animation-delay:40ms; }
+.admin-list>*:nth-child(3),
+#users-admins-list>.user-row:nth-child(3) { animation-delay:80ms; }
+.admin-list>*:nth-child(4),
+#users-admins-list>.user-row:nth-child(4) { animation-delay:120ms; }
+.admin-list>*:nth-child(n+5),
+#users-admins-list>.user-row:nth-child(n+5) { animation-delay:160ms; }
+
+/* ============================================================
+   26. NOTICES
+   One card, one message, one way out. The mark carries the kind
+   of notice, so the shape says what happened before the colour
+   does.
+   ============================================================ */
+.toast {
+  display:flex;
+  align-items:stretch;
+  gap:0;
+  max-width:420px;
+  padding:0;
+  border:0;
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  font-size:12.5px;
+  line-height:1.5;
+  transform:translateY(10px) scale(.985);
+  transition:opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+}
+.toast.is-visible {
+  transform:none;
+}
+.toast-mark {
+  display:grid;
+  place-items:center;
+  width:36px;
+  flex:0 0 36px;
+  font-size:12px;
+  font-weight:700;
+  line-height:1;
+  color:inherit;
+  background:color-mix(in srgb,currentColor 13%,transparent);
+}
+.toast-message {
+  flex:1;
+  min-width:0;
+  padding:13px 10px 13px 13px;
+  font-weight:500;
+  letter-spacing:.004em;
+}
+.toast-dismiss {
+  display:grid;
+  place-items:center;
+  width:38px;
+  flex:0 0 38px;
+  padding:0;
+  font-size:17px;
+  line-height:1;
+  color:inherit;
+  opacity:.5;
+  transition:opacity var(--dur-1) ease-out, background-color var(--dur-1) ease-out;
+}
+.toast-dismiss:hover {
+  opacity:1;
+  background:color-mix(in srgb,currentColor 12%,transparent);
+}
+.toast[data-kind="error"] .toast-mark {
+  opacity:1;
+}
+
+/* ============================================================
+   27. RESTORING A SESSION
+   The sign-in page is the wrong thing to show someone who is
+   already signed in. While the server answers "who am I", the
+   workspace chrome stays on screen and the content area says
+   what it is waiting for.
+   ============================================================ */
+.main-content {
+  position:relative;
+}
+.boot-note {
+  display:none;
+  place-items:center;
+  min-height:calc(100vh - 52px);
+  font-size:12.5px;
+  letter-spacing:.01em;
+  color:var(--text-3);
+}
+html.is-restoring .boot-note {
+  display:grid;
+}
+html.is-restoring .page {
+  display:none;
+}
+html.is-restoring #login-view {
+  display:none;
+}
+html.is-restoring #app-view {
+  display:flex !important;
+}
+@media (max-width:760px){
+  .boot-note {
+    min-height:calc(100vh - 56px);
+  }
+}
+
+/* ============================================================
+   28. THE RAIL
+   One account, one place to change it. The rail carries the
+   brand, the work, and the person doing it — never twice. It
+   also has to hold a name, a role and a row of legal links,
+   so it gives itself enough room to keep them on one line.
+   ============================================================ */
+@media (min-width:1101px){
+  .sidebar {
+    width:238px;
+    flex:0 0 238px;
+    padding:16px 14px;
+  }
+}
+.brand-mark {
+  font-size:20px;
+  padding:0 2px;
+}
+.nav-item {
+  height:36px;
+  gap:10px;
+  padding:0 10px;
+}
+.nav-label {
+  padding:0 10px 8px;
+}
+.sidebar-legal {
+  display:grid;
+  grid-template-columns:repeat(3,auto);
+  justify-content:start;
+  gap:6px 13px;
+  padding:13px 10px 0;
+  font-size:9.5px;
+}
+
+
+/* The rail is dark in both themes, so its rules come from the
+   rail palette. A light-theme border on a dark rail is a bright
+   cream line that cuts the rail in half. */
+.nav-label {
+  border-bottom-color:var(--rail-border);
+}
+.sidebar-footer {
+  border-top-color:var(--rail-border);
+}
+.sidebar-legal {
+  border-top-color:var(--rail-border);
+}
+.sidebar {
+  scrollbar-color:color-mix(in srgb,var(--rail-fg) 22%,transparent) transparent;
+}
+
+.account-button {
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px;
+  border:0;
+  border-radius:var(--r-sm);
+  background:transparent;
+  color:var(--rail-fg);
+  text-align:left;
+  cursor:pointer;
+  transition:background-color var(--dur-1) ease-out;
+}
+.account-button:hover {
+  background:var(--rail-2);
+}
+.account-button .avatar {
+  flex:0 0 auto;
+}
+.account-button .chevron {
+  margin-left:auto;
+}
+.account-button:focus-visible {
+  outline:2px solid var(--focus);
+  outline-offset:2px;
+}
+#account-menu .menu-action {
+  color:var(--ink);
+}
+
+/* The identity block at the head of the menu. It states who you are
+   instead of being a row you tick. */
+.menu-identity {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px 10px;
+}
+.menu-identity .avatar {
+  width:30px;
+  height:30px;
+  flex:0 0 auto;
+  font-size:10px;
+  font-weight:700;
+}
+.menu-identity-copy {
+  display:grid;
+  gap:1px;
+  min-width:0;
+}
+.menu-identity-copy strong {
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--ink);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.menu-identity-copy small {
+  font-size:10.5px;
+  color:var(--text-3);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#account-menu .menu-add {
+  color:var(--accent-text);
+}
+#account-menu .menu-add:hover {
+  background:var(--accent-soft);
+  color:var(--accent-text);
+}
+
+/* The account row in the rail: a monogram, a name, a role, and the
+   affordance that opens the menu. No box, no second copy of the
+   switcher that used to sit under the logo. */
+.account-button .footer-copy strong {
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--rail-fg);
+}
+.account-button .footer-copy small {
+  font-size:10.5px;
+  margin-top:1px;
+}
+.sidebar-footer .avatar {
+  background:var(--rail-2);
+  color:var(--rail-fg);
+  box-shadow:inset 0 0 0 1px var(--rail-border);
+}
+
+/* The count only appears once it is real, so it sits tight against
+   the label and never looks like a second title. */
+.nav-count {
+  font-variant-numeric:tabular-nums;
+  min-width:20px;
+  text-align:center;
+}
+
+/* The legal links read as one small cluster rather than a run-on
+   line that wraps wherever it lands. */
+.sidebar-legal {
+  display:grid;
+  grid-template-columns:repeat(3,auto);
+  justify-content:start;
+  gap:6px 12px;
+  font-size:9.5px;
+}
+
+/* ============================================================
+   29. THE PHONE, CENTRED
+   A phone screen is read top-to-bottom, so the header stops
+   behaving like a desktop toolbar: the page title sits in the
+   middle of the bar instead of clinging to the menu button,
+   and panel headings stack so a title is never squeezed into a
+   narrow column beside its buttons. The content column keeps
+   even gutters on both sides.
+   ============================================================ */
+@media (max-width:760px){
+  /* The title takes the room between the menu button and the
+     actions, then centres itself in it. Flex keeps the three
+     parts from ever overlapping, which absolute centring could
+     not promise once a long title met a wide action cluster. */
+  .topbar .breadcrumbs {
+    flex:1 1 auto;
+    justify-content:center;
+    min-width:0;
+    padding:0 4px;
+  }
+  .topbar .breadcrumbs strong {
+    text-align:center;
+  }
+  /* A panel heading is a title and its controls. Side by side on a
+     phone they fight for the same 350px; stacked, each gets the
+     full width. */
+  .panel-heading {
+    flex-direction:column;
+    align-items:stretch;
+    gap:10px;
+  }
+  .panel-heading .page-heading-actions,
+  .panel-heading .text-button {
+    align-self:flex-start;
+  }
+  /* Actions that wrap run edge to edge instead of leaving a
+     ragged right margin. */
+  .page-heading-actions {
+    width:100%;
+  }
+  .page-heading-actions > .button {
+    flex:1 1 auto;
+    justify-content:center;
+  }
+  /* The language picker now shows full names, so it needs the
+     width those names take. */
+  .topbar-language select {
+    min-width:0;
+    max-width:96px;
+    padding-right:18px;
+    text-overflow:ellipsis;
+  }
+}
+
+/* ============================================================
+   30. REDUCED MOTION
+   The kill-switch lives last so it wins over every animation
+   declared above it, including the ones added in later
+   sections. Anyone who asks their system for less motion gets
+   none, and every surface renders in its final state.
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    animation:none !important;
+    transition:none !important;
+    scroll-behavior:auto !important;
+  }
 }

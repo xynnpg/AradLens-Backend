@@ -8,7 +8,28 @@
     <meta name="aradlens-legal-operator" content="AradLens" />
     <meta name="aradlens-legal-version" content="1.0" />
     <title>AradLens — Admin workspace</title>
+    <script>
+      /* Restore the workspace, not the sign-in form.
+         The session lives in an HttpOnly cookie, so the browser cannot know
+         who is signed in without asking the server. This one line cannot
+         answer that question, but it can say "we were signed in here a
+         moment ago" — and that is enough to keep the login page off screen
+         while the real answer is on its way. */
+      try {
+        if (sessionStorage.getItem("aradlens-admin-auth") === "true") {
+          document.documentElement.classList.add("is-restoring");
+          /* If the script never arrives — a network error, a blocked file —
+             the workspace must not wait for ever. app.js clears this the
+             moment it knows the answer; this is only the failsafe. */
+          setTimeout(function () {
+            document.documentElement.classList.remove("is-restoring");
+          }, 6000);
+        }
+      } catch (error) { /* Storage blocked: fall back to the sign-in page. */ }
+    </script>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2317171a'/%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M11 5H7a2 2 0 0 0-2 2v4M21 5h4a2 2 0 0 1 2 2v4M27 21v4a2 2 0 0 1-2 2h-4M11 27H7a2 2 0 0 1-2-2v-4'/%3E%3Ccircle cx='16' cy='16' r='5.2'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23f2f2f6'/%3E%3C/svg%3E" />
+    <link rel="preload" href="assets/fonts/literata-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/fonts/publicsans-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="fonts.css" />
     <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css" />
     <link rel="stylesheet" href="styles.css?v=20261021" />
@@ -61,27 +82,27 @@
         body.nav-collapsed .sidebar .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
         body.nav-collapsed .sidebar .nav-item span,
         body.nav-collapsed .sidebar .nav-label,
-        body.nav-collapsed .sidebar .workspace-copy,
-        body.nav-collapsed .sidebar .workspace-switcher .chevron,
         body.nav-collapsed .sidebar .brand-mark span:last-child,
-        body.nav-collapsed .sidebar-footer > span:nth-child(2) { display: none; }
+        body.nav-collapsed .sidebar-footer .footer-copy,
+        body.nav-collapsed .sidebar-footer .chevron { display: none; }
         body.nav-collapsed .sidebar .brand-mark { justify-content: center; padding: 0; }
-        body.nav-collapsed .sidebar .workspace-switcher { justify-content: center; }
-        body.nav-collapsed .sidebar-footer { justify-content: center; }
+        body.nav-collapsed .sidebar-footer { justify-content: center; padding-left: 0; padding-right: 0; }
+        body.nav-collapsed .sidebar-legal { display: none; }
       }
 
       /* Account menus in the sidebar */
-      .switcher-wrap { position: relative; }
-      .account-menu { position: absolute; top: calc(100% + 6px); left: 0; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: var(--shadow-3); padding: 4px; z-index: 30; max-height: 280px; overflow: auto; min-width: 168px; width: max-content; max-width: 212px; }
+      /* The account menu, anchored to the rail footer and opening upward.
+         It is exactly as wide as the account row it belongs to, so it sits
+         centred on the rail instead of hanging off one side, and a long
+         account name truncates inside it rather than pushing the menu off
+         the screen. Elevation is the shadow alone — a border under it would
+         read as a card sitting on a card. */
+      .account-menu { position: absolute; bottom: calc(100% + 8px); left: 0; right: auto; width: 100%; max-width: 100%; background: var(--surface); color: var(--ink); border: 0; border-radius: var(--r-xl); box-shadow: var(--shadow-3); padding: 6px; z-index: 30; max-height: 340px; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
       .account-menu button { display: flex; width: 100%; align-items: center; gap: 9px; background: none; border: 0; padding: 7px 10px; border-radius: var(--r-sm); font-size: 12.5px; color: var(--ink); text-align: left; }
       .account-menu button:hover { background: var(--surface-2); }
-      .account-menu button[aria-checked="true"] { font-weight: 700; }
-      .account-menu .menu-label { display: block; font-size: 9.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 7px 10px 3px; }
-      .account-menu .menu-separator { height: 1px; background: var(--border); margin: 6px 4px; }
-      .account-menu .menu-check { margin-left: auto; font-weight: 700; }
+      .account-menu .menu-label { display: block; font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; color: var(--text-3); padding: 8px 10px 4px; }
+      .account-menu .menu-separator { height: 1px; background: var(--border); margin: 5px 6px; }
       .sidebar-footer { position: relative; }
-      .sidebar-footer .more { color: var(--rail-fg); }
-      .admin-menu { top: auto; bottom: calc(100% + 6px); left: auto; right: 0; min-width: 196px; max-width: 212px; }
 
       /* Auth tabs on the login page */
       .auth-tabs { display: flex; gap: 4px; margin: 0 0 18px; padding: 3px; }
@@ -100,7 +121,7 @@
         
         <h1>Keep Arad<br /><em>in focus.</em></h1>
         <p class="login-intro">Curate the places people love, spot what needs attention, and keep the city guide trustworthy.</p>
-        <div class="login-tools"><label class="language-picker" for="language-select"><span data-i18n="Language">Language</span><select id="language-select"><option value="en">English</option><option value="ro">Română</option></select></label><button class="theme-toggle login-theme-toggle" type="button" data-theme-toggle aria-label="Switch to night theme"><span class="theme-icon theme-icon-sun" aria-hidden="true">☼</span><span class="theme-icon theme-icon-moon" aria-hidden="true">◐</span><span data-theme-label>Night</span></button></div>
+        <div class="login-tools"><label class="language-picker" for="language-select"><span data-i18n="Language">Language</span><select id="language-select" data-no-translate><option value="en">English</option><option value="ro">Română</option></select></label><button class="theme-toggle login-theme-toggle" type="button" data-theme-toggle aria-label="Switch to night theme"><span class="theme-icon theme-icon-sun" aria-hidden="true">☼</span><span class="theme-icon theme-icon-moon" aria-hidden="true">◐</span><span data-theme-label>Night</span></button></div>
         <div class="auth-tabs" role="tablist" aria-label="Account actions">
           <button id="auth-tab-login" class="button button-soft" type="button" role="tab" aria-selected="true" aria-controls="login-form">Sign in</button>
           <button id="auth-tab-register" class="button button-soft" type="button" role="tab" aria-selected="false" aria-controls="register-form">Create account</button>
@@ -165,25 +186,26 @@
       <button class="sidebar-scrim" aria-label="Close navigation"></button>
       <aside class="sidebar">
         <div class="brand-mark"><svg class="brand-logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M11 4.5H7A2.5 2.5 0 0 0 4.5 7v4M21 4.5h4A2.5 2.5 0 0 1 27.5 7v4M27.5 21v4a2.5 2.5 0 0 1-2.5 2.5h-4M11 27.5H7A2.5 2.5 0 0 1 4.5 25v-4" /><circle cx="16" cy="16" r="5.6" /><circle class="brand-logo-dot" cx="16" cy="16" r="1.8" /></svg><span>Arad<span>Lens</span></span></div>
-        <div class="switcher-wrap">
-        <button class="workspace-switcher" type="button" id="account-switcher" aria-haspopup="menu" aria-expanded="false" aria-controls="account-menu">
-          <span class="avatar avatar-small" id="account-avatar">A</span><span class="workspace-copy"><strong id="account-username">…</strong><small id="account-role">…</small></span><svg class="chevron" viewBox="0 0 12 12" aria-hidden="true"><path d="m2.5 4.5 3.5 3 3.5-3" /></svg>
-        </button>
-        <div id="account-menu" class="account-menu is-hidden" role="menu" aria-label="Accounts"></div>
-        </div>
         <nav class="main-nav" aria-label="Main navigation">
           <p class="nav-label">Workspace</p>
           <button class="nav-item is-active" type="button" data-page="overview" aria-current="page"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 10 8-6 8 6v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" /></svg><span>Overview</span></button>
-          <button class="nav-item" type="button" data-page="points"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 10-7 10S5 15 5 10a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2.5" /></svg><span>Important points</span><span class="nav-count">12</span></button><button class="nav-item" type="button" data-page="tours"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.5" /><circle cx="18" cy="18" r="2.5" /><path d="M8.5 6H14a4 4 0 0 1 0 8H9a3 3 0 0 0 0 6h6.5" /></svg><span>Tours</span></button>
+          <button class="nav-item" type="button" data-page="points"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 10-7 10S5 15 5 10a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2.5" /></svg><span>Important points</span><span class="nav-count is-hidden">0</span></button><button class="nav-item" type="button" data-page="tours"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.5" /><circle cx="18" cy="18" r="2.5" /><path d="M8.5 6H14a4 4 0 0 1 0 8H9a3 3 0 0 0 0 6h6.5" /></svg><span>Tours</span></button>
           <button class="nav-item" type="button" data-page="users"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3" /><path d="M5 20a7 7 0 0 1 14 0M17 5.5a3 3 0 0 1 0 5.5" /></svg><span>Administrators</span></button>
+          <button class="nav-item superadmin-only" type="button" data-page="admins" hidden><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 12 0M16 11h5m-2.5-2.5V14" /></svg><span>Access control</span></button>
           <p class="nav-label nav-label-spaced">Monitor</p>
           <button class="nav-item" type="button" data-page="debug" title="All systems operational"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1" /><circle cx="12" cy="12" r="4" /></svg><span>Debug</span><span class="nav-status"><i></i>OK</span></button>
           <button class="nav-item" type="button" data-page="attention"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 2.6 17.4a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 16.6h.01"/></svg><span>Attention</span></button>
-          
+
         </nav>
         <div class="sidebar-bottom">
-          <button class="nav-item superadmin-only" type="button" data-page="admins" hidden><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 12 0M16 11h5m-2.5-2.5V14" /></svg><span>Access control</span></button>
-          <div class="sidebar-footer"><span class="avatar" id="footer-avatar">A</span><span><strong id="footer-username">…</strong><small id="footer-role">…</small></span><button class="more-button more" id="admin-menu-button" type="button" aria-label="Account options" aria-haspopup="menu" aria-expanded="false" aria-controls="admin-menu">···</button><div id="admin-menu" class="account-menu admin-menu is-hidden" role="menu" aria-label="Account options"><button type="button" role="menuitem" data-menu-action="settings">Settings</button><button type="button" role="menuitem" data-menu-action="logout">Sign out</button></div></div>
+          <div class="sidebar-footer">
+            <button class="account-button" type="button" id="account-switcher" aria-haspopup="menu" aria-expanded="false" aria-controls="account-menu">
+              <span class="avatar" id="footer-avatar">A</span>
+              <span class="footer-copy"><strong id="footer-username">…</strong><small id="footer-role">…</small></span>
+              <svg class="chevron" viewBox="0 0 12 12" aria-hidden="true"><path d="m2.5 4.5 3.5 3 3.5-3" /></svg>
+            </button>
+            <div id="account-menu" class="account-menu is-hidden" role="menu" aria-label="Account options"></div>
+          </div>
           <nav class="sidebar-legal" aria-label="Legal and privacy">
             <a href="/terms.html">Terms</a>
             <a href="/privacy.html">Privacy</a>
@@ -198,8 +220,9 @@
         <header class="topbar">
           <button class="mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><button id="sidebar-collapse" class="icon-button desktop-collapse" type="button" aria-label="Collapse sidebar" aria-expanded="true">«</button>
           <nav class="breadcrumbs" aria-label="Breadcrumb"><span>Arad city guide</span><b aria-hidden="true">/</b><strong id="breadcrumb-current">Overview</strong></nav>
-          <div class="topbar-actions"><button id="global-search-button" class="icon-button" type="button" aria-label="Search points"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2" /><path d="m16 16 4 4" /></svg></button><button id="notifications-button" class="icon-button notification-button" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17h12l-1.5-2v-4a4.5 4.5 0 0 0-9 0v4zM10 19h4" /></svg><span aria-hidden="true"></span></button><span class="topbar-divider"></span><span class="topbar-date">Tue, 14 May 2024</span><button class="theme-toggle topbar-theme-toggle" type="button" data-theme-toggle aria-label="Switch to night theme"><span class="theme-icon theme-icon-sun" aria-hidden="true">☼</span><span class="theme-icon theme-icon-moon" aria-hidden="true">◐</span><span data-theme-label>Night</span></button><label class="language-picker topbar-language" for="top-language-select"><span class="sr-only">Language</span><select id="top-language-select"><option value="en">EN</option><option value="ro">RO</option></select></label></div>
+          <div class="topbar-actions"><button id="global-search-button" class="icon-button" type="button" aria-label="Search points"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2" /><path d="m16 16 4 4" /></svg></button><button id="notifications-button" class="icon-button notification-button" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17h12l-1.5-2v-4a4.5 4.5 0 0 0-9 0v4zM10 19h4" /></svg><span aria-hidden="true"></span></button><span class="topbar-divider"></span><span class="topbar-date">Tue, 14 May 2024</span><button class="theme-toggle topbar-theme-toggle" type="button" data-theme-toggle aria-label="Switch to night theme"><span class="theme-icon theme-icon-sun" aria-hidden="true">☼</span><span class="theme-icon theme-icon-moon" aria-hidden="true">◐</span><span data-theme-label>Night</span></button><label class="language-picker topbar-language" for="top-language-select"><span class="sr-only">Language</span><select id="top-language-select" data-no-translate><option value="en">English</option><option value="ro">Română</option></select></label></div>
         </header>
+        <p class="boot-note" role="status">Restoring your workspace…</p>
 
         <div id="page-overview" class="page active-page">
           <div class="prototype-notice" role="note"><strong>Prototype</strong><span>Sample queue shown until the API loads — live values replace it automatically.</span></div>
@@ -221,15 +244,135 @@
         <div id="page-attention" class="page"><div class="page-heading"><div><h2>Attention</h2><p class="heading-copy">Every problem across your guide, in one place.</p></div><div class="page-heading-actions"><button id="attention-refresh" class="button button-soft" type="button">Refresh</button></div></div><div id="attention-summary" class="attention-summary"></div><div id="attention-groups" class="attention-groups"></div></div>
 
         
-        <div id="page-users" class="page"><div class="page-heading"><div><h2>Administrators</h2><p class="heading-copy">Administrator accounts with live API data.</p></div><div class="page-heading-actions"><button id="users-export-csv" class="button button-soft" type="button">Export CSV ↘</button><button id="users-refresh" class="button button-soft" type="button">Refresh</button></div></div><div class="user-stat-row"><div><span>Total admins</span><strong id="stat-admins-total">—</strong></div><div><span>Active</span><strong id="stat-admins-active">—</strong></div><div><span>Inactive</span><strong id="stat-admins-inactive">—</strong></div><div><span>Superadmins</span><strong id="stat-admins-super">—</strong></div></div><div class="panel table-panel"><div class="filter-row"><label class="search-field" for="users-search"><span aria-hidden="true">⌕</span><input id="users-search" name="users-search" autocomplete="off" placeholder="Search by name or email…" data-i18n="Search by name or email…" /></label><label class="sr-only" for="users-status">Filter admins by status</label><select id="users-status" class="filter-button"><option value="all">All admins</option><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div><div class="users-table"><div class="user-row user-head"><span>User</span><span>Email</span><span>Role</span><span>Status</span></div><p id="users-admins-message" role="status" aria-live="polite"></p><div id="users-admins-list"></div></div></div></div>
+        <div id="page-users" class="page"><div class="page-heading"><div><h2>Administrators</h2><p class="heading-copy">Administrator accounts with live API data.</p></div><div class="page-heading-actions"><button id="users-manage-access" class="button button-dark superadmin-only" type="button" data-page="admins" hidden>Manage access</button><button id="users-export-csv" class="button button-soft" type="button">Export CSV ↘</button><button id="users-refresh" class="button button-soft" type="button">Refresh</button></div></div><div class="user-stat-row"><div><span>Total admins</span><strong id="stat-admins-total">—</strong></div><div><span>Active</span><strong id="stat-admins-active">—</strong></div><div><span>Inactive</span><strong id="stat-admins-inactive">—</strong></div><div><span>Superadmins</span><strong id="stat-admins-super">—</strong></div></div><div class="panel table-panel"><div class="filter-row"><label class="search-field" for="users-search"><span aria-hidden="true">⌕</span><input id="users-search" name="users-search" autocomplete="off" placeholder="Search by name or email…" data-i18n="Search by name or email…" /></label><label class="sr-only" for="users-status">Filter admins by status</label><select id="users-status" class="filter-button"><option value="all">All admins</option><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div><div class="users-table"><div class="user-row user-head"><span>User</span><span>Email</span><span>Role</span><span>Status</span></div><p id="users-admins-message" role="status" aria-live="polite"></p><div id="users-admins-list"></div></div></div></div>
 
         <div id="page-debug" class="page"><div class="page-heading"><div><h2>Debug &amp; device health</h2><p class="heading-copy">Stay ahead of the small things before they become a bad experience.</p></div><button class="button button-dark" type="button" data-api-health>Run health check ↻</button></div><div class="debug-banner"><span class="debug-icon" id="debug-banner-icon">✓</span><div><strong id="debug-banner-title">No active incidents</strong><p id="debug-banner-text">All core services are responding normally. Last check completed 4 minutes ago.</p></div><span class="banner-time">Auto-refreshing</span></div></div>
 
         
-                <div id="page-admins" class="page superadmin-only" hidden><div class="page-heading"><div><h2>Access control</h2><p class="heading-copy">Update roles and activation for administrator accounts.</p></div><div class="page-heading-actions"><button id="admins-back" class="button button-soft" type="button">Back to administrators</button><button id="admins-refresh" class="button button-soft" type="button">Refresh</button></div></div><div class="panel"><p id="admins-message" role="status" aria-live="polite"></p><p id="admin-edit-state" class="edit-state" hidden aria-live="polite"></p><div id="admins-list" class="admin-list" aria-live="polite"></div><form id="admin-form" class="settings-form" hidden><h3 id="admin-form-title">Edit administrator access</h3><input name="id" type="hidden" /><div class="setting-field"><label for="admin-role">Role</label><select id="admin-role" name="role"><option value="admin">Admin</option><option value="superadmin">Superadmin</option></select></div><label for="admin-active"><input id="admin-active" name="is_active" type="checkbox" checked /> Active</label><p id="admin-form-error" class="form-error" role="alert"></p><button class="button button-dark" type="submit">Save access</button><button id="admin-cancel" class="button button-soft" type="button">Cancel</button></form></div><div id="invites-panel" class="panel"><div class="panel-heading"><div><h3>Invite codes</h3><p>Live API data · GET /invites</p></div><button id="invites-refresh" class="button button-soft" type="button">Refresh</button></div><p id="invites-message" role="status" aria-live="polite"></p><div id="invites-list" class="admin-list" aria-live="polite"></div><form id="invite-form" class="settings-form"><h3>Create invite</h3><div class="setting-field"><label for="invite-role">Role</label><select id="invite-role" name="role"><option value="admin">Admin</option><option value="superadmin">Superadmin</option></select></div><div class="setting-field"><label for="invite-expires">Expires in (minutes)</label><input id="invite-expires" name="expires_in_minutes" type="number" min="1" value="1440" required /></div><p id="invite-form-error" class="form-error" role="alert"></p><button class="button button-dark" type="submit">Create invite</button></form></div>
+        <div id="page-admins" class="page superadmin-only" hidden>
+          <div class="page-heading">
+            <div>
+              <h2>Access control</h2>
+              <p class="heading-copy">Decide who can sign in, what they can do, and when their access ends.</p>
+            </div>
+            <div class="page-heading-actions">
+              <button id="admins-invites" class="button button-soft" type="button">Invite codes</button>
+              <button id="admins-create-invite" class="button button-dark" type="button">Create invite code</button>
+              <button id="admins-refresh" class="button button-soft" type="button">Refresh</button>
+            </div>
+          </div>
+
+          <section class="panel table-panel access-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Administrators</h3>
+                <p id="admins-summary" class="panel-summary">Every account that can sign in to this guide.</p>
+              </div>
+              <span class="panel-note">Edit access to change a role or switch an account off.</span>
+            </div>
+            <p id="admins-message" class="panel-message" role="status" aria-live="polite"></p>
+            <div class="users-table">
+              <div class="user-row user-head access-head">
+                <span>Administrator</span><span>Role</span><span>Access</span><span>Actions</span>
+              </div>
+              <div id="admins-list" class="admin-list" aria-live="polite"></div>
+            </div>
+            <p class="field-help access-hint">Your own row is locked so you cannot lock yourself out.</p>
+          </section>
         </div>
 
-        <div id="page-settings" class="page"><div class="page-heading"><div><h2>Settings</h2><p class="heading-copy">Keep your admin workspace tuned to the way you work.</p></div><button class="button button-dark" type="button" data-toast="Settings saved for this prototype session.">Save changes</button></div><div class="settings-grid"><section class="panel settings-panel"><div class="panel-heading"><div><h3>My account</h3><p>Update your own username and email. Your current password is required to save.</p></div></div><form id="account-form" class="settings-form" aria-describedby="account-form-error"><div class="setting-field"><label for="account-username">Username</label><input id="account-username" name="username" minlength="3" maxlength="50" required autocomplete="username" /></div><div class="setting-field"><label for="account-email">Email</label><input id="account-email" name="email" type="email" maxlength="255" required autocomplete="email" /></div><div class="setting-field"><label for="account-old-password">Current password</label><input id="account-old-password" name="old_password" type="password" autocomplete="current-password" required /><small class="field-help">Required to save account changes.</small></div><p id="account-form-error" class="form-error" role="alert"></p><button class="button button-soft" type="submit">Save account</button></form></section><section class="panel settings-panel"><div class="panel-heading"><div><h3>Account security</h3><p>Change the password for your authenticated API account.</p></div></div><form id="change-password-form" class="settings-form" aria-describedby="change-password-error"><div class="setting-field"><label for="old-password">Current password</label><input id="old-password" name="old_password" type="password" autocomplete="current-password" required /></div><div class="setting-field"><label for="new-password">New password</label><input id="new-password" name="new_password" type="password" autocomplete="new-password" minlength="8" required /><small class="field-help">Use at least 8 characters.</small></div><div class="setting-field"><label for="confirm-password">Confirm new password</label><input id="confirm-password" name="confirm_password" type="password" autocomplete="new-password" minlength="8" required /></div><p id="change-password-error" class="form-error" role="alert"></p><button class="button button-soft" type="submit">Change password</button></form></section><section class="panel settings-panel"><div class="panel-heading"><div><h3>Workspace</h3><p>Basic details for this admin space.</p></div></div><div class="setting-field"><label for="workspace-name">Workspace name</label><input id="workspace-name" name="workspace-name" autocomplete="off" value="Arad city guide" /></div><div class="setting-field"><label for="timezone">Timezone</label><select id="timezone" name="timezone"><option>Europe/Bucharest (GMT+3)</option><option>UTC (GMT+0)</option></select></div></section><section class="panel settings-panel settings-legal-panel"><div class="panel-heading"><div><h3>Legal &amp; privacy</h3><p>Terms, privacy, cookies, content rules and accessibility.</p></div></div><div class="legal-settings-links"><a href="/terms.html">Terms of Use</a><a href="/privacy.html">Privacy Notice</a><a href="/cookies.html">Cookie Notice</a><a href="/content-policy.html">Content Policy</a><a href="/accessibility.html">Accessibility</a></div><div class="settings-form"><p class="field-help">Your data is handled as described in the Privacy Notice. No marketing, analytics or advertising cookies are used.</p><p class="field-help">Terms version 1.0.</p></div></section></div></div>
+        <div id="page-settings" class="page">
+          <div class="page-heading">
+            <div>
+              <h2>Settings</h2>
+              <p class="heading-copy">Your account, your password, and how this workspace looks.</p>
+            </div>
+          </div>
+
+          <div class="settings-layout">
+            <div class="settings-column">
+              <section class="panel settings-card">
+                <div class="panel-heading">
+                  <div>
+                    <h3>My account</h3>
+                    <p>Update your own username and email. Your current password is required to save.</p>
+                  </div>
+                </div>
+                <form id="account-form" class="settings-form" aria-describedby="account-form-error">
+                  <div class="settings-field-grid">
+                    <div class="setting-field">
+                      <label for="account-username">Username</label>
+                      <input id="account-username" name="username" minlength="3" maxlength="50" required autocomplete="username" />
+                    </div>
+                    <div class="setting-field">
+                      <label for="account-email">Email</label>
+                      <input id="account-email" name="email" type="email" maxlength="255" required autocomplete="email" />
+                    </div>
+                  </div>
+                  <div class="setting-field">
+                    <label for="account-old-password">Current password</label>
+                    <input id="account-old-password" name="old_password" type="password" autocomplete="current-password" required />
+                    <small class="field-help">Required to save account changes.</small>
+                  </div>
+                  <p id="account-form-error" class="form-error" role="alert"></p>
+                  <button class="button button-dark" type="submit">Save account</button>
+                </form>
+              </section>
+
+              <section class="panel settings-card settings-row-card">
+                <div>
+                  <h3>Account security</h3>
+                  <p>Change the password you use to sign in to this guide. You stay signed in afterwards.</p>
+                </div>
+                <button id="open-password-modal" class="button button-soft" type="button">Change password</button>
+              </section>
+            </div>
+
+            <div class="settings-column">
+              <section class="panel settings-card">
+                <div class="panel-heading">
+                  <div>
+                    <h3>Appearance &amp; language</h3>
+                    <p>Kept on this device.</p>
+                  </div>
+                </div>
+                <div class="settings-form">
+                  <div class="setting-field">
+                    <label id="settings-theme-label">Theme</label>
+                    <div class="segmented" role="group" aria-labelledby="settings-theme-label">
+                      <button class="button" type="button" data-settings-theme="day" aria-pressed="false">Day</button>
+                      <button class="button" type="button" data-settings-theme="night" aria-pressed="false">Night</button>
+                    </div>
+                  </div>
+                  <div class="setting-field">
+                    <label for="settings-language">Language</label>
+                    <select id="settings-language" data-no-translate>
+                      <option value="en">English</option>
+                      <option value="ro">Română</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              <section class="panel settings-card settings-legal-panel">
+                <div class="panel-heading">
+                  <div>
+                    <h3>Legal &amp; privacy</h3>
+                    <p>Terms, privacy, cookies, content rules and accessibility.</p>
+                  </div>
+                </div>
+                <div class="legal-settings-links">
+                  <a href="/terms.html">Terms of Use</a><a href="/privacy.html">Privacy Notice</a>
+                  <a href="/cookies.html">Cookie Notice</a><a href="/content-policy.html">Content Policy</a>
+                  <a href="/accessibility.html">Accessibility</a>
+                </div>
+                <p class="field-help">Your data is handled as described in the Privacy Notice. No marketing, analytics or advertising cookies are used.</p>
+                <p class="field-help">Terms version 1.0.</p>
+              </section>
+            </div>
+          </div>
+        </div>
+
       </main>
     </div>
 <div id="location-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="location-modal-title"><div class="modal-backdrop" data-close-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="location-modal-title">Add location</h3><p>Live API data · /locations</p></div><button id="location-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><form id="location-form" class="settings-form" novalidate onsubmit="return false"><input name="id" type="hidden" /><div class="setting-field"><label for="location-name">Name</label><input id="location-name" name="name" maxlength="255" required autocomplete="off" /></div><div class="setting-field"><label for="location-category">Category</label><div class="category-field"><select id="location-category" name="category_id"><option value="">No category</option></select><button id="location-category-manage" class="text-button" type="button">Manage categories</button></div><p class="field-help" id="location-category-hint" role="status" aria-live="polite"></p></div><div class="setting-field"><label>Position on map</label><div id="location-picker-map" role="application" aria-label="Pick the location on the map"></div><p class="field-help" id="location-coords-label">No point selected — click the map to place it.</p><p class="field-help" id="osm-suggest" hidden><span id="osm-suggest-text"></span> <button type="button" class="text-button" id="osm-suggest-apply">Use this name</button></p><input name="latitude" type="hidden" /><input name="longitude" type="hidden" /><div class="phone-only capture-mobile"><p class="capture-mobile-label">On this phone</p><div class="capture-mobile-actions"><button id="location-record" class="button button-dark button-wide" type="button"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.6v3.5m0 11.8v3.5M2.6 12h3.5m11.8 0h3.5" /></svg><span>Record location</span></button><label class="button button-soft button-wide" for="location-photo"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.6h3.4l1.5-2.3h8.2l1.5 2.3H21V19H3z" /><circle cx="12" cy="13.4" r="3.3" /></svg><span>Take photo</span></label></div><input id="location-photo" type="file" accept="image/*" capture="environment" hidden /><p class="field-help" id="location-photo-status" role="status" aria-live="polite"></p></div></div><div class="setting-field"><label for="location-description">Description</label><textarea id="location-description" name="description" rows="3"></textarea></div><div class="setting-field"><label>Photos</label><div id="location-image-preview" class="image-preview" hidden><img id="location-image-img" alt="Location image preview" /></div><div class="modal-actions"><button id="location-image-button" class="button button-soft" type="button">Add photo</button></div><p class="field-help" id="location-image-count">No photos yet.</p></div><p id="location-form-error" class="form-error" role="alert"></p><div class="modal-actions"><button id="location-save" class="button button-dark" type="button">Save location</button><button id="location-delete" class="button button-soft" type="button">Delete</button><button id="location-cancel" class="button button-soft" type="button">Cancel</button></div></form></div></div>
@@ -237,8 +380,13 @@
 <div id="tour-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="tour-modal-title"><div class="modal-backdrop" data-close-tour-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="tour-modal-title">Add tour</h3><p>Chain important points in the order visitors should walk them.</p></div><button id="tour-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><form id="tour-form" class="settings-form"><input name="id" type="hidden" /><div class="setting-field"><label for="tour-name">Name</label><input id="tour-name" name="name" maxlength="150" required autocomplete="off" /></div><div class="setting-field"><label for="tour-description">Description</label><textarea id="tour-description" name="description" rows="3"></textarea></div><div class="setting-field"><label>Stops in order</label><div class="tour-picker"><div class="tour-picker-column"><p class="tour-picker-title">Available points</p><div id="tour-location-pool" class="tour-location-pool"></div></div><div class="tour-picker-column"><p class="tour-picker-title">Route <span id="tour-stop-count">0 stops</span></p><ol id="tour-location-order" class="tour-location-order"></ol></div></div><p class="field-help">Click a point to add it, then use the arrows to set the walking order.</p></div><p id="tour-form-error" class="form-error" role="alert"></p><div class="modal-actions"><button class="button button-dark" type="submit">Save tour</button><button id="tour-delete" class="button button-soft" type="button" hidden>Delete tour</button><button id="tour-cancel" class="button button-soft" type="button">Cancel</button></div></form></div></div>
 <div id="image-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="image-modal-title"><div class="modal-backdrop" data-close-image-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="image-modal-title">Location images</h3><p>Drag images in or browse your files — uploads save right away.</p></div><button id="image-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><div class="settings-form"><div id="image-strip" class="image-strip" role="group" aria-label="Location photos"></div><label id="image-dropzone" class="image-dropzone" for="image-file"><svg class="image-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><circle cx="8.8" cy="8.8" r="1.7"/><path d="M21 15.4 16.2 10.6 6.8 21"/></svg><span class="image-dropzone-title">Drag an image here, or click to browse</span><span class="image-dropzone-sub">PNG, JPG or WebP</span><input id="image-file" name="image-file" class="image-file-input" type="file" accept="image/*" multiple /></label><div id="image-gallery-preview" class="image-preview" hidden><img id="image-gallery-img" alt="Image preview" /></div><p id="image-modal-error" class="form-error" role="alert"></p><div class="modal-actions"><button id="image-download" class="button button-soft" type="button">Download photo</button><button id="image-modal-cancel" class="button button-soft" type="button">Done</button></div></div></div></div>
      <div id="capture-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="capture-modal-title"><div class="modal-backdrop" data-close-capture-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="capture-modal-title">Capture link</h3><p>Open this on a phone to record a location without signing in.</p></div><button id="capture-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><div class="settings-form"><div class="setting-field"><label for="capture-link-input">Link</label><textarea id="capture-link-input" class="capture-link-input" rows="3" readonly spellcheck="false" autocapitalize="off" aria-label="Capture link"></textarea></div><p class="field-help capture-link-meta"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4" /><path d="M12 7.4V12l3.1 2" /></svg><span id="capture-link-expiry"></span></p><p id="capture-link-note" class="capture-link-note" hidden></p><p id="capture-link-error" class="form-error" role="alert"></p><div class="modal-actions"><button id="capture-link-copy" class="button button-dark" type="button">Copy link</button><button id="capture-link-share" class="button button-soft" type="button" hidden>Share</button><button id="capture-modal-done" class="button button-soft" type="button">Done</button></div></div></div></div>
-     <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><span class="toast-message"></span><button type="button" class="toast-dismiss" aria-label="Dismiss notification">×</button></div>
-    <script src="assets/vendor/leaflet/leaflet.js"></script>
-     <script src="app.js?v=20261021"></script>
+     <div id="admin-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title"><div class="modal-backdrop" data-close-admin-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="admin-modal-title">Edit access</h3><p id="admin-modal-subtitle">—</p></div><button id="admin-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><form id="admin-form" class="settings-form"><input name="id" type="hidden" /><div class="setting-field"><label for="admin-role">Role</label><select id="admin-role" name="role"><option value="admin">Admin</option><option value="superadmin">Superadmin</option></select><small class="field-help">A superadmin can manage other administrators and invite codes.</small></div><label class="switch" for="admin-active"><input id="admin-active" name="is_active" type="checkbox" class="toggle-input" checked /><span class="toggle" aria-hidden="true"></span><span class="switch-label">Account is active</span></label><small class="field-help">An inactive account keeps its role but cannot sign in.</small><p id="admin-form-error" class="form-error" role="alert"></p><div class="modal-actions"><button class="button button-dark" type="submit">Save access</button><button id="admin-cancel" class="button button-soft" type="button">Cancel</button></div></form></div></div>
+     <div id="invite-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="invite-modal-title"><div class="modal-backdrop" data-close-invite-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="invite-modal-title">Create an invite code</h3><p>One code lets one new administrator register.</p></div><button id="invite-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><form id="invite-form" class="settings-form"><div class="setting-field"><label for="invite-role">Role</label><select id="invite-role" name="role"><option value="admin">Admin</option><option value="superadmin">Superadmin</option></select></div><div class="setting-field"><label for="invite-expires">Expires in (minutes)</label><input id="invite-expires" name="expires_in_minutes" type="number" min="1" value="1440" required /><small class="field-help">One day is 1440 minutes.</small></div><p id="invite-form-error" class="form-error" role="alert"></p><div id="invite-created" class="invite-created" hidden><span class="invite-created-label">New invite code</span><div class="invite-created-row"><code id="invite-created-code" class="invite-code"></code><button id="invite-created-copy" class="button button-soft" type="button">Copy</button></div><p class="field-help">Send it to the new administrator. It works once, until it expires.</p></div><div class="modal-actions"><button class="button button-dark" type="submit">Create invite</button><button id="invite-cancel" class="button button-soft" type="button">Done</button></div></form></div></div>
+     <div id="invites-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="invites-modal-title"><div class="modal-backdrop" data-close-invites-modal></div><div class="modal-panel panel invites-modal-panel" role="document"><div class="panel-heading"><div><h3 id="invites-modal-title">Invite codes</h3><p>Copy a code to hand it over. Revoke one you no longer need.</p></div><button id="invites-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><p id="invites-message" class="panel-message" role="status" aria-live="polite"></p><div id="invites-list" class="admin-list"></div><div class="modal-actions"><button id="invites-refresh" class="button button-soft" type="button">Refresh</button><button id="invites-modal-done" class="button button-dark" type="button">Done</button></div></div></div>
+     <div id="password-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="password-modal-title"><div class="modal-backdrop" data-close-password-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="password-modal-title">Change password</h3><p>You stay signed in after the change.</p></div><button id="password-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><form id="change-password-form" class="settings-form" aria-describedby="change-password-error"><div class="setting-field"><label for="old-password">Current password</label><input id="old-password" name="old_password" type="password" autocomplete="current-password" required /></div><div class="setting-field"><label for="new-password">New password</label><input id="new-password" name="new_password" type="password" autocomplete="new-password" minlength="8" required /><small class="field-help">Use at least 8 characters.</small></div><div class="setting-field"><label for="confirm-password">Confirm new password</label><input id="confirm-password" name="confirm_password" type="password" autocomplete="new-password" minlength="8" required /><small class="field-help">Type it once more so we know it landed.</small></div><p id="change-password-error" class="form-error" role="alert"></p><div class="modal-actions"><button class="button button-dark" type="submit">Change password</button><button id="password-modal-cancel" class="button button-soft" type="button">Cancel</button></div></form></div></div>
+     <div id="confirm-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-text"><div class="modal-backdrop" data-close-confirm-modal></div><div class="modal-panel panel confirm-panel" role="document"><div class="confirm-mark" aria-hidden="true">!</div><div><h3 id="confirm-modal-title">Remove administrator</h3><p id="confirm-modal-text">This cannot be undone.</p></div><p id="confirm-modal-detail" class="confirm-detail"></p><div class="modal-actions"><button id="confirm-modal-cancel" class="button button-soft" type="button">Cancel</button><button id="confirm-modal-confirm" class="button button-danger" type="button">Remove</button></div></div></div>
+     <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><span class="toast-mark" aria-hidden="true"></span><span class="toast-message"></span><button type="button" class="toast-dismiss" aria-label="Dismiss notification">×</button></div>
+    <script src="assets/vendor/leaflet/leaflet.js" defer></script>
+     <script src="app.js?v=20261021" defer></script>
   </body>
 </html>

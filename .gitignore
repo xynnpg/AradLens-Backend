@@ -12,6 +12,7 @@ node_modules/
 # Local tooling and agent scaffolding
 .codex/
 .agents/
+.opencode/
 .github/
 .impeccable/
 .playwright-mcp/

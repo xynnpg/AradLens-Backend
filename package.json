@@ -6,6 +6,7 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check app.js && node --check server.js"
+    "check": "node --check app.js && node --check server.js",
+    "skills:commands": "node tools/sync-skill-commands.js"
   }
 }

@@ -17,9 +17,11 @@ same-origin to the admin server; `server.js` is authoritative.
 | `GET` | `/api/health` | No | Upstream API health |
 | `GET` | `/api/admins` | Yes | List admins |
 | `PUT` | `/api/admins/:id` | Yes | Update an admin's `role` and `is_active` (superadmin only) |
+| `DELETE` | `/api/admins/:id` | Yes | Delete an admin (superadmin only); answers `204` |
 | `PATCH` | `/api/admins/me` | Yes | Update your own `username` and `email` (`old_password` required) |
 | `GET` | `/api/invites` | Yes | List invites |
 | `POST` | `/api/invites` | Yes | Create invite |
+| `DELETE` | `/api/invites/:id` | Yes | Revoke an invite; answers `204` |
 | `GET` | `/api/locations` | No | List locations |
 | `GET` | `/api/locations/:id` | No | Location detail (carries `images` as an array of image ids) |
 | `POST` | `/api/locations` | Yes | Create location (`category_id` optional) |
@@ -42,9 +44,10 @@ same-origin to the admin server; `server.js` is authoritative.
 
 `:id` matches digits only. Any other `/api/*` path is not proxied.
 
-Administrator create and delete are not proxied: accounts are created through
-invites, and a superadmin can only change another admin's role and active
-status. Every signed-in admin can update their own username and email with
+Administrator create is not proxied: accounts are created through invites. A
+superadmin can change another admin's role and active status with
+`PUT /api/admins/:id`, and can delete an admin with `DELETE /api/admins/:id`.
+Every signed-in admin can update their own username and email with
 `PATCH /api/admins/me`; the body carries `username`, `email`, and
 `old_password`. Password changes stay on `POST /api/auth/change-password`.
 

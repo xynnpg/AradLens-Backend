@@ -56,8 +56,8 @@ content-policy.html  Content rules, reports and takedown process
 accessibility.html   Accessibility statement
 assets/         Self-hosted fonts and Leaflet distribution
 server.js       Static file server, API proxy, cookie session, capture-link store,
-                security headers, consent/geocode proxy
-package.json    npm scripts (start, check)
+                security headers, compression, consent/geocode proxy
+package.json    npm scripts (start, check, skills:commands)
 Dockerfile      Container image (node:22-alpine)
 compose.yaml    Docker Compose service definition
 .env.example    Environment variable template
@@ -88,6 +88,27 @@ Phone (capture.html)  ->  /api/capture/:token  ->  server.js (stored bearer)  ->
 
 - On serve, the proxy injects `ARADLENS_API_ORIGIN` into the `aradlens-api-origin` meta tag of `index.html`.
 - Unknown `/api/*` routes fall through to static serving and return `404`.
+
+## How fast it loads
+
+The workspace is a static site with no build step, so the only things that can
+slow it down are bytes over the wire and the wait for the session to come back.
+
+**Bytes.** Every text response is compressed — Brotli when the browser asks for
+it, Gzip otherwise — and tagged with an ETag. Fonts and images are left alone;
+they are already compressed and compressing them again makes them bigger.
+
+**Caching.** The asset links carry a version derived from the files themselves,
+so a link with a version in it can never change under that URL. Those are
+served `immutable` for a year. Everything else revalidates, and the ETag turns
+that revalidation into a `304` with no body. A returning browser therefore
+reloads the page in well under a kilobyte.
+
+**The session.** The token lives in an HttpOnly cookie, so the browser cannot
+know who is signed in without asking the server. `index.html` carries a two-line
+boot script that cannot answer that question but can say "we were signed in
+here a moment ago", and the workspace chrome stays on screen while the real
+answer arrives. The sign-in page never appears for a signed-in visitor.
 
 ## Related
 

@@ -28,13 +28,31 @@ matches the console without relying on the phone's `localStorage`.
 
 ## Language
 
-1. Use either language picker (`EN` / `RO`, or English / Română).
+1. Use any of the three language pickers (top bar, sign-in screen, Settings).
+   They all offer the same two entries, always written in their own language:
+   **English** and **Română**.
 2. The choice is saved to `localStorage` under `aradlens-language` (`en` or `ro`).
 3. On load, an unsupported or missing value falls back to `en`.
 
-`app.js` sets `<html lang>`, the document title, static labels, placeholders,
-`aria-label` and `title` text, messages, and toasts. Filtering and list views use
-stable data values, so switching language never changes the selected records.
+Every picker is kept in sync, so changing one updates the other two.
+
+### How strings are translated
+
+- `uiTranslations` in `app.js` is the English → Romanian table. Its keys are the
+  English source strings, so English needs no second copy.
+- `t(key, values)` resolves a key for the current language. A key may carry
+  `{name}` placeholders — `t("Exported {n} administrator(s).", { n })` — which lets
+  each language keep its own word order.
+- `counted(n, oneKey, manyKey)` picks the singular or plural form. Romanian has
+  three shapes (1, 2–19, 20+) and only the last needs "de" between number and noun.
+- Static markup is translated by `localizeDom()`, which walks text nodes, `title`,
+  `aria-label` and `placeholder`. Elements marked `data-no-translate` are skipped:
+  language names are endonyms and must never be rewritten.
+- Dynamic content calls `t()` where it is rendered, and `applyLanguage()` re-renders
+  cached lists so a language switch never leaves a half-translated page.
+
+Filtering and list views use stable `data-value` attributes, so switching language
+never changes the selected records.
 
 ## Storage fallback
 
@@ -93,6 +111,9 @@ next to the font files in `assets/fonts/`.
 - **Never use `--anchor` as ink.** `--anchor` is the rail colour; on the night
   theme it is almost black and would be invisible on a dark panel. Body text
   uses `--ink`, and anything drawn on the rail uses `--rail-fg` or `--rail-muted`.
+- **The rail's separators use `--rail-border`, not `--border`.** The rail is
+  dark in both themes, so a page border token there is a cream line cutting
+  the rail in half.
 - **Never put `--text-3` on a tinted fill.** Use `--text-2`; the muted ramp is
   not strong enough on mint, apricot or rose.
 - **The ink metric card inverts with the theme.** Its background is `--ink` and

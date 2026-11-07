@@ -153,7 +153,6 @@ const uiTranslations = {
   "Filter activity…": "Filtrează activitatea…", "Published “Arad Fortress”": "A publicat „Arad Fortress”",
   "Workspace preferences": "Preferințele spațiului de lucru",
   "Keep your admin workspace tuned to the way you work.": "Adaptează spațiul de administrare la modul tău de lucru.",
-  "Settings saved for this prototype session.": "Setările au fost salvate pentru această sesiune a prototipului.", "Save changes": "Salvează modificările",
   "Choose which updates deserve your attention.": "Alege actualizările despre care vrei să fii informat.",
   "Incident alerts": "Alerte de incidente", "Get notified when crashes or API issues appear.": "Primește notificări când apar blocări sau probleme cu API-ul.",
   "Editorial reminders": "Mementouri editoriale", "Receive a daily summary of points awaiting review.": "Primește zilnic un rezumat al punctelor care așteaptă verificarea.",
@@ -165,17 +164,11 @@ const uiTranslations = {
   "Saving account…": "Se salvează contul…",
   "Account updated.": "Contul a fost actualizat.",
   "Edit access": "Editează accesul",
-  "Edit administrator access": "Editează accesul administratorului",
-  "Edit access for": "Editează accesul pentru",
-  "Editing access for": "Se editează accesul pentru",
-  "Save to apply, Cancel to discard.": "Salvează pentru a aplica, Anulează pentru a renunța.",
   "Save access": "Salvează accesul",
   "Select an administrator to edit access.": "Selectează un administrator pentru a-i edita accesul.",
   "Administrator access updated.": "Accesul administratorului a fost actualizat.",
-  "Update roles and activation for administrator accounts.": "Actualizează rolurile și activarea conturilor de administrator.",
-  "Account security": "Securitatea contului", "Change the password for your authenticated API account.": "Schimbă parola contului cu care te-ai autentificat prin API.",
+  "Account security": "Securitatea contului",
   "Current password": "Parola actuală", "New password": "Parola nouă", "Use at least 8 characters.": "Folosește cel puțin 8 caractere.", "Change password": "Schimbă parola",
-  "Basic details for this admin space.": "Detaliile de bază ale acestui spațiu de administrare.", "Workspace name": "Numele spațiului de lucru", "Timezone": "Fus orar",
   "Dismiss notification": "Închide notificarea",
   "We couldn't complete that request. Check your connection and try again.": "Nu am putut finaliza solicitarea. Verifică conexiunea și încearcă din nou.",
   "Signing in…": "Autentificare în curs…", "Sign in": "Autentificare",
@@ -208,7 +201,6 @@ const uiTranslations = {
   "Reusable during that time.": "Reutilizabil în acest interval.",
   "Localhost was swapped for this machine's network address so a phone can open the link. Set PUBLIC_ORIGIN to use a different address.": "Localhost a fost înlocuit cu adresa de rețea a acestui computer, ca telefonul să poată deschide linkul. Setează PUBLIC_ORIGIN pentru altă adresă.",
   "Category": "Categorie",
-  "No category": "Fără categorie",
   "Manage categories": "Gestionează categoriile",
   "Categories": "Categorii",
   "Existing categories": "Categorii existente",
@@ -222,7 +214,265 @@ const uiTranslations = {
   "Save": "Salvează",
   "Cancel": "Anulează",
   "OpenStreetMap suggests": "OpenStreetMap sugerează",
-  "Category deleted.": "Categoria a fost ștearsă."
+  "Category deleted.": "Categoria a fost ștearsă.",
+
+  /* Access control */
+  "Manage access": "Gestionează accesul",
+  "Decide who can sign in, what they can do, and when their access ends.": "Decide cine se poate autentifica, ce poate face și când îi expiră accesul.",
+  "Every account that can sign in to this guide.": "Fiecare cont care se poate autentifica în acest ghid.",
+  "Edit access to change a role or switch an account off.": "Editează accesul ca să schimbi un rol sau să oprești un cont.",
+  "Your own row is locked so you cannot lock yourself out.": "Propriul rând este blocat, ca să nu te poți bloca singur.",
+  "Role": "Rol",
+  "Access": "Acces",
+  "Actions": "Acțiuni",
+  "Code": "Cod",
+  "Expires": "Expiră",
+  "expires": "expiră",
+  "One code lets one new administrator register.": "Un cod permite unui administrator nou să se înregistreze.",
+  "One day is 1440 minutes.": "O zi înseamnă 1440 de minute.",
+  "You": "Tu",
+  "You cannot change your own access.": "Nu îți poți schimba propriul acces.",
+  "You cannot remove your own account.": "Nu îți poți elimina propriul cont.",
+  "administrators": "administratori",
+  "active accounts": "conturi active",
+  "superadmins": "superadmini",
+  "Delete administrator": "Elimină administratorul",
+  "The account is deleted straight away. It cannot be brought back.": "Contul este șters imediat. Nu poate fi readus.",
+  "Delete account": "Elimină contul",
+  "Administrator deleted.": "Administrator eliminat.",
+  "This cannot be undone.": "Această acțiune nu poate fi anulată.",
+  "Copy": "Copiază",
+  "Revoke": "Revocă",
+  "Revoke invite code": "Revocă codul de invitație",
+  "The code stops working straight away. It cannot be brought back.": "Codul nu mai funcționează imediat. Nu poate fi readus.",
+  "Revoke code": "Revocă codul",
+  "This invite can no longer be revoked.": "Această invitație nu mai poate fi revocată.",
+  "Invite revoked.": "Invitație revocată.",
+  "invite codes": "coduri de invitație",
+  "Invite codes": "Coduri de invitație",
+  "+ Add account": "+ Adaugă cont",
+  "No other accounts": "Niciun alt cont",
+  "Create an invite code": "Creează un cod de invitație",
+  "Create invite code": "Creează cod de invitație",
+  "Invite created.": "Invitație creată.",
+  "New invite code": "Nou cod de invitație",
+  "Send it to the new administrator. It works once, until it expires.": "Trimite-l noului administrator. Funcționează o singură dată, până expiră.",
+  "Copy a code to hand it over. Revoke one you no longer need.": "Copiază un cod ca să-l predai. Revocă unul de care nu mai ai nevoie.",
+  "Unused": "Neutilizat",
+  "Used": "Folosit",
+  "Revoked": "Revocat",
+  "Expired": "Expirat",
+  "A superadmin can manage other administrators and invite codes.": "Un superadmin poate gestiona alți administratori și coduri de invitație.",
+  "Account is active": "Contul este activ",
+  "An inactive account keeps its role but cannot sign in.": "Un cont inactiv își păstrează rolul, dar nu se mai poate autentifica.",
+
+  /* Settings */
+  "Your account, your password, and how this workspace looks.": "Contul tău, parola ta și cum arată acest spațiu de lucru.",
+  "Password & security": "Parolă și securitate",
+  "Change the password you use to sign in to this guide. You stay signed in afterwards.": "Schimbă parola cu care te autentifici în acest ghid. Rămâi autentificat după schimbare.",
+  "You stay signed in after the change.": "Rămâi autentificat după schimbare.",
+  "Confirm new password": "Confirmă parola nouă",
+  "Type it once more so we know it landed.": "Scrie-o încă o dată, ca să știm că a ajuns corect.",
+  "Appearance & language": "Aspect și limbă",
+  "Kept on this device.": "Păstrate pe acest dispozitiv.",
+  "Username": "Nume de utilizator",
+  "Email": "E-mail",
+  "Theme": "Temă",
+  "Day": "Zi",
+  "Night": "Noapte",
+  "English": "Engleză",
+  "Română": "Română",
+  "Legal & privacy": "Legal și confidențialitate",
+  "Terms, privacy, cookies, content rules and accessibility.": "Termeni, confidențialitate, cookie-uri, reguli de conținut și accesibilitate.",
+  "Your data is handled as described in the Privacy Notice. No marketing, analytics or advertising cookies are used.": "Datele tale sunt prelucrate conform Notificării de confidențialitate. Nu se folosesc cookie-uri de marketing, analiză sau publicitate.",
+  "Terms version 1.0.": "Versiunea termenilor 1.0.",
+  "Terms of Use": "Condiții de utilizare",
+  "Privacy Notice": "Notificare de confidențialitate",
+  "Cookie Notice": "Notificare cookie-uri",
+  "Content Policy": "Politică de conținut",
+  "Accessibility": "Accesibilitate",
+  /* ---- Everything the workspace can show, in one place ----    The keys below are the English source strings. They cover the    login screen, the rail, every page, every modal, every empty    state and every message a person can be shown. A key that takes    a value uses {braces} so the sentence can be rebuilt in the    other language without losing word order. */
+  "Terms": "Termeni",
+  "Privacy": "Confidențialitate",
+  "Cookies": "Cookie-uri",
+  "Content": "Conținut",
+  "Show": "Arată",
+  "Hide": "Ascunde",
+  "Back to workspace": "Înapoi la spațiu de lucru",
+  "Create account": "Creează cont",
+  "Password": "Parolă",
+  "Have an invite code? Create your administrator account.": "Ai un cod de invitație? Creează-ți contul de administrator.",
+  "Invite code": "Cod de invitație",
+  "I am at least 18 years old and I accept the": "Am cel puțin 18 ani și accept",
+  "and the": "și",
+  "You must accept the Terms of Use and Privacy Notice to create an account.": "Trebuie să accepți Condițiile de utilizare și Notificarea de confidențialitate pentru a crea un cont.",
+  "Prototype": "Prototip",
+  "Sample queue shown until the API loads — live values replace it automatically.": "Se afișează o coadă de probă până când API-ul încarcă — valorile reale o înlocuiesc automat.",
+  "Live count · locations": "Număr live · locații",
+  "Live count · admins": "Număr live · administratori",
+  "Live calculation": "Calcul live",
+  "Loading editorial queue…": "Se încarcă coada editorială…",
+  "Live items appear when the API responds.": "Elementele live apar când API-ul răspunde.",
+  "View all": "Vezi tot",
+  "Latest locations": "Ultimele locații",
+  "Recently added places, live from the API.": "Locuri adăugate recent, live din API.",
+  "View points ↗": "Vezi punctele ↗",
+  "Place": "Loc",
+  "Coordinates": "Coordonate",
+  "ID": "ID",
+  "Loading…": "Se încarcă…",
+  "Filter points by completeness": "Filtrează punctele după completitudine",
+  "All points": "Toate punctele",
+  "Missing photo": "Fără fotografie",
+  "Missing description": "Fără descriere",
+  "Complete": "Complet",
+  "Live locations": "Locații live",
+  "Live API data · GET /locations": "Date live din API · GET /locations",
+  "Live API data · /locations": "Date live din API · /locations",
+  "Live API data · /categories": "Date live din API · /categories",
+  "Chain important points into a guided route for visitors.": "Lansează punctele importante într-un traseu ghidat pentru vizitatori.",
+  "Chain important points into a guided route · GET /tours": "Lansează punctele importante într-un traseu ghidat · GET /tours",
+  "Chain important points in the order visitors should walk them.": "Lansează punctele importante în ordinea în care vizitatorii ar trebui să le parcurgă.",
+  "+ Add tour": "+ Adaugă tur",
+  "Add tour": "Adaugă tur",
+  "Available points": "Puncte disponibile",
+  "Route": "Traseu",
+  "Stops in order": "Opriri în ordine",
+  "Click a point to add it, then use the arrows to set the walking order.": "Apasă un punct ca să-l adaugi, apoi folosește săgețile pentru a stabili ordinea de mers.",
+  "No stops selected.": "Nicio oprire selectată.",
+  "All points are on this tour.": "Toate punctele sunt deja în acest tur.",
+  "No important points yet. Add one first.": "Încă nu există puncte importante. Adaugă unul mai întâi.",
+  "Give the tour a name.": "Dă turului un nume.",
+  "Add at least one important point to the route.": "Adaugă cel puțin un punct important în traseu.",
+  "Save tour": "Salvează turul",
+  "Delete tour": "Șterge turul",
+  "No tours yet.": "Încă nu există tururi.",
+  "Add details from the Important points page": "Adaugă detalii din pagina Puncte de interes",
+  "Administrator accounts with live API data.": "Conturi de administrator cu date live din API.",
+  "Export CSV ↘": "Exportă CSV ↘",
+  "Total admins": "Total administratori",
+  "Superadmins": "Superadmini",
+  "Filter admins by status": "Filtrează administratorii după stare",
+  "All admins": "Toți administratorii",
+  "No administrator data to export. Refresh the list first.": "Nu există date de administratori de exportat. Reîmprospătează mai întâi lista.",
+  "No administrators found.": "Nu s-a găsit niciun administrator.",
+  "Admin": "Administrator",
+  "Superadmin": "Superadmin",
+  "Nothing needs attention right now.": "Nimic nu necesită atenție chiar acum.",
+  "All clear": "Totul e curat",
+  "There are no points yet.": "Încă nu există puncte.",
+  "No locations yet. Add the first one from Important points.": "Încă nu există locații. Adaugă prima din Puncte de interes.",
+  "Loading the guide…": "Se încarcă ghidul…",
+  "Loading locations…": "Se încarcă locațiile…",
+  "Loading tours…": "Se încarcă tururile…",
+  "Loading administrators…": "Se încarcă administratorii…",
+  "Add location": "Adaugă locație",
+  "Add photo": "Adaugă fotografie",
+  "Manage photos": "Gestionează fotografiile",
+  "No photos yet.": "Încă nu există fotografii.",
+  "No photos yet. Drop a file below to add one.": "Încă nu există fotografii. Trage un fișier dedesubt pentru a adăuga una.",
+  "An image failed to load. Try again in a moment.": "Imaginea nu a putut fi încărcată. Încearcă din nou în câteva momente.",
+  "There is no photo to download.": "Nu există nicio fotografie de descărcat.",
+  "That is not an image file. Drop a PNG, JPG or WebP.": "Nu este un fișier imagine. Trage un PNG, JPG sau WebP.",
+  "Save the location first, then upload files.": "Salvează mai întâi locația, apoi încarcă fișierele.",
+  "Save the location first.": "Salvează mai întâi locația.",
+  "Give the location a name.": "Dă locației un nume.",
+  "Pick a point on the map first.": "Alege mai întâi un punct pe hartă.",
+  "No point selected — click the map to place it.": "Niciun punct selectat — apasă pe hartă pentru a-l plasa.",
+  "Position on map": "Poziție pe hartă",
+  "Use this name": "Folosește acest nume",
+  "Name": "Nume",
+  "Description": "Descriere",
+  "Photos": "Fotografii",
+  "Location images": "Imagini locație",
+  "Drag images in or browse your files — uploads save right away.": "Trage imagini aici sau caută în fișierele tale — încărcările se salvează imediat.",
+  "Drag an image here, or click to browse": "Trage o imagine aici sau apasă pentru a căuta",
+  "PNG, JPG or WebP": "PNG, JPG sau WebP",
+  "Download photo": "Descarcă fotografia",
+  "Save location": "Salvează locația",
+  "Location is not available on this device.": "Locația nu este disponibilă pe acest dispozitiv.",
+  "Could not record your position. Allow location access and try again.": "Poziția nu a putut fi înregistrată. Permite accesul la locație și încearcă din nou.",
+  "Recording…": "Se înregistrează…",
+  "The map could not be loaded. Check your connection and try again.": "Harta nu a putut fi încărcată. Verifică conexiunea și încearcă din nou.",
+  "Location created. Add images or keep editing.": "Locație creată. Adaugă imagini sau continuă editarea.",
+  "Location deleted.": "Locație ștearsă.",
+  "Photo deleted.": "Fotografie ștearsă.",
+  "Tour created.": "Tur creat.",
+  "Tour deleted.": "Tur șters.",
+  "Tour updated.": "Tur actualizat.",
+  "Invite code copied.": "Codul de invitație a fost copiat.",
+  "Link": "Link",
+  "Expires in (minutes)": "Expiră în (minute)",
+  "Create invite": "Creează invitație",
+  "Remove administrator": "Elimină administratorul",
+  "Remove": "Elimină",
+  "API returned an unexpected status": "API-ul a răspuns cu o stare neașteptată",
+  "API unreachable": "API-ul nu poate fi contactat",
+  "The API responded, but not with the expected health payload. Check the backend.": "API-ul a răspuns, dar nu cu datele de stare așteptate. Verifică backend-ul.",
+  "Last check completed just now. All core services are responding normally.": "Ultima verificare tocmai s-a încheiat. Toate serviciile principale răspund normal.",
+  "The request could not reach AradLens. Check your connection and try again.": "AradLens nu a putut fi contactat. Verifică conexiunea și încearcă din nou.",
+  "Your session has expired. Sign in again to continue.": "Sesiunea a expirat. Autentifică-te din nou pentru a continua.",
+  "Account actions": "Acțiuni de cont",
+  "Account options": "Opțiuni de cont",
+  "Legal and privacy": "Legal și confidențialitate",
+  "Collapse sidebar": "Restrânge meniul lateral",
+  "Expand sidebar": "Extinde meniul lateral",
+  "Close dialog": "Închide fereastra",
+  "Pick the location on the map": "Alege locația pe hartă",
+  "Location photos": "Fotografii locație",
+  "Your username": "Numele tău de utilizator",
+  "Paste your invite code": "Lipește codul de invitație",
+  "Choose a username": "Alege un nume de utilizator",
+  "Show password": "Arată parola",
+  "Hide password": "Ascunde parola",
+  "Good morning": "Bună dimineața",
+  "Good afternoon": "Bună ziua",
+  "Good evening": "Bună seara",
+  "Switch account": "Schimbă contul",
+  "Live": "Live",
+  "Edit": "Editează",
+  "{n} place(s) missing a photo": "{n} locuri fără fotografie",
+  "{n} place(s) missing a description": "{n} locuri fără descriere",
+  "{n} images uploaded.": "{n} imagini încărcate.",
+  "Image uploaded.": "Imagine încărcată.",
+  "Exported {n} administrator(s).": "S-au exportat {n} administratori.",
+  "Switched to {name}.": "Ai comutat la {name}.",
+  "Signed out. Switched to {name}.": "Deconectare. Ai comutat la {name}.",
+  "Account created: {name}": "Cont creat: {name}",
+  "Category renamed: {name}": "Categorie redenumită: {name}",
+  "Category created: {name}": "Categorie creată: {name}",
+  "{n} stop(s)": "{n} opriri",
+  "{n} tour(s)": "{n} tururi",
+  "{n} location(s)": "{n} locații",
+  "{n} photo(s)": "{n} fotografii",
+  "API healthy · {ms}ms": "API funcțional · {ms}ms",
+  "Selected: {lat}, {lng} — click elsewhere or drag the pin to move it.": "Selectat: {lat}, {lng} — apasă în altă parte sau trage pinul pentru a-l muta.",
+  "OpenStreetMap calls this “{name}”.": "OpenStreetMap numește asta „{name}”.",
+  "Delete category “{name}”? Locations that use it lose the category.": "Ștergi categoria „{name}”? Locațiile care o folosesc rămân fără categorie.",
+  "Delete tour {name}? This cannot be undone.": "Ștergi turul „{name}”? Operațiunea nu poate fi anulată.",
+  "Delete location #{id}? This cannot be undone.": "Ștergi locația #{id}? Operațiunea nu poate fi anulată.",
+  "Edit location #{id}": "Editează locația #{id}",
+  "Edit tour {name}": "Editează turul „{name}”",
+  "Edit {name}": "Editează {name}",
+  "Rename {name}": "Redenumește {name}",
+  "Delete {name}": "Șterge {name}",
+  "Move {name} up": "Mută {name} în sus",
+  "Move {name} down": "Mută {name} în jos",
+  "Remove {name} from the route": "Elimină {name} din traseu",
+  "Open {name} in Important points": "Deschide {name} în Puncte de interes",
+  "Location #{id}": "Locația #{id}",
+  "Tour #{id}": "Turul #{id}",
+  "{message} Click Refresh to try again.": "{message} Apasă Reîmprospătează pentru a încerca din nou.",
+  "{message} Click Run health check to try again.": "{message} Apasă Verifică starea serviciilor pentru a încerca din nou.",
+
+  /* Singular/plural pairs used by counted(). */
+  "administrator": "administrator",
+  "active account": "cont activ",
+  "superadmin": "superadmin",
+  "invite code": "cod de invitație",
+  "No invites found.": "Nu s-a găsit nicio invitație.",
+  "0 stops": "0 opriri",
+  "No locations found.": "Nu s-a găsit nicio locație.",
 };
 
 function readPreference(storageName, key, allowed, fallback) {
@@ -242,8 +492,27 @@ function writePreference(storageName, key, value) {
 let currentLanguage = readPreference("localStorage", "aradlens-language", ["en", "ro"], "en");
 let currentTheme = readPreference("localStorage", "aradlens-theme", ["day", "night"], "day");
 let currentPage = "overview";
-function t(key) {
-  return translations[currentLanguage][key] || (currentLanguage === "ro" ? uiTranslations[key] : key) || key;
+/* Resolve a key to the reader's language. A key may carry {name}
+   placeholders; the caller supplies the values, so the sentence keeps
+   its own word order in either language. */
+function t(key, values) {
+  const table = translations[currentLanguage] || {};
+  let text = table[key] || (currentLanguage === "ro" ? uiTranslations[key] : key) || key;
+  if (values) {
+    text = String(text).replace(/\{([a-zA-Z0-9_]+)\}/g, (whole, name) => (values[name] === undefined ? whole : String(values[name])));
+  }
+  return text;
+}
+
+/* Romanian counts take three shapes — one, a few, and many — and
+   only the last of them needs "de" between number and noun. */
+function counted(n, oneKey, manyKey, options) {
+  const many = t(manyKey, options);
+  if (n === 1) return `${n} ${t(oneKey, options)}`;
+  if (currentLanguage !== "ro") return `${n} ${many}`;
+  const rest = n % 100;
+  const needsDe = n !== 0 && (rest === 0 || rest > 19);
+  return `${n} ${needsDe ? "de " + many : many}`;
 }
 
 function setMessage(element, key) {
@@ -292,6 +561,7 @@ function applyTheme() {
     button.querySelector(".theme-icon-moon")?.style.setProperty("display", currentTheme === "night" ? "inline" : "none");
     button.dataset.nextTheme = nextTheme;
   });
+  syncSettingsControls();
 }
 
 const originalTextNodes = new WeakMap();
@@ -301,13 +571,19 @@ function localizeDom() {
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   nodes.forEach((node) => {
+    /* Some text must never be rewritten: language names are endonyms,
+       and a person looking for their own language has to recognise it.
+       Anything inside [data-no-translate] keeps the words it was born
+       with. */
+    if (node.parentElement?.closest("script,style,[data-no-translate]")) return;
     if (!originalTextNodes.has(node)) originalTextNodes.set(node, node.nodeValue);
     const source = originalTextNodes.get(node);
     const original = source.trim();
-    if (!original || !uiTranslations[original] || node.parentElement?.closest("script,style")) return;
+    if (!original || !uiTranslations[original]) return;
     node.nodeValue = source.replace(original, t(original));
   });
   document.querySelectorAll("[title], [aria-label], input[placeholder]").forEach((element) => ["title", "aria-label", "placeholder"].forEach((attribute) => {
+    if (element.closest("[data-no-translate]")) return;
     const value = element.getAttribute(attribute);
     if (!value) return;
     if (!originalAttributes.has(element)) originalAttributes.set(element, {});
@@ -338,11 +614,19 @@ function applyLanguage() {
   applyTheme();
   updateTopbarDate();
   if (authenticatedAdmin) updateAccountChrome();
-  showPage(currentPage, false);
+  /* Lists that were built from cached data still hold the old words.
+     Re-render them rather than leaving a half-translated page. */
+  renderAccountMenu();
+  if (!document.getElementById("category-modal")?.classList.contains("is-hidden")) renderCategoryList();
+  if (cachedCategories.length) renderCategoryOptions(document.getElementById("location-category")?.value || "");
+  if (currentPage === "attention") renderAttention();
+  showPage(currentPage, false, true);
 }
 
 function setAuthenticated(isAuthenticated, admin = null) {
   authenticatedAdmin = isAuthenticated ? admin : null;
+  /* The restoring state has done its work, whichever way the answer went. */
+  document.documentElement.classList.remove("is-restoring");
   const isSuperadmin = String(authenticatedAdmin?.role || "").toLowerCase() === "superadmin";
   document.querySelectorAll(".superadmin-only").forEach((element) => {
     element.hidden = !isSuperadmin;
@@ -365,7 +649,6 @@ function setAuthenticated(isAuthenticated, admin = null) {
       const element = document.getElementById(id);
       if (element) element.textContent = "—";
     });
-    resetAdminForm();
     if (typeof resetLocationForm === "function") resetLocationForm();
     myAccounts = [];
     renderAccountMenu();
@@ -403,7 +686,6 @@ function showPage(page, updateUrl = true, force = false) {
   document.querySelector(".sidebar-scrim")?.classList.remove("is-visible");
   document.querySelector(".mobile-menu")?.setAttribute("aria-expanded", "false");
   if ((page === "admins" || page === "users") && authenticatedAdmin) loadAdmins();
-  if (page === "admins" && authenticatedAdmin) loadInvites();
   if (page === "points" && (previousPage !== "points" || force)) loadLocations();
   if (page === "tours" && (previousPage !== "tours" || force)) loadTours();
   if (page === "attention") { if (previousPage !== "attention" || force) loadLocations().catch(() => {}); renderAttention(); }
@@ -433,16 +715,66 @@ function bindPageActions() {
   });
 }
 
-function showToast(message) {
+/* A notice carries its meaning in the mark, not only in colour, so the
+   shape is what changes: a dot, a tick, or a warning. */
+const TOAST_MARKS = { info: "•", success: "✓", error: "!" };
+
+function showToast(message, kind = "info") {
   if (!toast) return;
   window.clearTimeout(toastTimer);
-  toast.querySelector(".toast-message").dataset.messageKey = message;
-  toast.querySelector(".toast-message").textContent = t(message);
+  const holder = toast.querySelector(".toast-message");
+  holder.dataset.messageKey = message;
+  holder.textContent = t(message);
+  const mark = toast.querySelector(".toast-mark");
+  if (mark) mark.textContent = TOAST_MARKS[kind] || TOAST_MARKS.info;
+  toast.dataset.kind = kind;
   toast.classList.add("is-visible");
   toastTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 7000);
 }
 
 document.querySelector(".toast-dismiss")?.addEventListener("click", () => toast.classList.remove("is-visible"));
+
+let confirmOpener = null;
+let confirmAction = null;
+function openConfirm({ title, text, detail, confirmLabel, onConfirm }) {
+  const modal = document.getElementById("confirm-modal");
+  if (!modal) return;
+  confirmOpener = document.activeElement;
+  confirmAction = onConfirm;
+  const heading = document.getElementById("confirm-modal-title");
+  const copy = document.getElementById("confirm-modal-text");
+  const detailElement = document.getElementById("confirm-modal-detail");
+  const confirmButton = document.getElementById("confirm-modal-confirm");
+  if (heading) heading.textContent = title;
+  if (copy) copy.textContent = text;
+  if (detailElement) detailElement.textContent = detail || "";
+  if (confirmButton) confirmButton.textContent = confirmLabel || "Remove";
+  modal.classList.remove("is-hidden");
+  confirmButton?.focus();
+}
+
+function closeConfirm() {
+  const modal = document.getElementById("confirm-modal");
+  if (!modal || modal.classList.contains("is-hidden")) return;
+  modal.classList.add("is-hidden");
+  confirmAction = null;
+  if (confirmOpener && document.contains(confirmOpener)) confirmOpener.focus();
+  confirmOpener = null;
+}
+
+document.getElementById("confirm-modal-cancel")?.addEventListener("click", closeConfirm);
+document.querySelector("#confirm-modal [data-close-confirm-modal]")?.addEventListener("click", closeConfirm);
+document.getElementById("confirm-modal-confirm")?.addEventListener("click", async () => {
+  const action = confirmAction;
+  const button = document.getElementById("confirm-modal-confirm");
+  if (button) button.disabled = true;
+  try {
+    if (action) await action();
+  } finally {
+    if (button) button.disabled = false;
+    closeConfirm();
+  }
+});
 document.querySelectorAll("[data-theme-toggle]").forEach((button) => button.addEventListener("click", () => {
   currentTheme = currentTheme === "day" ? "night" : "day";
   writePreference("localStorage", "aradlens-theme", currentTheme);
@@ -458,8 +790,8 @@ document.getElementById("toggle-login-password").addEventListener("click", (even
   const input = document.getElementById("password");
   const visible = input.type === "text";
   input.type = visible ? "password" : "text";
-  event.currentTarget.textContent = visible ? "Show" : "Hide";
-  event.currentTarget.setAttribute("aria-label", visible ? "Show password" : "Hide password");
+  event.currentTarget.textContent = visible ? t("Show") : t("Hide");
+  event.currentTarget.setAttribute("aria-label", visible ? t("Show password") : t("Hide password"));
   event.currentTarget.setAttribute("aria-pressed", String(!visible));
 });
 
@@ -513,7 +845,7 @@ async function signOutCurrent() {
     addingAccount = false;
     document.getElementById("login-back-button")?.classList.add("is-hidden");
     setAuthenticated(true, admin);
-      showToast(`Signed out. Switched to ${admin.username}.`);
+      showToast(t("Signed out. Switched to {name}.", { name: admin.username }), "success");
       return;
     } catch {}
   }
@@ -547,6 +879,11 @@ document.addEventListener("keydown", (event) => {
     else if (!document.getElementById("location-modal")?.classList.contains("is-hidden")) closeLocationModal();
     else if (!document.getElementById("tour-modal")?.classList.contains("is-hidden")) closeTourModal();
     else if (!document.getElementById("capture-modal")?.classList.contains("is-hidden")) closeCaptureModal();
+    else if (!document.getElementById("confirm-modal")?.classList.contains("is-hidden")) closeConfirm();
+    else if (!document.getElementById("admin-modal")?.classList.contains("is-hidden")) closeAdminModal();
+    else if (!document.getElementById("invite-modal")?.classList.contains("is-hidden")) closeInviteModal();
+    else if (!document.getElementById("invites-modal")?.classList.contains("is-hidden")) closeInvitesModal();
+    else if (!document.getElementById("password-modal")?.classList.contains("is-hidden")) closePasswordModal();
   }
   if (event.key === "/" && document.activeElement?.tagName !== "INPUT") {
     event.preventDefault();
@@ -567,9 +904,9 @@ document.querySelector("[data-api-health]")?.addEventListener("click", async (ev
   button.firstChild.textContent = t("Checking…");
   try {
     const result = await apiRequest("/api/health");
-    showToast(result.status === "ok" ? "AradLens API is healthy." : "The API responded with an unexpected status.");
+    showToast(result.status === "ok" ? t("AradLens API is healthy.") : t("The API responded with an unexpected status."));
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message, "error");
   } finally {
     button.disabled = false;
   button.firstChild.textContent = t("Check API health");
@@ -584,6 +921,33 @@ function fillAccountForm() {
   form.elements.old_password.value = "";
   document.getElementById("account-form-error").textContent = "";
 }
+
+function syncSettingsControls() {
+  document.querySelectorAll("[data-settings-theme]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.settingsTheme === currentTheme));
+  });
+  const languageSelect = document.getElementById("settings-language");
+  if (languageSelect) languageSelect.value = currentLanguage;
+}
+
+document.querySelectorAll("[data-settings-theme]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const theme = button.dataset.settingsTheme;
+    if (!["day", "night"].includes(theme) || theme === currentTheme) return;
+    currentTheme = theme;
+    writePreference("localStorage", "aradlens-theme", theme);
+    applyTheme();
+    syncSettingsControls();
+  });
+});
+
+document.getElementById("settings-language")?.addEventListener("change", (event) => {
+  const language = ["en", "ro"].includes(event.target.value) ? event.target.value : "en";
+  if (language === currentLanguage) return;
+  currentLanguage = language;
+  writePreference("localStorage", "aradlens-language", language);
+  applyLanguage();
+});
 
 document.getElementById("account-form")?.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -610,7 +974,7 @@ document.getElementById("account-form")?.addEventListener("submit", async (event
     updateAccountChrome();
     await refreshAccounts();
     form.elements.old_password.value = "";
-    showToast("Account updated.");
+    showToast("Account updated.", "success");
   } catch (error) {
     errorMessage.textContent = error.message;
   } finally {
@@ -641,9 +1005,10 @@ document.getElementById("change-password-form")?.addEventListener("submit", asyn
       body: JSON.stringify({ old_password: values.get("old_password"), new_password: values.get("new_password") }),
     });
     form.reset();
-    showToast("Password changed successfully. You'll stay signed in.");
+    closePasswordModal();
+    showToast("Password changed successfully. You'll stay signed in.", "success");
   } catch (error) {
-    setMessage(errorMessage, error.message === "New passwords do not match." ? "New passwords do not match." : "We couldn't change your password. Check your current password and try again.");
+    setMessage(errorMessage, error.message === "New passwords do not match." ? t("New passwords do not match.") : t("We couldn't change your password. Check your current password and try again."));
   } finally {
     submitButton.disabled = false;
     submitButton.classList.remove("is-loading");
@@ -757,7 +1122,7 @@ function setPickerPoint(lat, lng) {
   form.elements.latitude.value = latitude;
   form.elements.longitude.value = longitude;
   const label = document.getElementById("location-coords-label");
-  if (label) label.textContent = `Selected: ${latitude}, ${longitude} — click elsewhere or drag the pin to move it.`;
+  if (label) label.textContent = t("Selected: {lat}, {lng} — click elsewhere or drag the pin to move it.", { lat: latitude, lng: longitude });
   if (pickerMarker) pickerMarker.setLatLng([latitude, longitude]);
   else {
     pickerMarker = window.L.marker([latitude, longitude], { draggable: true }).addTo(pickerMap);
@@ -807,7 +1172,7 @@ function suggestOsmName(lat, lng) {
         if (!current) nameInput.value = suggestion;
         else if (current.toLocaleLowerCase() !== suggestion.toLocaleLowerCase()) {
           osmSuggestion = suggestion;
-          label.textContent = `OpenStreetMap calls this “${suggestion}”.`;
+          label.textContent = t("OpenStreetMap calls this “{name}”.", { name: suggestion });
           box.removeAttribute("hidden");
         }
       }
@@ -827,7 +1192,7 @@ function clearPickerPoint() {
   if (pickerMarker && pickerMap) pickerMap.removeLayer(pickerMarker);
   pickerMarker = null;
   const label = document.getElementById("location-coords-label");
-  if (label) label.textContent = "No point selected — click the map to place it.";
+  if (label) label.textContent = t("No point selected — click the map to place it.");
 }
 
 function filterLiveCards() {
@@ -860,25 +1225,128 @@ document.getElementById("users-status")?.addEventListener("change", (event) => {
   });
 });
 document.getElementById("points-search")?.addEventListener("input", filterLiveCards);
-filterRows("users-search", ".user-row:not(.user-head)", [".user-cell", ".user-email", ".status-tag"]);
+filterRows("users-search", "#users-admins-list .user-row", [".user-cell", ".user-email", ".status-tag"]);
 filterRows("activity-search", "#page-activity .activity-row", [".activity-change", ".user-cell"]);
 
 if (sessionStorage.getItem("aradlens-admin-auth") === "true") {
-  apiRequest("/api/auth/accounts").then((data) => {
-    myAccounts = Array.isArray(data.accounts) ? data.accounts : [];
-    renderAccountMenu();
-    return apiRequest("/api/auth/me");
-  }).then((admin) => setAuthenticated(true, admin)).catch(() => setAuthenticated(false));
+  /* One request, not two in a chain. The accounts list is a background
+     refresh that setAuthenticated starts anyway, so the only thing worth
+     waiting for is the answer to "who am I". */
+  apiRequest("/api/auth/me")
+    .then((admin) => setAuthenticated(true, admin))
+    .catch(() => setAuthenticated(false));
 }
-document.getElementById("page-admins")?.append(document.getElementById("invites-panel"));
 
 let adminsRequestId = 0;
 let cachedAdmins = [];
+
+function roleLabel(role) {
+  const value = String(role || "").toLowerCase();
+  if (value === "superadmin") return t("Superadmin");
+  if (value === "admin" || value === "administrator") return t("Admin");
+  return role ? String(role) : t("Admin");
+}
+
+function currentAdminId() {
+  const id = Number(authenticatedAdmin?.id);
+  return Number.isFinite(id) && id > 0 ? id : null;
+}
+
+function formatDateTime(value) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  try {
+    return date.toLocaleString(currentLanguage === "ro" ? "ro-RO" : "en-GB", {
+      day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+    });
+  } catch {
+    return date.toISOString().slice(0, 16).replace("T", " ");
+  }
+}
+
+function buildRosterRow(admin) {
+  const userRow = document.createElement("div");
+  userRow.className = "user-row";
+  const userCell = document.createElement("span");
+  userCell.className = "user-cell";
+  const name = document.createElement("strong");
+  name.textContent = admin.username;
+  userCell.append(name);
+  const email = document.createElement("span");
+  email.className = "user-email";
+  email.textContent = admin.email;
+  const role = document.createElement("span");
+  role.textContent = roleLabel(admin.role);
+  const status = document.createElement("span");
+  status.className = `status-tag ${admin.is_active ? "status-live" : "status-muted"}`;
+  status.dataset.value = admin.is_active ? "Active" : "Inactive";
+  status.textContent = admin.is_active ? t("Active") : t("Inactive");
+  userRow.append(userCell, email, role, status);
+  return userRow;
+}
+
+function buildAccessRow(admin, selfId) {
+  const row = document.createElement("div");
+  row.className = "user-row access-row";
+  const isSelf = selfId !== null && Number(admin.id) === selfId;
+
+  const identity = document.createElement("span");
+  identity.className = "user-cell";
+  const name = document.createElement("strong");
+  name.textContent = admin.username;
+  identity.append(name);
+  if (isSelf) {
+    const badge = document.createElement("span");
+    badge.className = "access-badge";
+    badge.textContent = t("You");
+    identity.append(badge);
+  }
+  const email = document.createElement("span");
+  email.className = "user-email";
+  email.textContent = admin.email;
+  identity.append(email);
+  row.append(identity);
+
+  const role = document.createElement("span");
+  role.className = "access-role-text";
+  role.textContent = roleLabel(admin.role);
+  row.append(role);
+
+  const access = document.createElement("span");
+  access.className = `status-tag ${admin.is_active ? "status-live" : "status-muted"}`;
+  access.dataset.value = admin.is_active ? "Active" : "Inactive";
+  access.textContent = admin.is_active ? t("Active") : t("Inactive");
+  row.append(access);
+
+  const actions = document.createElement("span");
+  actions.className = "access-actions";
+  const edit = document.createElement("button");
+  edit.className = "button button-soft";
+  edit.type = "button";
+  edit.textContent = t("Edit access");
+  edit.disabled = isSelf;
+  edit.title = isSelf ? t("You cannot change your own access.") : "";
+  edit.addEventListener("click", () => openAdminModal(admin));
+  const remove = document.createElement("button");
+  remove.className = "button button-danger";
+  remove.type = "button";
+  remove.textContent = t("Delete");
+  remove.disabled = isSelf;
+  remove.title = isSelf ? t("You cannot remove your own account.") : "";
+  remove.addEventListener("click", () => confirmRemoveAdmin(admin));
+  actions.append(edit, remove);
+  row.append(actions);
+
+  return row;
+}
+
 async function loadAdmins() {
   if (!authenticatedAdmin) return;
   const requestId = ++adminsRequestId;
   const message = document.getElementById("admins-message");
   const list = document.getElementById("admins-list");
+  const summary = document.getElementById("admins-summary");
   const usersMessage = document.getElementById("users-admins-message");
   const usersList = document.getElementById("users-admins-list");
   if (message) { setMessage(message, "Loading administrators…"); message.setAttribute("role", "status"); }
@@ -897,108 +1365,174 @@ async function loadAdmins() {
     setStat("stat-admins-active", activeCount);
     setStat("stat-admins-inactive", admins.length - activeCount);
     setStat("stat-admins-super", superCount);
+    if (summary) summary.textContent = [counted(admins.length, "administrator", "administrators"), counted(activeCount, "active account", "active accounts"), counted(superCount, "superadmin", "superadmins")].join(" · ");
+    const selfId = currentAdminId();
     for (const admin of admins) {
-      const row = document.createElement("div");
-      row.className = "setting-row admin-row";
-      const details = document.createElement("span");
-      details.textContent = `${admin.username} · ${admin.email} · ${admin.role} · ${admin.is_active ? "Active" : "Inactive"}`;
-      row.append(details);
-      const editButton = document.createElement("button");
-      editButton.className = "button button-soft";
-      editButton.type = "button";
-      editButton.textContent = t("Edit access");
-      editButton.addEventListener("click", () => {
-        const form = document.getElementById("admin-form");
-        form.hidden = false;
-        form.elements.id.value = admin.id;
-        form.elements.role.value = admin.role;
-        form.elements.is_active.checked = Boolean(admin.is_active);
-        document.getElementById("admin-form-title").textContent = `${t("Edit access for")} ${admin.username}`;
-        document.getElementById("admin-form-error").textContent = "";
-        setAdminEditState(admin.username);
-        showPage("admins");
-        form.elements.role.focus();
-      });
-      row.append(editButton);
-      list?.append(row);
-      const userRow = document.createElement("div");
-      userRow.className = "user-row";
-      const userCell = document.createElement("span");
-      userCell.className = "user-cell";
-      const name = document.createElement("strong");
-      name.textContent = admin.username;
-      userCell.append(name);
-      const email = document.createElement("span");
-      email.className = "user-email";
-      email.textContent = admin.email;
-      const role = document.createElement("span");
-      role.textContent = admin.role;
-      const status = document.createElement("span");
-      status.className = `status-tag ${admin.is_active ? "status-live" : "status-muted"}`;
-      status.dataset.value = admin.is_active ? "Active" : "Inactive";
-      status.textContent = admin.is_active ? "Active" : "Inactive";
-      userRow.append(userCell, email, role, status);
-      usersList?.append(userRow);
+      if (list) list.append(buildAccessRow(admin, selfId));
+      if (usersList) usersList.append(buildRosterRow(admin));
     }
-    const resultMessage = admins.length ? `${admins.length} administrator(s)` : "No administrators found.";
-    if (message) message.textContent = resultMessage;
-    if (usersMessage) usersMessage.textContent = resultMessage;
+    const resultMessage = admins.length ? counted(admins.length, "administrator", "administrators") : t("No administrators found.");
+    if (message) setMessage(message, "");
+    if (usersMessage) setMessage(usersMessage, resultMessage);
   } catch (error) {
-    const resultMessage = `${error.message} Click Refresh to try again.`;
+    const resultMessage = t("{message} Click Refresh to try again.", { message: error.message });
     if (message) message.textContent = resultMessage;
     if (usersMessage) usersMessage.textContent = resultMessage;
   }
 }
 
-function setAdminEditState(username) {
-  const state = document.getElementById("admin-edit-state");
-  if (!state) return;
-  if (!username) {
-    state.hidden = true;
-    state.textContent = "";
-    return;
-  }
-  state.hidden = false;
-  state.textContent = `${t("Editing access for")} ${username} — ${t("Save to apply, Cancel to discard.")}`;
-}
-
-function resetAdminForm() {
-  const form = document.getElementById("admin-form");
-  form.reset();
-  form.elements.id.value = "";
-  form.hidden = true;
-  document.getElementById("admin-form-title").textContent = t("Edit administrator access");
-  document.getElementById("admin-form-error").textContent = "";
-  setAdminEditState(null);
+function confirmRemoveAdmin(admin) {
+  openConfirm({
+    title: t("Delete administrator"),
+    text: t("The account is deleted straight away. It cannot be brought back."),
+    detail: `${admin.username} · ${admin.email}`,
+    confirmLabel: t("Delete account"),
+    onConfirm: async () => {
+      try {
+        await apiRequest(`/api/admins/${admin.id}`, { method: "DELETE" });
+        showToast("Administrator deleted.", "success");
+        await loadAdmins();
+      } catch (error) {
+        setMessage(document.getElementById("admins-message"), error.message);
+      }
+    },
+  });
 }
 
 document.getElementById("admins-refresh").addEventListener("click", loadAdmins);
-document.getElementById("admins-back")?.addEventListener("click", () => { resetAdminForm(); showPage("users"); });
 document.getElementById("users-refresh")?.addEventListener("click", loadAdmins);
-document.getElementById("admin-cancel").addEventListener("click", resetAdminForm);
-document.getElementById("admin-form").addEventListener("submit", async (event) => {
+
+/* ---- Edit access ---- */
+let adminModalOpener = null;
+function openAdminModal(admin) {
+  const modal = document.getElementById("admin-modal");
+  const form = document.getElementById("admin-form");
+  if (!modal || !form) return;
+  adminModalOpener = document.activeElement;
+  form.elements.id.value = admin.id;
+  form.elements.role.value = String(admin.role || "").toLowerCase() === "superadmin" ? "superadmin" : "admin";
+  form.elements.is_active.checked = Boolean(admin.is_active);
+  const title = document.getElementById("admin-modal-title");
+  if (title) title.textContent = t("Edit access");
+  const subtitle = document.getElementById("admin-modal-subtitle");
+  if (subtitle) subtitle.textContent = `${admin.username} · ${admin.email}`;
+  const error = document.getElementById("admin-form-error");
+  if (error) error.textContent = "";
+  modal.classList.remove("is-hidden");
+  form.elements.role.focus();
+}
+
+function closeAdminModal() {
+  document.getElementById("admin-modal")?.classList.add("is-hidden");
+  if (adminModalOpener && document.contains(adminModalOpener)) adminModalOpener.focus();
+  adminModalOpener = null;
+}
+
+document.getElementById("admin-modal-close")?.addEventListener("click", closeAdminModal);
+document.getElementById("admin-cancel")?.addEventListener("click", closeAdminModal);
+document.querySelector("#admin-modal [data-close-admin-modal]")?.addEventListener("click", closeAdminModal);
+document.getElementById("admin-form")?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
   const button = form.querySelector("button[type=submit]");
   const errorMessage = document.getElementById("admin-form-error");
   const id = form.elements.id.value;
   if (!id) {
-    errorMessage.textContent = t("Select an administrator to edit access.");
+    setMessage(errorMessage, "Select an administrator to edit access.");
     return;
   }
   const payload = { role: form.elements.role.value, is_active: form.elements.is_active.checked };
-  errorMessage.textContent = "";
+  setMessage(errorMessage, "");
   button.disabled = true;
   try {
     await apiRequest(`/api/admins/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-    resetAdminForm();
+    closeAdminModal();
     await loadAdmins();
-    showToast("Administrator access updated.");
-  } catch (error) { errorMessage.textContent = error.message; }
-  finally { button.disabled = false; }
+    showToast("Administrator access updated.", "success");
+  } catch (error) {
+    setMessage(errorMessage, error.message);
+  } finally {
+    button.disabled = false;
+  }
 });
 
+/* ---- Invite codes ---- */
 let invitesRequestId = 0;
+function inviteState(invite) {
+  if (invite.is_revoked) return { label: t("Revoked"), className: "status-revoked" };
+  if (invite.used_at) return { label: t("Used"), className: "status-muted" };
+  if (invite.expires_at && new Date(invite.expires_at).getTime() < Date.now()) return { label: t("Expired"), className: "status-muted" };
+  return { label: t("Unused"), className: "status-live" };
+}
+
+function buildInviteLine(invite) {
+  const state = inviteState(invite);
+  const line = document.createElement("div");
+  line.className = "invite-line";
+
+  const top = document.createElement("div");
+  top.className = "invite-line-top";
+  const code = document.createElement("code");
+  code.className = "invite-code";
+  code.textContent = invite.code;
+  code.title = invite.code;
+  const tag = document.createElement("span");
+  tag.className = `status-tag ${state.className}`;
+  tag.textContent = state.label;
+  top.append(code, tag);
+  line.append(top);
+
+  const meta = document.createElement("p");
+  meta.className = "invite-line-meta";
+  meta.textContent = `${roleLabel(invite.role)} · ${t("expires")} ${formatDateTime(invite.expires_at)}`;
+  line.append(meta);
+
+  const actions = document.createElement("div");
+  actions.className = "invite-line-actions";
+  const copy = document.createElement("button");
+  copy.className = "button button-soft";
+  copy.type = "button";
+  copy.textContent = t("Copy");
+  copy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(invite.code);
+      showToast("Invite code copied.", "success");
+    } catch {
+      showToast(invite.code, "error");
+    }
+  });
+  actions.append(copy);
+  const revoke = document.createElement("button");
+  revoke.className = "button button-danger";
+  revoke.type = "button";
+  revoke.textContent = t("Revoke");
+  revoke.disabled = Boolean(invite.is_revoked) || Boolean(invite.used_at);
+  revoke.title = revoke.disabled ? t("This invite can no longer be revoked.") : "";
+  revoke.addEventListener("click", () => confirmRevokeInvite(invite));
+  actions.append(revoke);
+  line.append(actions);
+
+  return line;
+}
+
+function confirmRevokeInvite(invite) {
+  openConfirm({
+    title: t("Revoke invite code"),
+    text: t("The code stops working straight away. It cannot be brought back."),
+    detail: invite.code,
+    confirmLabel: t("Revoke code"),
+    onConfirm: async () => {
+      try {
+        await apiRequest(`/api/invites/${invite.id}`, { method: "DELETE" });
+        showToast("Invite revoked.", "success");
+        await loadInvites();
+      } catch (error) {
+        setMessage(document.getElementById("invites-message"), error.message);
+      }
+    },
+  });
+}
+
 async function loadInvites() {
   const message = document.getElementById("invites-message");
   const list = document.getElementById("invites-list");
@@ -1011,33 +1545,124 @@ async function loadInvites() {
     const invites = await apiRequest("/api/invites");
     if (requestId !== invitesRequestId) return;
     if (!Array.isArray(invites)) throw new Error("The API returned an invalid invite list.");
-    for (const invite of invites) {
-      const row = document.createElement("div");
-      row.className = "setting-row admin-row";
-      const details = document.createElement("span");
-      const used = invite.used_at ? `used ${invite.used_at}` : "unused";
-      const revoked = invite.is_revoked ? " · revoked" : "";
-      details.textContent = `#${invite.id} · ${invite.code} · ${invite.role} · expires ${invite.expires_at} · ${used}${revoked}`;
-      const copyButton = document.createElement("button");
-      copyButton.className = "button button-soft";
-      copyButton.type = "button";
-      copyButton.textContent = "Copy code";
-      copyButton.addEventListener("click", async () => {
-        try {
-          await navigator.clipboard.writeText(invite.code);
-          showToast("Invite code copied.");
-        } catch {
-          showToast(invite.code);
-        }
-      });
-      row.append(details, copyButton);
-      list.append(row);
-    }
-    message.textContent = invites.length ? `${invites.length} invite(s)` : "No invites found.";
+    for (const invite of invites) list.append(buildInviteLine(invite));
+    setMessage(message, invites.length ? counted(invites.length, "invite code", "invite codes") : "No invites found.");
   } catch (error) {
-    message.textContent = `${error.message} Click Refresh to try again.`;
+    message.textContent = t("{message} Click Refresh to try again.", { message: error.message });
   }
 }
+
+/* Create one code, show it once, let the person copy it away. */
+let inviteModalOpener = null;
+function openInviteModal() {
+  const modal = document.getElementById("invite-modal");
+  const form = document.getElementById("invite-form");
+  if (!modal || !form) return;
+  inviteModalOpener = document.activeElement;
+  form.reset();
+  form.elements.expires_in_minutes.value = "1440";
+  const error = document.getElementById("invite-form-error");
+  if (error) error.textContent = "";
+  const created = document.getElementById("invite-created");
+  if (created) created.hidden = true;
+  modal.classList.remove("is-hidden");
+  form.elements.role.focus();
+}
+
+function closeInviteModal() {
+  document.getElementById("invite-modal")?.classList.add("is-hidden");
+  if (inviteModalOpener && document.contains(inviteModalOpener)) inviteModalOpener.focus();
+  inviteModalOpener = null;
+}
+
+document.getElementById("admins-create-invite")?.addEventListener("click", openInviteModal);
+document.getElementById("invite-modal-close")?.addEventListener("click", closeInviteModal);
+document.getElementById("invite-cancel")?.addEventListener("click", closeInviteModal);
+document.querySelector("#invite-modal [data-close-invite-modal]")?.addEventListener("click", closeInviteModal);
+document.getElementById("invite-created-copy")?.addEventListener("click", async (event) => {
+  const code = document.getElementById("invite-created-code")?.textContent || "";
+  if (!code) return;
+  try {
+    await navigator.clipboard.writeText(code);
+    showToast("Invite code copied.", "success");
+  } catch {
+    showToast(code, "error");
+  }
+});
+document.getElementById("invite-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector("button[type=submit]");
+  const errorMessage = document.getElementById("invite-form-error");
+  setMessage(errorMessage, "");
+  button.disabled = true;
+  try {
+    const invite = await apiRequest("/api/invites", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        role: form.elements.role.value,
+        expires_in_minutes: Number(form.elements.expires_in_minutes.value),
+      }),
+    });
+    const code = document.getElementById("invite-created-code");
+    if (code) code.textContent = invite?.code || "";
+    const created = document.getElementById("invite-created");
+    if (created) created.hidden = false;
+    showToast("Invite created.", "success");
+  } catch (error) {
+    setMessage(errorMessage, error.message);
+  } finally {
+    button.disabled = false;
+  }
+});
+
+/* See every code, copy one, revoke one. */
+let invitesModalOpener = null;
+function openInvitesModal() {
+  const modal = document.getElementById("invites-modal");
+  if (!modal) return;
+  invitesModalOpener = document.activeElement;
+  modal.classList.remove("is-hidden");
+  loadInvites();
+}
+
+function closeInvitesModal() {
+  document.getElementById("invites-modal")?.classList.add("is-hidden");
+  if (invitesModalOpener && document.contains(invitesModalOpener)) invitesModalOpener.focus();
+  invitesModalOpener = null;
+}
+
+document.getElementById("admins-invites")?.addEventListener("click", openInvitesModal);
+document.getElementById("invites-modal-close")?.addEventListener("click", closeInvitesModal);
+document.getElementById("invites-modal-done")?.addEventListener("click", closeInvitesModal);
+document.querySelector("#invites-modal [data-close-invites-modal]")?.addEventListener("click", closeInvitesModal);
+document.getElementById("invites-refresh")?.addEventListener("click", loadInvites);
+
+/* ---- Password ---- */
+let passwordModalOpener = null;
+function openPasswordModal() {
+  const modal = document.getElementById("password-modal");
+  const form = document.getElementById("change-password-form");
+  if (!modal || !form) return;
+  passwordModalOpener = document.activeElement;
+  form.reset();
+  const error = document.getElementById("change-password-error");
+  if (error) error.textContent = "";
+  modal.classList.remove("is-hidden");
+  document.getElementById("old-password")?.focus();
+}
+
+function closePasswordModal() {
+  document.getElementById("password-modal")?.classList.add("is-hidden");
+  if (passwordModalOpener && document.contains(passwordModalOpener)) passwordModalOpener.focus();
+  passwordModalOpener = null;
+}
+
+document.getElementById("open-password-modal")?.addEventListener("click", openPasswordModal);
+document.getElementById("password-modal-close")?.addEventListener("click", closePasswordModal);
+document.getElementById("password-modal-cancel")?.addEventListener("click", closePasswordModal);
+document.querySelector("#password-modal [data-close-password-modal]")?.addEventListener("click", closePasswordModal);
 
 function resetLocationForm() {
   const form = document.getElementById("location-form");
@@ -1045,7 +1670,7 @@ function resetLocationForm() {
   form.reset();
   form.elements.id.value = "";
   const title = document.getElementById("location-modal-title");
-  if (title) title.textContent = "Add location";
+  if (title) title.textContent = t("Add location");
   document.getElementById("location-form-error").textContent = "";
   const categoryHint = document.getElementById("location-category-hint");
   if (categoryHint) categoryHint.textContent = "";
@@ -1124,13 +1749,13 @@ function renderLocationCard(location) {
   if (photo) card.classList.add("has-photo");
   card.innerHTML =
     `<div class="point-image">${photo}<svg class="point-drawing" viewBox="0 0 120 80" aria-hidden="true"><use href="#draw-${kind.drawing}"></use></svg><span class="point-badge">P</span>${categoryChip}</div>` +
-    `<div class="point-body"><div><h3>${escapeHtml(location.name)}</h3><p>${escapeHtml(location.description || "—")}</p></div><span class="status-tag status-live" data-value="Published">Live</span></div>` +
+    `<div class="point-body"><div><h3>${escapeHtml(location.name)}</h3><p>${escapeHtml(location.description || "—")}</p></div><span class="status-tag status-live" data-value="Published">${escapeHtml(t("Live"))}</span></div>` +
     `<div class="point-meta"><span>#${location.id} · ${escapeHtml(`${location.latitude}, ${location.longitude}`)}</span></div>`;
   const open = document.createElement("button");
   open.className = "card-open";
   open.type = "button";
   open.textContent = "↗";
-  open.setAttribute("aria-label", `Edit ${location.name}`);
+  open.setAttribute("aria-label", t("Edit {name}", { name: location.name }));
   open.addEventListener("click", () => openLocationModal(location.id));
   card.querySelector(".point-meta").append(open);
   return card;
@@ -1156,15 +1781,20 @@ async function loadLocations() {
       grid.append(renderLocationCard(location));
     }
     filterLiveCards();
+    /* The rail shows the live count, and shows nothing at all until it is
+       known — a made-up number in the navigation is worse than no number. */
     const navCount = document.querySelector('.nav-item[data-page="points"] .nav-count');
-    if (navCount) navCount.textContent = String(locations.length);
-    message.textContent = locations.length ? `${locations.length} location(s)` : "No locations found.";
+    if (navCount) {
+      navCount.textContent = String(locations.length);
+      navCount.classList.remove("is-hidden");
+    }
+    message.textContent = locations.length ? t("{n} location(s)", { n: locations.length }) : t("No locations found.");
     /* The Attention page reads the same list, so it has to be redrawn when
        the locations arrive. Without this, opening Attention before the
        Important points page leaves it empty. */
     if (currentPage === "attention") renderAttention();
   } catch (error) {
-    message.textContent = `${error.message} Click Refresh to try again.`;
+    message.textContent = t("{message} Click Refresh to try again.", { message: error.message });
   }
 }
 
@@ -1296,7 +1926,7 @@ function renderCategoryList() {
   if (!cachedCategories.length) {
     const empty = document.createElement("li");
     empty.className = "tour-empty";
-    empty.textContent = "No categories yet. Add the first one.";
+    empty.textContent = t("No categories yet. Add the first one.");
     list.append(empty);
     return;
   }
@@ -1312,13 +1942,13 @@ function renderCategoryList() {
     rename.type = "button";
     rename.className = "category-action";
     rename.textContent = t("Rename");
-    rename.setAttribute("aria-label", `Rename ${category.name}`);
+    rename.setAttribute("aria-label", t("Rename {name}", { name: category.name }));
     rename.addEventListener("click", () => startCategoryRename(category, row));
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "category-action is-danger";
     remove.textContent = t("Delete");
-    remove.setAttribute("aria-label", `Delete ${category.name}`);
+    remove.setAttribute("aria-label", t("Delete {name}", { name: category.name }));
     remove.addEventListener("click", () => removeCategory(category));
     actions.append(rename, remove);
     row.append(name, actions);
@@ -1334,7 +1964,7 @@ function startCategoryRename(category, row) {
   input.className = "category-rename-input";
   input.value = category.name;
   input.maxLength = 100;
-  input.setAttribute("aria-label", `Rename ${category.name}`);
+  input.setAttribute("aria-label", t("Rename {name}", { name: category.name }));
   const actions = document.createElement("span");
   actions.className = "category-actions";
   const save = document.createElement("button");
@@ -1357,7 +1987,7 @@ function startCategoryRename(category, row) {
     try {
       await apiRequest(`/api/categories/${category.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
       await loadCategories(true);
-      showToast(`Category renamed: ${name}`);
+      showToast(t("Category renamed: {name}", { name }), "success");
     } catch (error) {
       setCategoryError(error.message);
     } finally {
@@ -1383,7 +2013,7 @@ function setCategoryError(message) {
 async function createCategory(name) {
   const created = await apiRequest("/api/categories", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
   await loadCategories(true);
-  showToast(`Category created: ${created?.name || name}`);
+  showToast(t("Category created: {name}", { name: created?.name || name }), "success");
   return created;
 }
 
@@ -1392,7 +2022,7 @@ async function removeCategory(category) {
   try {
     await apiRequest(`/api/categories/${category.id}`, { method: "DELETE" });
     await loadCategories(true);
-    showToast("Category deleted.");
+    showToast("Category deleted.", "success");
   } catch (error) {
     setCategoryError(error.message);
   }
@@ -1468,7 +2098,7 @@ function openLocationModal(id) {
     document.getElementById("location-name")?.focus();
     window.requestAnimationFrame(() => {
       if (!ensurePickerMap()) {
-        errorMessage.textContent = "The map could not be loaded. Check your connection and try again.";
+        errorMessage.textContent = t("The map could not be loaded. Check your connection and try again.");
         return;
       }
       renderPickerPlaces(form.elements.id.value);
@@ -1490,7 +2120,7 @@ function openLocationModal(id) {
       pendingPhotoPreviewUrl = "";
     }
     setLocationPhotoStatus("");
-    document.getElementById("location-modal-title").textContent = "Add location";
+    document.getElementById("location-modal-title").textContent = t("Add location");
     if (deleteButton) deleteButton.hidden = true;
     clearPickerPoint();
     showPicker(null, null);
@@ -1504,7 +2134,7 @@ function openLocationModal(id) {
     setLocationImages(record.id, record.images);
     renderCategoryOptions(record.category?.id === undefined || record.category?.id === null ? "" : record.category.id);
     updateImagePreview();
-    document.getElementById("location-modal-title").textContent = `Edit location #${record.id}`;
+    document.getElementById("location-modal-title").textContent = t("Edit location #{id}", { id: record.id });
     if (deleteButton) deleteButton.hidden = false;
     clearPickerPoint();
     showPicker(record.latitude, record.longitude);
@@ -1572,22 +2202,22 @@ function updateImagePreview() {
   const img = document.getElementById("location-image-img");
   const addButton = document.getElementById("location-image-button");
   const count = document.getElementById("location-image-count");
-  if (count) count.textContent = ids.length ? `${ids.length} photo${ids.length === 1 ? "" : "s"}` : "No photos yet.";
+  if (count) count.textContent = ids.length ? t("{n} photo(s)", { n: ids.length }) : t("No photos yet.");
   if (!box || !img) return;
   if (pendingLocationPhoto && pendingPhotoPreviewUrl) {
     img.src = pendingPhotoPreviewUrl;
     box.hidden = false;
-    if (addButton) addButton.textContent = "Manage photos";
+    if (addButton) addButton.textContent = t("Manage photos");
     return;
   }
   if (ids.length) {
     img.src = imageFileUrl(ids[0]);
     box.hidden = false;
-    if (addButton) addButton.textContent = "Manage photos";
+    if (addButton) addButton.textContent = t("Manage photos");
   } else {
     img.removeAttribute("src");
     box.hidden = true;
-    if (addButton) addButton.textContent = "Add photo";
+    if (addButton) addButton.textContent = t("Add photo");
   }
 }
 let pendingLocationPhoto = null;
@@ -1612,7 +2242,7 @@ function refreshImageGallery() {
     if (!ids.length) {
       const empty = document.createElement("p");
       empty.className = "tour-empty";
-      empty.textContent = "No photos yet. Drop a file below to add one.";
+      empty.textContent = t("No photos yet. Drop a file below to add one.");
       strip.append(empty);
     }
     ids.forEach((imageId, index) => {
@@ -1622,7 +2252,7 @@ function refreshImageGallery() {
       select.type = "button";
       select.className = "image-thumb-select";
       select.setAttribute("aria-pressed", String(index === galleryIndex));
-      select.setAttribute("aria-label", `Show photo ${index + 1}`);
+      select.setAttribute("aria-label", t("Show photo {n}", { n: index + 1 }));
       const img = document.createElement("img");
       img.src = imageFileUrl(imageId);
       img.alt = "";
@@ -1636,7 +2266,7 @@ function refreshImageGallery() {
       remove.type = "button";
       remove.className = "image-thumb-delete";
       remove.textContent = "×";
-      remove.setAttribute("aria-label", `Delete photo ${index + 1}`);
+      remove.setAttribute("aria-label", t("Delete photo {n}", { n: index + 1 }));
       remove.addEventListener("click", () => deleteLocationImage(imageId));
       thumb.append(select, remove);
       strip.append(thumb);
@@ -1644,7 +2274,7 @@ function refreshImageGallery() {
   }
   if (preview && box) {
     preview.onload = () => { if (errorMessage) errorMessage.textContent = ""; };
-    preview.onerror = () => { if (preview.src && errorMessage) errorMessage.textContent = "An image failed to load. Try again in a moment."; };
+    preview.onerror = () => { if (preview.src && errorMessage) errorMessage.textContent = t("An image failed to load. Try again in a moment."); };
     if (ids.length) {
       preview.src = imageFileUrl(ids[galleryIndex]);
       box.hidden = false;
@@ -1718,12 +2348,12 @@ document.getElementById("location-record")?.addEventListener("click", (event) =>
   const errorMessage = document.getElementById("location-form-error");
   const label = button.textContent;
   if (!navigator.geolocation) {
-    errorMessage.textContent = "Location is not available on this device.";
+    errorMessage.textContent = t("Location is not available on this device.");
     return;
   }
   errorMessage.textContent = "";
   button.disabled = true;
-  button.textContent = "Recording…";
+  button.textContent = t("Recording…");
   navigator.geolocation.getCurrentPosition((position) => {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
@@ -1733,7 +2363,7 @@ document.getElementById("location-record")?.addEventListener("click", (event) =>
     button.disabled = false;
     button.textContent = label;
   }, () => {
-    errorMessage.textContent = "Could not record your position. Allow location access and try again.";
+    errorMessage.textContent = t("Could not record your position. Allow location access and try again.");
     button.disabled = false;
     button.textContent = label;
   }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
@@ -1765,11 +2395,11 @@ async function uploadImageFiles(fileList) {
   errorMessage.textContent = "";
   const files = [...(fileList || [])].filter((file) => file.type.startsWith("image/"));
   if (!files.length) {
-    errorMessage.textContent = "That is not an image file. Drop a PNG, JPG or WebP.";
+    errorMessage.textContent = t("That is not an image file. Drop a PNG, JPG or WebP.");
     return;
   }
   if (!id) {
-    errorMessage.textContent = "Save the location first, then upload files.";
+    errorMessage.textContent = t("Save the location first, then upload files.");
     return;
   }
   if (imageUploading) return;
@@ -1789,7 +2419,7 @@ async function uploadImageFiles(fileList) {
     if (imagePicker) imagePicker.value = "";
     refreshImageGallery();
     await loadLocations();
-    showToast(files.length > 1 ? `${files.length} images uploaded.` : "Image uploaded.");
+    showToast(files.length > 1 ? t("{n} images uploaded.", { n: files.length }) : t("Image uploaded."), "success");
   } catch (error) {
     errorMessage.textContent = error.message;
   } finally {
@@ -1827,7 +2457,7 @@ async function deleteLocationImage(imageId) {
   const errorMessage = document.getElementById("image-modal-error");
   const locationId = currentLocationId();
   if (!locationId) {
-    if (errorMessage) errorMessage.textContent = "Save the location first.";
+    if (errorMessage) errorMessage.textContent = t("Save the location first.");
     return;
   }
   if (!window.confirm("Delete this photo? It cannot be undone.")) return;
@@ -1841,7 +2471,7 @@ async function deleteLocationImage(imageId) {
     await refreshLocationImages(locationId);
     refreshImageGallery();
     await loadLocations();
-    showToast("Photo deleted.");
+    showToast("Photo deleted.", "success");
   } catch (error) {
     if (errorMessage) errorMessage.textContent = error.message;
   }
@@ -1853,7 +2483,7 @@ document.getElementById("image-download")?.addEventListener("click", (event) => 
   const imageId = ids[galleryIndex];
   if (errorMessage) errorMessage.textContent = "";
   if (!imageId) {
-    if (errorMessage) errorMessage.textContent = "There is no photo to download.";
+    if (errorMessage) errorMessage.textContent = t("There is no photo to download.");
     return;
   }
   const link = document.createElement("a");
@@ -1893,7 +2523,7 @@ document.getElementById("capture-link-button")?.addEventListener("click", async 
     document.getElementById("capture-modal")?.classList.remove("is-hidden");
     input?.select();
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message, "error");
   } finally {
     button.disabled = false;
   }
@@ -1904,10 +2534,10 @@ document.getElementById("capture-link-copy")?.addEventListener("click", async ()
   if (!url) return;
   try {
     await navigator.clipboard.writeText(url);
-    showToast("Capture link copied.");
+    showToast("Capture link copied.", "success");
   } catch {
     input?.select();
-    showToast("Copy the selected link.");
+    showToast("Copy the selected link.", "error");
   }
 });
 document.getElementById("capture-link-share")?.addEventListener("click", async () => {
@@ -1925,7 +2555,7 @@ document.getElementById("location-delete")?.addEventListener("click", async (eve
   const form = document.getElementById("location-form");
   const id = form.elements.id.value;
   if (!id) return;
-  if (!window.confirm(`Delete location #${id}? This cannot be undone.`)) return;
+  if (!window.confirm(t("Delete location #{id}? This cannot be undone.", { id }))) return;
   const button = event.currentTarget;
   const errorMessage = document.getElementById("location-form-error");
   button.disabled = true;
@@ -1934,23 +2564,7 @@ document.getElementById("location-delete")?.addEventListener("click", async (eve
     locationImages.delete(String(id));
     closeLocationModal();
     await loadLocations();
-    showToast("Location deleted.");
-  } catch (error) { errorMessage.textContent = error.message; }
-  finally { button.disabled = false; }
-});
-document.getElementById("invite-form")?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const form = event.currentTarget;
-  const button = form.querySelector("button[type=submit]");
-  const errorMessage = document.getElementById("invite-form-error");
-  errorMessage.textContent = "";
-  button.disabled = true;
-  try {
-    const payload = { role: form.elements.role.value, expires_in_minutes: Number(form.elements.expires_in_minutes.value) };
-    const invite = await apiRequest("/api/invites", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-    form.reset();
-    await loadInvites();
-    showToast(`Invite created: ${invite.code}`);
+    showToast("Location deleted.", "success");
   } catch (error) { errorMessage.textContent = error.message; }
   finally { button.disabled = false; }
 });
@@ -1961,7 +2575,7 @@ document.getElementById("register-form")?.addEventListener("submit", async (even
   const message = document.getElementById("register-form-message");
   message.textContent = "";
   if (!form.elements.legal?.checked) {
-    message.textContent = "You must accept the Terms of Use and Privacy Notice to create an account.";
+    message.textContent = t("You must accept the Terms of Use and Privacy Notice to create an account.");
     form.elements.legal?.focus();
     return;
   }
@@ -1974,7 +2588,7 @@ document.getElementById("register-form")?.addEventListener("submit", async (even
     form.reset();
     showAuthTab("login");
     if (createdUsername) document.getElementById("username").value = createdUsername;
-    showToast(`Account created: ${createdUsername || "sign in to continue."}`);
+    showToast(t("Account created: {name}", { name: createdUsername || t("sign in to continue.") }), "success");
   } catch (error) { message.textContent = error.message; }
   finally { button.disabled = false; }
 });
@@ -1986,12 +2600,12 @@ async function saveLocation() {
   const name = form.elements.name.value.trim();
   const id = form.elements.id.value;
   if (!name) {
-    errorMessage.textContent = "Give the location a name.";
+    errorMessage.textContent = t("Give the location a name.");
     form.elements.name.focus();
     return;
   }
   if (form.elements.latitude.value === "" || form.elements.longitude.value === "") {
-    errorMessage.textContent = "Pick a point on the map first.";
+    errorMessage.textContent = t("Pick a point on the map first.");
     return;
   }
   const payload = { name, latitude: Number(form.elements.latitude.value), longitude: Number(form.elements.longitude.value) };
@@ -2009,22 +2623,22 @@ async function saveLocation() {
     const saved = await apiRequest(id ? `/api/locations/${id}` : "/api/locations", { method: id ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     if (!id && saved && saved.id) {
       form.elements.id.value = saved.id;
-      document.getElementById("location-modal-title").textContent = `Edit location #${saved.id}`;
+      document.getElementById("location-modal-title").textContent = t("Edit location #{id}", { id: saved.id });
       const deleteButton = document.getElementById("location-delete");
       if (deleteButton) deleteButton.hidden = false;
       if (pendingLocationPhoto) {
-        try { await uploadPendingLocationPhoto(saved.id); } catch (error) { showToast(error.message); }
+        try { await uploadPendingLocationPhoto(saved.id); } catch (error) { showToast(error.message, "error"); }
       }
       await loadLocations();
-      showToast("Location created. Add images or keep editing.");
+      showToast("Location created. Add images or keep editing.", "success");
     } else {
       if (pendingLocationPhoto && id) {
-        try { await uploadPendingLocationPhoto(id); } catch (error) { showToast(error.message); }
+        try { await uploadPendingLocationPhoto(id); } catch (error) { showToast(error.message, "error"); }
       }
       resetLocationForm();
       closeLocationModal();
       await loadLocations();
-      showToast(id ? "Location updated." : "Location created.");
+      showToast(id ? "Location updated." : "Location created.", "success");
     }
   } catch (error) { errorMessage.textContent = error.message; }
   finally { button.disabled = false; }
@@ -2071,12 +2685,12 @@ function renderTourPicker() {
   if (!locations.length) {
     const empty = document.createElement("p");
     empty.className = "tour-empty";
-    empty.textContent = "No important points yet. Add one first.";
+    empty.textContent = t("No important points yet. Add one first.");
     pool.append(empty);
   } else if (!available.length) {
     const empty = document.createElement("p");
     empty.className = "tour-empty";
-    empty.textContent = "All points are on this tour.";
+    empty.textContent = t("All points are on this tour.");
     pool.append(empty);
   } else {
     const sorted = [...available].sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
@@ -2096,7 +2710,7 @@ function renderTourPicker() {
   if (!tourSelectedIds.length) {
     const empty = document.createElement("li");
     empty.className = "tour-empty";
-    empty.textContent = "No stops selected.";
+    empty.textContent = t("No stops selected.");
     order.append(empty);
   }
   tourSelectedIds.forEach((id, index) => {
@@ -2114,7 +2728,7 @@ function renderTourPicker() {
     up.type = "button";
     up.className = "tour-stop-action";
     up.textContent = "↑";
-    up.setAttribute("aria-label", `Move ${tourLocationName(id)} up`);
+    up.setAttribute("aria-label", t("Move {name} up", { name: tourLocationName(id) }));
     up.disabled = index === 0;
     up.addEventListener("click", () => {
       [tourSelectedIds[index - 1], tourSelectedIds[index]] = [tourSelectedIds[index], tourSelectedIds[index - 1]];
@@ -2124,7 +2738,7 @@ function renderTourPicker() {
     down.type = "button";
     down.className = "tour-stop-action";
     down.textContent = "↓";
-    down.setAttribute("aria-label", `Move ${tourLocationName(id)} down`);
+    down.setAttribute("aria-label", t("Move {name} down", { name: tourLocationName(id) }));
     down.disabled = index === tourSelectedIds.length - 1;
     down.addEventListener("click", () => {
       [tourSelectedIds[index + 1], tourSelectedIds[index]] = [tourSelectedIds[index], tourSelectedIds[index + 1]];
@@ -2134,7 +2748,7 @@ function renderTourPicker() {
     remove.type = "button";
     remove.className = "tour-stop-action";
     remove.textContent = "×";
-    remove.setAttribute("aria-label", `Remove ${tourLocationName(id)} from the route`);
+    remove.setAttribute("aria-label", t("Remove {name} from the route", { name: tourLocationName(id) }));
     remove.addEventListener("click", () => {
       tourSelectedIds.splice(index, 1);
       renderTourPicker();
@@ -2143,7 +2757,7 @@ function renderTourPicker() {
     item.append(number, name, actions);
     order.append(item);
   });
-  if (count) count.textContent = `${tourSelectedIds.length} stop${tourSelectedIds.length === 1 ? "" : "s"}`;
+  if (count) count.textContent = tourSelectedIds.length ? t("{n} stop(s)", { n: tourSelectedIds.length }) : t("0 stops");
 }
 
 async function openTourModal(tour = null) {
@@ -2159,12 +2773,12 @@ async function openTourModal(tour = null) {
     form.elements.name.value = tour.name || "";
     form.elements.description.value = tour.description || "";
     tourSelectedIds = [...(tour.location_ids || (tour.locations || []).map((location) => location.id))];
-    document.getElementById("tour-modal-title").textContent = `Edit tour ${tour.name}`;
+    document.getElementById("tour-modal-title").textContent = t("Edit tour {name}", { name: tour.name });
     if (deleteButton) deleteButton.hidden = false;
   } else {
     form.elements.id.value = "";
     tourSelectedIds = [];
-    document.getElementById("tour-modal-title").textContent = "Add tour";
+    document.getElementById("tour-modal-title").textContent = t("Add tour");
     if (deleteButton) deleteButton.hidden = true;
   }
   renderTourPicker();
@@ -2193,10 +2807,10 @@ async function loadTours() {
     const tours = Array.isArray(payload) ? payload : Array.isArray(payload?.tours) ? payload.tours : [];
     cachedTours = tours;
     for (const tour of tours) list.append(renderTourRow(tour));
-    message.textContent = tours.length ? `${tours.length} tour${tours.length === 1 ? "" : "s"}` : "No tours yet.";
+    message.textContent = tours.length ? t("{n} tour(s)", { n: tours.length }) : t("No tours yet.");
   } catch (error) {
     if (requestId !== toursRequestId) return;
-    message.textContent = `${error.message} Click Refresh to try again.`;
+    message.textContent = t("{message} Click Refresh to try again.", { message: error.message });
   }
 }
 
@@ -2205,7 +2819,7 @@ function renderTourRow(tour) {
   row.className = "setting-row admin-row tour-row";
   const details = document.createElement("span");
   const title = document.createElement("strong");
-  title.textContent = tour.name || `Tour #${tour.id}`;
+  title.textContent = tour.name || t("Tour #{id}", { id: tour.id });
   const route = document.createElement("small");
   route.className = "tour-route";
   const ids = Array.isArray(tour.location_ids) && tour.location_ids.length
@@ -2213,8 +2827,8 @@ function renderTourRow(tour) {
     : (tour.locations || []).map((location) => location.id);
   const names = ids.map((id) => tourLocationName(id, tour)).filter((name) => !name.startsWith("Location #"));
   route.textContent = names.length
-    ? `${names.length} stop${names.length === 1 ? "" : "s"} · ${names.join(" → ")}`
-    : `${ids.length} stop${ids.length === 1 ? "" : "s"}`;
+    ? `${t("{n} stop(s)", { n: names.length })} · ${names.join(" → ")}`
+    : t("{n} stop(s)", { n: ids.length });
   if (tour.description) {
     const description = document.createElement("small");
     description.className = "tour-description";
@@ -2227,21 +2841,21 @@ function renderTourRow(tour) {
   const edit = document.createElement("button");
   edit.className = "button button-soft";
   edit.type = "button";
-  edit.textContent = "Edit";
+  edit.textContent = t("Edit");
   edit.addEventListener("click", () => openTourModal(tour));
   const remove = document.createElement("button");
   remove.className = "button button-soft";
   remove.type = "button";
-  remove.textContent = "Delete";
+  remove.textContent = t("Delete");
   remove.addEventListener("click", async () => {
-    if (!window.confirm(`Delete tour ${tour.name}? This cannot be undone.`)) return;
+    if (!window.confirm(t("Delete tour {name}? This cannot be undone.", { name: tour.name }))) return;
     remove.disabled = true;
     try {
       await apiRequest(`/api/tours/${tour.id}`, { method: "DELETE" });
-      showToast("Tour deleted.");
+      showToast("Tour deleted.", "success");
       await loadTours();
     } catch (error) {
-      showToast(error.message);
+      showToast(error.message, "error");
       remove.disabled = false;
     }
   });
@@ -2270,7 +2884,7 @@ document.getElementById("tour-delete")?.addEventListener("click", async (event) 
   try {
     await apiRequest(`/api/tours/${id}`, { method: "DELETE" });
     closeTourModal();
-    showToast("Tour deleted.");
+    showToast("Tour deleted.", "success");
     await loadTours();
   } catch (error) {
     errorMessage.textContent = error.message;
@@ -2286,12 +2900,12 @@ document.getElementById("tour-form")?.addEventListener("submit", async (event) =
   const description = form.elements.description.value.trim();
   const id = form.elements.id.value;
   if (!name) {
-    errorMessage.textContent = "Give the tour a name.";
+    errorMessage.textContent = t("Give the tour a name.");
     form.elements.name.focus();
     return;
   }
   if (!tourSelectedIds.length) {
-    errorMessage.textContent = "Add at least one important point to the route.";
+    errorMessage.textContent = t("Add at least one important point to the route.");
     return;
   }
   errorMessage.textContent = "";
@@ -2301,10 +2915,10 @@ document.getElementById("tour-form")?.addEventListener("submit", async (event) =
     const payload = { name, description, location_ids: tourSelectedIds };
     if (id) {
       await apiRequest(`/api/tours/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      showToast("Tour updated.");
+      showToast("Tour updated.", "success");
     } else {
       await apiRequest("/api/tours", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      showToast("Tour created.");
+      showToast("Tour created.", "success");
     }
     closeTourModal();
     await loadTours();
@@ -2355,15 +2969,19 @@ function renderOverviewQueue(places) {
   list.replaceChildren();
   const items = [];
   const missingPhoto = places.filter((place) => !hasPhoto(place));
-  if (missingPhoto.length) items.push({ marker: "!", markerClass: "marker-yellow", title: `${missingPhoto.length} place(s) missing a photo`, sub: "Could use a little love" });
+  if (missingPhoto.length) items.push({ marker: "!", markerClass: "marker-yellow", title: t("{n} place(s) missing a photo", { n: missingPhoto.length }), sub: t("Could use a little love") });
   const missingDescription = places.filter((place) => !String(place.description || "").trim());
-  if (missingDescription.length) items.push({ marker: "…", markerClass: "marker-fog", title: `${missingDescription.length} place(s) missing a description`, sub: "Add details from the Important points page" });
+  if (missingDescription.length) items.push({ marker: "…", markerClass: "marker-fog", title: t("{n} place(s) missing a description", { n: missingDescription.length }), sub: t("Add details from the Important points page") });
   if (badge) badge.textContent = String(items.length);
   if (!items.length) {
     const calm = document.createElement("div");
     calm.className = "queue-item";
     const copy = document.createElement("span");
-    copy.innerHTML = "<strong>All clear</strong><small>Nothing needs attention right now.</small>";
+    const clearTitle = document.createElement("strong");
+    clearTitle.textContent = t("All clear");
+    const clearNote = document.createElement("small");
+    clearNote.textContent = t("Nothing needs attention right now.");
+    copy.append(clearTitle, clearNote);
     calm.append(copy);
     list.append(calm);
     return;
@@ -2410,7 +3028,7 @@ function renderAttention() {
   if (!places.length) {
     const loading = document.createElement("p");
     loading.className = "attention-empty";
-    loading.textContent = locationsLoaded ? "There are no points yet." : "Loading the guide…";
+    loading.textContent = locationsLoaded ? t("There are no points yet.") : t("Loading the guide…");
     groups.append(loading);
     return;
   }
@@ -2422,7 +3040,7 @@ function renderAttention() {
     const number = document.createElement("b");
     number.textContent = String(count);
     const label = document.createElement("span");
-    label.textContent = kind.label;
+    label.textContent = t(kind.label);
     card.append(number, label);
     summary.append(card);
   }
@@ -2435,9 +3053,9 @@ function renderAttention() {
     badge.setAttribute("aria-hidden", "true");
     badge.textContent = "✓";
     const title = document.createElement("strong");
-    title.textContent = "Nothing needs attention";
+    title.textContent = t("Nothing needs attention");
     const note = document.createElement("p");
-    note.textContent = "Every point has a photo, a description and a place on the map.";
+    note.textContent = t("Every point has a photo, a description and a place on the map.");
     empty.append(badge, title, note);
     groups.append(empty);
     return;
@@ -2452,9 +3070,9 @@ function renderAttention() {
     heading.className = "panel-heading";
     const copy = document.createElement("div");
     const title = document.createElement("h3");
-    title.textContent = kind.label;
+    title.textContent = t(kind.label);
     const sub = document.createElement("p");
-    sub.textContent = kind.note;
+    sub.textContent = t(kind.note);
     copy.append(title, sub);
     const badge = document.createElement("span");
     badge.className = "badge";
@@ -2471,14 +3089,14 @@ function renderAttention() {
       marker.textContent = kind.key === "photo" ? "!" : kind.key === "description" ? "…" : kind.key === "position" ? "@" : "·";
       const text = document.createElement("span");
       const name = document.createElement("strong");
-      name.textContent = place.name || `Location #${place.id}`;
+      name.textContent = place.name || t("Location #{id}", { id: place.id });
       const detail = document.createElement("small");
       detail.textContent = `#${place.id}`;
       text.append(name, detail);
       const fix = document.createElement("button");
       fix.className = "button button-soft";
       fix.type = "button";
-      fix.textContent = "Fix";
+      fix.textContent = t("Fix");
       fix.addEventListener("click", () => {
         showPage("points");
         openLocationModal(place.id);
@@ -2505,7 +3123,7 @@ function renderOverviewLatest(places) {
     const row = document.createElement("div");
     row.className = "activity-row";
     const cell = document.createElement("span");
-    cell.textContent = "No locations yet. Add the first one from Important points.";
+    cell.textContent = t("No locations yet. Add the first one from Important points.");
     row.append(cell, document.createElement("span"), document.createElement("span"), document.createElement("span"));
     list.append(row);
     return;
@@ -2526,7 +3144,7 @@ function renderOverviewLatest(places) {
     go.className = "text-button";
     go.type = "button";
     go.textContent = "↗";
-    go.setAttribute("aria-label", `Open ${place.name} in Important points`);
+    go.setAttribute("aria-label", t("Open {name} in Important points", { name: place.name }));
     go.addEventListener("click", () => showPage("points"));
     row.append(name, coords, id, go);
     list.append(row);
@@ -2568,7 +3186,7 @@ function updateAccountChrome() {
   const username = authenticatedAdmin?.username || "…";
   const role = authenticatedAdmin?.role || "…";
   const initials = accountInitials(authenticatedAdmin?.username);
-  for (const ids of [["account-avatar", "account-username", "account-role"], ["footer-avatar", "footer-username", "footer-role"]]) {
+  for (const ids of [["footer-avatar", "footer-username", "footer-role"]]) {
     const avatar = document.getElementById(ids[0]);
     if (avatar) avatar.textContent = initials;
     const name = document.getElementById(ids[1]);
@@ -2579,7 +3197,7 @@ function updateAccountChrome() {
   const greeting = document.getElementById("greeting-text");
   if (greeting && authenticatedAdmin?.username) {
     const hour = new Date().getHours();
-    const part = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+    const part = hour < 12 ? t("Good morning") : hour < 18 ? t("Good afternoon") : t("Good evening");
     greeting.textContent = `${part}, ${authenticatedAdmin.username}`;
   }
 }
@@ -2599,50 +3217,75 @@ function renderAccountMenu() {
   const menu = document.getElementById("account-menu");
   if (!menu) return;
   menu.replaceChildren();
-  const label = document.createElement("span");
-  label.className = "menu-label";
-  label.textContent = "Signed-in accounts";
-  menu.append(label);
-  const activeName = authenticatedAdmin?.username;
-  if (!myAccounts.length) {
-    const empty = document.createElement("span");
-    empty.className = "menu-label";
-    empty.textContent = "No other accounts";
-    menu.append(empty);
-  }
-  for (const account of myAccounts) {
-    const item = document.createElement("button");
-    item.type = "button";
-    item.setAttribute("role", "menuitemradio");
-    const isActive = account.username === activeName;
-    item.setAttribute("aria-checked", String(isActive));
-    const avatar = document.createElement("span");
-    avatar.className = "avatar avatar-small";
-    avatar.textContent = accountInitials(account.username);
-    const name = document.createElement("span");
-    name.textContent = account.username;
-    item.append(avatar, name);
-    if (isActive) {
-      const check = document.createElement("span");
-      check.className = "menu-check";
-      check.textContent = "✓";
-      item.append(check);
+
+  /* Who you are sits at the top of the menu that belongs to you. It is a
+     heading, not a row you pick from, so it needs no tick and no fill. */
+  const identity = document.createElement("div");
+  identity.className = "menu-identity";
+  const avatar = document.createElement("span");
+  avatar.className = "avatar";
+  avatar.textContent = accountInitials(authenticatedAdmin?.username);
+  const copy = document.createElement("span");
+  copy.className = "menu-identity-copy";
+  const name = document.createElement("strong");
+  name.textContent = authenticatedAdmin?.username || "—";
+  name.title = authenticatedAdmin?.username || "";
+  const role = document.createElement("small");
+  role.textContent = roleLabel(authenticatedAdmin?.role);
+  copy.append(name, role);
+  identity.append(avatar, copy);
+  menu.append(identity);
+
+  const separator = () => {
+    const line = document.createElement("span");
+    line.className = "menu-separator";
+    return line;
+  };
+
+  const others = myAccounts.filter((account) => account.username !== authenticatedAdmin?.username);
+  if (others.length) {
+    menu.append(separator());
+    const label = document.createElement("span");
+    label.className = "menu-label";
+    label.textContent = t("Switch account");
+    menu.append(label);
+    for (const account of others) {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.setAttribute("role", "menuitem");
+      const mark = document.createElement("span");
+      mark.className = "avatar avatar-tiny";
+      mark.textContent = accountInitials(account.username);
+      const accountName = document.createElement("span");
+      accountName.className = "menu-name";
+      accountName.textContent = account.username;
+      accountName.title = account.username;
+      item.append(mark, accountName);
+      item.addEventListener("click", () => switchAccount(account.username));
+      menu.append(item);
     }
-    item.addEventListener("click", () => {
-      if (isActive) closeMenus();
-      else switchAccount(account.username);
-    });
-    menu.append(item);
   }
-  const separator = document.createElement("span");
-  separator.className = "menu-separator";
-  menu.append(separator);
+
   const add = document.createElement("button");
   add.type = "button";
   add.setAttribute("role", "menuitem");
-  add.textContent = "+ Add account";
+  add.className = "menu-add";
+  add.textContent = t("+ Add account");
   add.addEventListener("click", startAddAccount);
   menu.append(add);
+
+  /* One control, one menu: the account, the accounts it can switch to, and
+     the two things you do with your account. */
+  menu.append(separator());
+  for (const [action, label] of [["settings", t("Settings")], ["logout", t("Sign out")]]) {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.setAttribute("role", "menuitem");
+    item.dataset.menuAction = action;
+    item.className = "menu-action";
+    item.textContent = label;
+    menu.append(item);
+  }
 }
 
 function toggleMenu(menuId, buttonId) {
@@ -2656,7 +3299,7 @@ function toggleMenu(menuId, buttonId) {
 }
 
 function closeMenus() {
-  for (const ids of [["account-menu", "account-switcher"], ["admin-menu", "admin-menu-button"]]) {
+  for (const ids of [["account-menu", "account-switcher"]]) {
     document.getElementById(ids[0])?.classList.add("is-hidden");
     document.getElementById(ids[1])?.setAttribute("aria-expanded", "false");
   }
@@ -2668,9 +3311,9 @@ async function switchAccount(username) {
     await apiRequest("/api/auth/switch", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username }) });
     const admin = await apiRequest("/api/auth/me");
     setAuthenticated(true, admin);
-    showToast(`Switched to ${admin.username}.`);
+    showToast(t("Switched to {name}.", { name: admin.username }), "success");
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message, "error");
   }
 }
 
@@ -2688,8 +3331,7 @@ function startAddAccount() {
 }
 
 document.getElementById("account-switcher")?.addEventListener("click", () => toggleMenu("account-menu", "account-switcher"));
-document.getElementById("admin-menu-button")?.addEventListener("click", () => toggleMenu("admin-menu", "admin-menu-button"));
-document.getElementById("admin-menu")?.addEventListener("click", (event) => {
+document.getElementById("account-menu")?.addEventListener("click", (event) => {
   const action = event.target.closest("[data-menu-action]")?.dataset.menuAction;
   if (action === "settings") {
     closeMenus();
@@ -2709,7 +3351,7 @@ document.getElementById("login-back-button")?.addEventListener("click", async ()
   }
 });
 document.addEventListener("click", (event) => {
-  if (!event.target.closest("#account-menu, #account-switcher, #admin-menu, #admin-menu-button")) closeMenus();
+  if (!event.target.closest("#account-menu, #account-switcher")) closeMenus();
 });
 
 function downloadCsv(filename, rows) {
@@ -2725,11 +3367,11 @@ function downloadCsv(filename, rows) {
 }
 document.getElementById("users-export-csv")?.addEventListener("click", () => {
   if (!cachedAdmins.length) {
-    showToast("No administrator data to export. Refresh the list first.");
+    showToast("No administrator data to export. Refresh the list first.", "error");
     return;
   }
   downloadCsv("administrators.csv", [["username", "email", "role", "is_active"], ...cachedAdmins.map((admin) => [admin.username, admin.email, admin.role, admin.is_active])]);
-  showToast(`Exported ${cachedAdmins.length} administrator(s).`);
+  showToast(t("Exported {n} administrator(s).", { n: cachedAdmins.length }), "success");
 });
 
 let debugRequestId = 0;
@@ -2744,16 +3386,16 @@ async function runDebugHealth() {
     if (requestId !== debugRequestId) return;
     const ms = Math.round(performance.now() - started);
     if (result && result.status === "ok") {
-      title.textContent = `API healthy · ${ms}ms`;
-      text.textContent = "Last check completed just now. All core services are responding normally.";
+      title.textContent = t("API healthy · {ms}ms", { ms });
+      text.textContent = t("Last check completed just now. All core services are responding normally.");
     } else {
-      title.textContent = "API returned an unexpected status";
-      text.textContent = "The API responded, but not with the expected health payload. Check the backend.";
+      title.textContent = t("API returned an unexpected status");
+      text.textContent = t("The API responded, but not with the expected health payload. Check the backend.");
     }
   } catch (error) {
     if (requestId !== debugRequestId) return;
-    title.textContent = "API unreachable";
-    text.textContent = `${error.message} Click Run health check to try again.`;
+    title.textContent = t("API unreachable");
+    text.textContent = t("{message} Click Run health check to try again.", { message: error.message });
   }
 }
 
@@ -2766,7 +3408,7 @@ function setSidebarCollapsed(collapsed) {
   if (button) {
     button.textContent = collapsed ? "»" : "«";
     button.setAttribute("aria-expanded", String(!collapsed));
-    button.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+    button.setAttribute("aria-label", collapsed ? t("Expand sidebar") : t("Collapse sidebar"));
   }
 }
 document.getElementById("sidebar-collapse")?.addEventListener("click", () => {

@@ -3,6 +3,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const crypto = require("crypto");
+const zlib = require("zlib");
 
 const root = __dirname;
 const apiOrigin = process.env.ARADLENS_API_ORIGIN || "https://api.aradlens.binarysquad.club";
@@ -142,13 +143,72 @@ function lanAddress() {
 }
 
 function sendJson(res, status, payload, headers = {}) {
-  res.writeHead(status, {
+  sendBuffer(res.req || { headers: {}, socket: {} }, res, status, Buffer.from(JSON.stringify(payload)), {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
-    ...securityHeaders(res.req || { headers: {}, socket: {} }),
     ...headers,
   });
-  res.end(JSON.stringify(payload));
+}
+
+/* Text responses are compressed, tagged with an ETag and allowed to answer
+ * with a 304. The stylesheet, the script and the page are the whole first
+ * paint, so they are the three that matter most. */
+const COMPRESSIBLE_TYPE = /^(text\/|application\/(json|javascript|xml|manifest)|image\/svg\+xml)/i;
+const COMPRESSION_FLOOR = 512;
+const compressedCache = new Map();
+
+function acceptsEncoding(req, encoding) {
+  const header = String(req.headers["accept-encoding"] || "").toLowerCase();
+  return header.split(",").some((part) => {
+    const [name, ...params] = part.trim().split(";");
+    if (name.trim() !== encoding) return false;
+    const quality = params.map((param) => param.trim()).find((param) => param.startsWith("q="));
+    return !quality || Number(quality.slice(2)) > 0;
+  });
+}
+
+/* Fonts and images are already compressed. Compressing them again costs
+ * server time and makes the file bigger, so they are left alone. */
+function compress(req, body, contentType) {
+  if (!COMPRESSIBLE_TYPE.test(String(contentType || ""))) return null;
+  if (body.length < COMPRESSION_FLOOR) return null;
+  const key = crypto.createHash("sha1").update(body).digest("base64url");
+  let entry = compressedCache.get(key);
+  if (!entry) {
+    entry = {};
+    if (acceptsEncoding(req, "br")) {
+      entry.br = zlib.brotliCompressSync(body, {
+        params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 5, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: body.length },
+      });
+    }
+    if (acceptsEncoding(req, "gzip")) entry.gzip = zlib.gzipSync(body, { level: 6 });
+    compressedCache.set(key, entry);
+    if (compressedCache.size > 64) compressedCache.delete(compressedCache.keys().next().value);
+  }
+  if (entry.br && acceptsEncoding(req, "br")) return { body: entry.br, encoding: "br" };
+  if (entry.gzip && acceptsEncoding(req, "gzip")) return { body: entry.gzip, encoding: "gzip" };
+  return null;
+}
+
+/* Write a body with the right encoding, length and cache headers, and answer
+ * a matching If-None-Match with 304 so a reload costs nothing. */
+function sendBuffer(req, res, status, body, headers = {}) {
+  const etag = `"${crypto.createHash("sha1").update(body).digest("base64url")}"`;
+  if (status === 200 && String(req.headers["if-none-match"] || "") === etag) {
+    res.writeHead(304, { ETag: etag, ...headers, ...securityHeaders(req) });
+    res.end();
+    return;
+  }
+  const compressed = compress(req, body, headers["Content-Type"]);
+  const payload = compressed ? compressed.body : body;
+  res.writeHead(status, {
+    ...headers,
+    "Content-Length": payload.length,
+    ETag: etag,
+    ...(compressed ? { "Content-Encoding": compressed.encoding, Vary: "Accept-Encoding" } : {}),
+    ...securityHeaders(req),
+  });
+  res.end(payload);
 }
 
 function parseCookies(header = "") {
@@ -318,11 +378,13 @@ async function proxyApi(req, res, pathname) {
   const isSwitch = pathname === "/api/auth/switch" && req.method === "POST";
   const isAdminList = pathname === "/api/admins" && req.method === "GET";
   const isAdminUpdate = /^\/api\/admins\/\d+$/.test(pathname) && req.method === "PUT";
-  const isAdminEndpoint = isAdminList || isAdminUpdate;
+  const isAdminDelete = /^\/api\/admins\/\d+$/.test(pathname) && req.method === "DELETE";
+  const isAdminEndpoint = isAdminList || isAdminUpdate || isAdminDelete;
   const isOwnAdminEndpoint = pathname === "/api/admins/me" && req.method === "PATCH";
   const isInvitesList = pathname === "/api/invites" && req.method === "GET";
   const isInviteCreate = pathname === "/api/invites" && req.method === "POST";
-  const isInviteEndpoint = isInvitesList || isInviteCreate;
+  const isInviteDelete = /^\/api\/invites\/\d+$/.test(pathname) && req.method === "DELETE";
+  const isInviteEndpoint = isInvitesList || isInviteCreate || isInviteDelete;
   const isToursList = pathname === "/api/tours" && ["GET", "POST"].includes(req.method);
   const isTourDetails = /^\/api\/tours\/\d+$/.test(pathname) && ["GET", "PUT", "DELETE"].includes(req.method);
   const isTourEndpoint = isToursList || isTourDetails;
@@ -570,6 +632,11 @@ async function proxyApi(req, res, pathname) {
       body: payload ? (Buffer.isBuffer(payload) ? payload : JSON.stringify(payload)) : undefined,
     });
     const upstreamType = upstream.headers.get("content-type") || "";
+    if (upstream.status === 204) {
+      res.writeHead(204, { "Cache-Control": "no-store", ...securityHeaders(req) });
+      res.end();
+      return true;
+    }
     if (!upstreamType.includes("application/json")) {
       const buffer = Buffer.from(await upstream.arrayBuffer());
       const rawHeaders = { "Content-Type": upstreamType || "application/octet-stream", "Cache-Control": "no-store", ...securityHeaders(req) };
@@ -734,17 +801,22 @@ function serveStatic(req, res, decodedPath) {
           .replace(/(href|src)="(\/[^"?]+\.(?:css|js))"/gi, (match, attribute, url) => `${attribute}="${url}?v=${assetVersion()}"`);
         body = Buffer.from(html, "utf8");
       }
-      const cacheControl = extension === ".html" || extension === ".js" || extension === ".css"
-        ? "no-cache"
-        : extension === ".woff2" || extension === ".png" || extension === ".svg"
-          ? "public, max-age=31536000, immutable"
-          : "public, max-age=3600";
-      res.writeHead(200, {
+      /* A link with a version in it can never change under that URL, so it
+         may sit in the browser cache for a year. Everything else
+         revalidates, and the ETag turns that revalidation into a 304 with
+         no body. */
+      const versioned = /[?&]v=[0-9a-z]+/i.test(req.url || "");
+      const cacheControl = versioned
+        ? "public, max-age=31536000, immutable"
+        : extension === ".html" || extension === ".js" || extension === ".css"
+          ? "no-cache"
+          : extension === ".woff2" || extension === ".png" || extension === ".svg"
+            ? "public, max-age=31536000, immutable"
+            : "public, max-age=3600";
+      sendBuffer(req, res, 200, body, {
         "Content-Type": mime[extension] || "application/octet-stream",
         "Cache-Control": cacheControl,
-        ...securityHeaders(req),
       });
-      res.end(body);
     });
   });
 }
