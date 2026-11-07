@@ -1,0 +1,32 @@
+- generic [ref=e1] [box=0,0,1920,991]:
+  - generic [ref=e9] [box=1037,0,883,991]:
+    - generic [ref=e10] [box=1125,117,707,25]: AradLens
+    - paragraph [ref=e13] [box=1125,241,707,14]: Admin workspace
+    - heading [level=1] [ref=e14] [box=1125,268,707,145]:
+      - text: Keep Arad
+      - emphasis [ref=e15] [box=1125,326,271,100]: in focus.
+    - paragraph [ref=e16] [box=1125,435,370,46]: Curate the places people love, spot what needs attention, and keep the city guide trustworthy.
+    - generic [ref=e17] [box=1125,519,390,44]:
+      - generic [ref=e18] [box=1125,519,166,44]:
+        - generic [ref=e19] [box=1125,533,57,16]: Language
+        - combobox "Language" [ref=e20] [box=1189,519,102,44]
+      - button "Switch to night theme" [ref=e21] [cursor=pointer] [box=1303,519,66,44]:
+        - generic [aria-hidden] [ref=e22] [box=1314,533,16,17]: ☼
+        - generic [ref=e23] [box=1337,533,21,16]: Day
+    - generic [ref=e24] [box=1125,587,390,237]:
+      - generic [ref=e25] [box=1125,590,390,16]: Username
+      - textbox "Username" [active] [ref=e26] [box=1125,615,390,46]:
+        - /placeholder: admin
+      - generic [ref=e27] [box=1125,673,390,16]: Password
+      - generic [ref=e28] [box=1125,698,390,46]:
+        - textbox "Password" [ref=e29] [box=1125,698,390,46]:
+          - /placeholder: ••••••••
+        - button "Show password" [ref=e30] [cursor=pointer] [box=1461,713,46,16]: Show
+      - alert [ref=e31] [box=1125,755,390,17]
+      - button "Sign in" [ref=e32] [cursor=pointer] [box=1125,779,390,43]
+    - paragraph [ref=e33] [box=1125,846,707,16]:
+      - text: Use your AradLens administrator account.
+      - link "Forgot password?" [ref=e34] [cursor=pointer] [box=1362,846,104,16]:
+        - /url: "#"
+  - status [box=1836,921,60,54]:
+    - button "Dismiss notification" [ref=e35] [cursor=pointer] [box=1869,935,10,26]: ×

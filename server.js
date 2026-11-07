@@ -49,13 +49,15 @@ function readJsonBody(req) {
 async function proxyApi(req, res, pathname) {
   const cookies = parseCookies(req.headers.cookie);
   const token = cookies.aradlens_token;
+  const clientAuthorization = typeof req.headers.authorization === "string" ? req.headers.authorization : "";
   const isLogin = pathname === "/api/auth/login" && req.method === "POST";
   const isMe = pathname === "/api/auth/me" && req.method === "GET";
   const isPasswordChange = pathname === "/api/auth/change-password" && req.method === "POST";
   const isHealth = pathname === "/api/health" && req.method === "GET";
   const isLogout = pathname === "/api/auth/logout" && req.method === "POST";
+  const isAdminEndpoint = /^\/api\/admins(?:\/\d+)?$/.test(pathname) && ["GET", "POST", "PUT", "DELETE"].includes(req.method);
 
-  if (!isLogin && !isMe && !isPasswordChange && !isHealth && !isLogout) return false;
+  if (!isLogin && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAdminEndpoint) return false;
   if (devMode && isMe && token === "dev-token") {
     sendJson(res, 200, { username: "admin", role: "Administrator" });
     return true;
@@ -74,13 +76,14 @@ async function proxyApi(req, res, pathname) {
     });
     return true;
   }
-  if ((isMe || isPasswordChange) && !token) {
+  const authorization = token ? `Bearer ${token}` : clientAuthorization;
+  if ((isMe || isPasswordChange || isAdminEndpoint) && !authorization) {
     sendJson(res, 401, { detail: "Not authenticated" });
     return true;
   }
 
   let payload;
-  if (isLogin || isPasswordChange) {
+  if (isLogin || isPasswordChange || req.method === "POST" || req.method === "PUT") {
     try {
       payload = await readJsonBody(req);
     } catch (error) {
@@ -89,7 +92,7 @@ async function proxyApi(req, res, pathname) {
     }
   }
   if (devMode && isLogin) {
-    if (payload.username === "admin" && payload.password === "admin") {
+    if (payload.username === "admin" && ["admin", "administrare"].includes(payload.password)) {
       sendJson(res, 200, { ok: true }, {
         "Set-Cookie": "aradlens_token=dev-token; HttpOnly; SameSite=Lax; Path=/",
       });
@@ -102,14 +105,15 @@ async function proxyApi(req, res, pathname) {
   const upstreamPath = isLogin ? "/auth/login"
     : isMe ? "/auth/me"
       : isPasswordChange ? "/auth/change-password"
-        : "/health";
+        : isAdminEndpoint ? pathname.replace(/^\/api/, "")
+          : "/health";
   const upstreamHeaders = { Accept: "*/*" };
   if (payload) upstreamHeaders["Content-Type"] = "application/json";
-  if (token) upstreamHeaders.Authorization = `Bearer ${token}`;
+  if (authorization) upstreamHeaders.Authorization = authorization.startsWith("Bearer ") ? authorization : `Bearer ${authorization}`;
 
   try {
     const upstream = await fetch(`${apiOrigin}${upstreamPath}`, {
-      method: isLogin || isPasswordChange ? "POST" : "GET",
+      method: isLogin || isPasswordChange || isAdminEndpoint ? req.method : "GET",
       headers: upstreamHeaders,
       body: payload ? JSON.stringify(payload) : undefined,
     });
@@ -124,7 +128,6 @@ async function proxyApi(req, res, pathname) {
     if (isLogin && upstream.ok && responsePayload.access_token) {
       const maxAge = Number.isFinite(responsePayload.expires_in) ? `; Max-Age=${Math.max(0, responsePayload.expires_in)}` : "";
       responseHeaders["Set-Cookie"] = `aradlens_token=${encodeURIComponent(responsePayload.access_token)}; HttpOnly; SameSite=Lax; Path=/${maxAge}`;
-      responsePayload = { ok: true };
     }
     sendJson(res, upstream.status, responsePayload, responseHeaders);
   } catch {
