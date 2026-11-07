@@ -3,7 +3,15 @@ const appView = document.getElementById("app-view");
 const loginForm = document.getElementById("login-form");
 const loginError = document.getElementById("login-error");
 let authenticatedAdmin = null;
-const pageNames = { overview: "Overview", points: "Important points", users: "Administrators", debug: "Debug", admins: "Access control", settings: "Settings" };
+document.addEventListener("click", (event) => {
+  const addButton = event.target?.closest?.("#locations-add-button, #overview-add-point");
+  if (!addButton) return;
+  event.preventDefault();
+  event.stopPropagation();
+  openLocationModal(null);
+  showPage("points");
+}, true);
+const pageNames = { overview: "Overview", points: "Important points", tours: "Tours", users: "Administrators", debug: "Debug", admins: "Access control", settings: "Settings" };
 const translations = {
   en: { username: "Username", password: "Password", signIn: "Sign in", loginHint: "Use your AradLens administrator account.", forgotPassword: "Forgot password?", day: "Day", night: "Night", switchDay: "Switch to day theme", switchNight: "Switch to night theme" },
   ro: { username: "Nume de utilizator", password: "Parolă", signIn: "Autentificare", loginHint: "Folosește contul de administrator AradLens.", forgotPassword: "Ai uitat parola?", day: "Zi", night: "Noapte", switchDay: "Schimbă la tema de zi", switchNight: "Schimbă la tema de noapte" },
@@ -26,6 +34,8 @@ const uiTranslations = {
   "Workspace": "Spațiu de lucru",
   "Overview": "Prezentare generală",
   "Important points": "Puncte de interes",
+  "Tours": "Tururi",
+  "Route list": "Lista traseelor",
   "Users": "Utilizatori",
   "Monitor": "Monitorizare",
   "All systems operational": "Toate sistemele funcționează normal",
@@ -134,6 +144,21 @@ const uiTranslations = {
   "Incident alerts": "Alerte de incidente", "Get notified when crashes or API issues appear.": "Primește notificări când apar blocări sau probleme cu API-ul.",
   "Editorial reminders": "Mementouri editoriale", "Receive a daily summary of points awaiting review.": "Primește zilnic un rezumat al punctelor care așteaptă verificarea.",
   "Weekly activity digest": "Rezumat săptămânal al activității", "A short recap of changes across the workspace.": "Un rezumat scurt al modificărilor din spațiul de lucru.",
+  "My account": "Contul meu",
+  "Update your own username and email. Your current password is required to save.": "Actualizează-ți numele de utilizator și e-mailul. Parola actuală este necesară pentru salvare.",
+  "Required to save account changes.": "Necesară pentru a salva modificările contului.",
+  "Save account": "Salvează contul",
+  "Saving account…": "Se salvează contul…",
+  "Account updated.": "Contul a fost actualizat.",
+  "Edit access": "Editează accesul",
+  "Edit administrator access": "Editează accesul administratorului",
+  "Edit access for": "Editează accesul pentru",
+  "Editing access for": "Se editează accesul pentru",
+  "Save to apply, Cancel to discard.": "Salvează pentru a aplica, Anulează pentru a renunța.",
+  "Save access": "Salvează accesul",
+  "Select an administrator to edit access.": "Selectează un administrator pentru a-i edita accesul.",
+  "Administrator access updated.": "Accesul administratorului a fost actualizat.",
+  "Update roles and activation for administrator accounts.": "Actualizează rolurile și activarea conturilor de administrator.",
   "Account security": "Securitatea contului", "Change the password for your authenticated API account.": "Schimbă parola contului cu care te-ai autentificat prin API.",
   "Current password": "Parola actuală", "New password": "Parola nouă", "Use at least 8 characters.": "Folosește cel puțin 8 caractere.", "Change password": "Schimbă parola",
   "Basic details for this admin space.": "Detaliile de bază ale acestui spațiu de administrare.", "Workspace name": "Numele spațiului de lucru", "Timezone": "Fus orar",
@@ -228,7 +253,7 @@ function applyTheme() {
   loginView.classList.toggle("theme-night", currentTheme === "night");
   appView.classList.toggle("theme-night", currentTheme === "night");
   const themeColor = document.querySelector('meta[name="theme-color"]');
-  if (themeColor) themeColor.setAttribute("content", currentTheme === "night" ? "#100e16" : "#251b35");
+  if (themeColor)     themeColor.setAttribute("content", currentTheme === "night" ? "#101010" : "#f9f6ef");
   document.querySelectorAll("[data-theme-label]").forEach((label) => { label.textContent = translations[currentLanguage][currentTheme]; });
   document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
     const nextTheme = currentTheme === "day" ? "night" : "day";
@@ -300,7 +325,9 @@ function setAuthenticated(isAuthenticated, admin = null) {
     document.getElementById("users-admins-list")?.replaceChildren();
     document.getElementById("invites-list")?.replaceChildren();
     document.getElementById("live-grid")?.replaceChildren();
+    document.getElementById("tours-list")?.replaceChildren();
     cachedLocations = [];
+    cachedTours = [];
     ["stat-admins-total", "stat-admins-active", "stat-admins-inactive", "stat-admins-super"].forEach((id) => {
       const element = document.getElementById(id);
       if (element) element.textContent = "—";
@@ -322,10 +349,11 @@ function setAuthenticated(isAuthenticated, admin = null) {
     updateAccountChrome();
     refreshAccounts();
   }
-  showPage(currentPage, false);
+  showPage(currentPage, false, true);
 }
 
-function showPage(page, updateUrl = true) {
+function showPage(page, updateUrl = true, force = false) {
+  const previousPage = currentPage;
   currentPage = pageNames[page] && (page !== "admins" || String(authenticatedAdmin?.role || "").toLowerCase() === "superadmin") ? page : "overview";
   page = currentPage;
   document.querySelectorAll(".page").forEach((section) => section.classList.remove("active-page"));
@@ -342,9 +370,11 @@ function showPage(page, updateUrl = true) {
   document.querySelector(".mobile-menu")?.setAttribute("aria-expanded", "false");
   if ((page === "admins" || page === "users") && authenticatedAdmin) loadAdmins();
   if (page === "admins" && authenticatedAdmin) loadInvites();
-  if (page === "points") loadLocations();
+  if (page === "points" && (previousPage !== "points" || force)) loadLocations();
+  if (page === "tours" && (previousPage !== "tours" || force)) loadTours();
   if (page === "overview") loadOverview();
   if (page === "debug") runDebugHealth();
+  if (page === "settings") fillAccountForm();
   if (updateUrl) history.replaceState(null, "", `#${page}`);
 }
 
@@ -480,6 +510,7 @@ document.addEventListener("keydown", (event) => {
     closeMenus();
     if (!document.getElementById("image-modal")?.classList.contains("is-hidden")) closeImageModal();
     else if (!document.getElementById("location-modal")?.classList.contains("is-hidden")) closeLocationModal();
+    else if (!document.getElementById("tour-modal")?.classList.contains("is-hidden")) closeTourModal();
     else if (!document.getElementById("capture-modal")?.classList.contains("is-hidden")) closeCaptureModal();
   }
   if (event.key === "/" && document.activeElement?.tagName !== "INPUT") {
@@ -507,6 +538,50 @@ document.querySelector("[data-api-health]")?.addEventListener("click", async (ev
   } finally {
     button.disabled = false;
   button.firstChild.textContent = t("Check API health");
+  }
+});
+
+function fillAccountForm() {
+  const form = document.getElementById("account-form");
+  if (!form || !authenticatedAdmin) return;
+  form.elements.username.value = authenticatedAdmin.username || "";
+  form.elements.email.value = authenticatedAdmin.email || "";
+  form.elements.old_password.value = "";
+  document.getElementById("account-form-error").textContent = "";
+}
+
+document.getElementById("account-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const errorMessage = document.getElementById("account-form-error");
+  const submitButton = form.querySelector("button[type=submit]");
+  const values = new FormData(form);
+  const priorLabel = submitButton.textContent;
+  errorMessage.textContent = "";
+  submitButton.disabled = true;
+  submitButton.classList.add("is-loading");
+  submitButton.textContent = t("Saving account…");
+  try {
+    const updated = await apiRequest("/api/admins/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: values.get("username"),
+        email: values.get("email"),
+        old_password: values.get("old_password"),
+      }),
+    });
+    authenticatedAdmin = { ...authenticatedAdmin, ...updated };
+    updateAccountChrome();
+    await refreshAccounts();
+    form.elements.old_password.value = "";
+    showToast("Account updated.");
+  } catch (error) {
+    errorMessage.textContent = error.message;
+  } finally {
+    submitButton.disabled = false;
+    submitButton.classList.remove("is-loading");
+    submitButton.textContent = priorLabel;
   }
 });
 
@@ -562,13 +637,26 @@ let pickerMap = null;
 let pickerMarker = null;
 let pickerPlacesLayer = null;
 let cachedLocations = [];
+let cachedTours = [];
+
+/* The API ships placeholder rows (latitude -90, longitude -180). They are not
+   real places, so they must never reach the map: a fit that includes them
+   spans the whole world and drops the picker to zoom 0. */
+function usableCoordinate(latitude, longitude) {
+  const lat = Number(latitude);
+  const lng = Number(longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  if (lat <= -89.9 || lat >= 89.9) return false;
+  if (lng <= -179.9 || lng >= 179.9) return false;
+  return true;
+}
 
 function pickerHomeBounds() {
   const bounds = [];
   for (const location of cachedLocations) {
     const latitude = Number(location.latitude);
     const longitude = Number(location.longitude);
-    if (Number.isFinite(latitude) && Number.isFinite(longitude)) bounds.push([latitude, longitude]);
+    if (usableCoordinate(latitude, longitude)) bounds.push([latitude, longitude]);
   }
   return bounds;
 }
@@ -592,13 +680,35 @@ function ensurePickerMap() {
   if (pickerMap || typeof window.L === "undefined") return pickerMap;
   const element = document.getElementById("location-picker-map");
   if (!element) return null;
-  pickerMap = window.L.map(element).setView([46.166, 21.316], 13);
+  pickerMap = window.L.map(element);
   window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(pickerMap);
   pickerMap.on("click", (event) => setPickerPoint(event.latlng.lat, event.latlng.lng));
   return pickerMap;
+}
+
+/* The picker lives inside a modal that is still laying out when the map is
+   created, so the container can measure zero. Leaflet answers a zero-size
+   viewport with zoom 0 (the whole world) and the first click then lands
+   nowhere near the cursor. Measure first, then set the view, and repeat on
+   the next frame once the modal has settled. */
+function focusPickerMap(latitude, longitude, zoom) {
+  if (!pickerMap) return;
+  const apply = () => {
+    pickerMap.invalidateSize({ animate: false, pan: false });
+    const hasPoint = [latitude, longitude].every((value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)));
+    if (hasPoint) {
+      pickerMap.setView([Number(latitude), Number(longitude)], zoom || 15, { animate: false });
+      return;
+    }
+    const home = pickerHomeBounds();
+    if (home.length) pickerMap.fitBounds(home, { padding: [40, 40], animate: false });
+    else pickerMap.setView([46.166, 21.316], 13, { animate: false });
+  };
+  apply();
+  window.requestAnimationFrame(apply);
 }
 
 function setPickerPoint(lat, lng) {
@@ -649,7 +759,7 @@ function suggestOsmName(lat, lng) {
   hideOsmSuggestion();
   if (!nameInput || !box || !label || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
   const requestId = ++osmRequestId;
-  window.fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, { headers: { Accept: "application/json" } })
+  window.fetch(`/api/geocode/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`, { headers: { Accept: "application/json" } })
     .then((response) => (response.ok ? response.json() : null))
     .then((data) => {
       if (requestId !== osmRequestId) return;
@@ -754,45 +864,23 @@ async function loadAdmins() {
       const details = document.createElement("span");
       details.textContent = `${admin.username} · ${admin.email} · ${admin.role} · ${admin.is_active ? "Active" : "Inactive"}`;
       row.append(details);
-      for (const action of ["Edit", "Delete"]) {
-        const button = document.createElement("button");
-        button.className = "button button-soft";
-        button.type = "button";
-        button.textContent = action;
-        button.addEventListener("click", async () => {
-          button.disabled = true;
-          try {
-            if (action === "Delete") {
-              if (String(authenticatedAdmin?.username || "").toLowerCase() === String(admin.username || "").toLowerCase()) {
-                showToast("You cannot delete your own administrator account.");
-                return;
-              }
-              if (!window.confirm(`Delete administrator ${admin.username}? This cannot be undone.`)) return;
-              await apiRequest(`/api/admins/${admin.id}`, { method: "DELETE" });
-              resetAdminForm();
-              await loadAdmins();
-              showToast(`Administrator ${admin.username} deleted.`);
-            } else {
-              const record = await apiRequest(`/api/admins/${admin.id}`);
-              const form = document.getElementById("admin-form");
-              form.elements.id.value = record.id;
-              form.elements.username.value = record.username;
-              form.elements.username.disabled = true;
-              form.elements.email.value = record.email;
-              form.elements.role.value = record.role;
-              form.elements.is_active.checked = record.is_active;
-              form.elements.password.value = "";
-              form.elements.password.required = false;
-              document.getElementById("admin-form-title").textContent = `Edit administrator ${record.username}`;
-              setAdminEditState(record.username);
-              showPage("admins");
-              form.elements.email.focus();
-            }
-          } catch (error) { message.textContent = error.message; }
-          finally { button.disabled = false; }
-        });
-        row.append(button);
-      }
+      const editButton = document.createElement("button");
+      editButton.className = "button button-soft";
+      editButton.type = "button";
+      editButton.textContent = t("Edit access");
+      editButton.addEventListener("click", () => {
+        const form = document.getElementById("admin-form");
+        form.hidden = false;
+        form.elements.id.value = admin.id;
+        form.elements.role.value = admin.role;
+        form.elements.is_active.checked = Boolean(admin.is_active);
+        document.getElementById("admin-form-title").textContent = `${t("Edit access for")} ${admin.username}`;
+        document.getElementById("admin-form-error").textContent = "";
+        setAdminEditState(admin.username);
+        showPage("admins");
+        form.elements.role.focus();
+      });
+      row.append(editButton);
       list?.append(row);
       const userRow = document.createElement("div");
       userRow.className = "user-row";
@@ -832,22 +920,21 @@ function setAdminEditState(username) {
     return;
   }
   state.hidden = false;
-  state.textContent = `Editing administrator ${username} — Save to apply, Cancel to discard. Username cannot be changed.`;
+  state.textContent = `${t("Editing access for")} ${username} — ${t("Save to apply, Cancel to discard.")}`;
 }
 
 function resetAdminForm() {
   const form = document.getElementById("admin-form");
   form.reset();
   form.elements.id.value = "";
-  form.elements.username.disabled = false;
-  form.elements.password.required = true;
-  document.getElementById("admin-form-title").textContent = "Create administrator";
+  form.hidden = true;
+  document.getElementById("admin-form-title").textContent = t("Edit administrator access");
   document.getElementById("admin-form-error").textContent = "";
   setAdminEditState(null);
 }
 
 document.getElementById("admins-refresh").addEventListener("click", loadAdmins);
-document.getElementById("admins-back")?.addEventListener("click", () => showPage("users"));
+document.getElementById("admins-back")?.addEventListener("click", () => { resetAdminForm(); showPage("users"); });
 document.getElementById("users-refresh")?.addEventListener("click", loadAdmins);
 document.getElementById("admin-cancel").addEventListener("click", resetAdminForm);
 document.getElementById("admin-form").addEventListener("submit", async (event) => {
@@ -856,16 +943,18 @@ document.getElementById("admin-form").addEventListener("submit", async (event) =
   const button = form.querySelector("button[type=submit]");
   const errorMessage = document.getElementById("admin-form-error");
   const id = form.elements.id.value;
-  const payload = { email: form.elements.email.value, role: form.elements.role.value, is_active: form.elements.is_active.checked };
-  if (!id) payload.username = form.elements.username.value;
-  if (form.elements.password.value) payload.password = form.elements.password.value;
+  if (!id) {
+    errorMessage.textContent = t("Select an administrator to edit access.");
+    return;
+  }
+  const payload = { role: form.elements.role.value, is_active: form.elements.is_active.checked };
   errorMessage.textContent = "";
   button.disabled = true;
   try {
-    await apiRequest(id ? `/api/admins/${id}` : "/api/admins", { method: id ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    await apiRequest(`/api/admins/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     resetAdminForm();
     await loadAdmins();
-    showToast(id ? "Administrator updated." : "Administrator created.");
+    showToast("Administrator access updated.");
   } catch (error) { errorMessage.textContent = error.message; }
   finally { button.disabled = false; }
 });
@@ -1037,18 +1126,11 @@ function openLocationModal(id) {
         errorMessage.textContent = "The map could not be loaded. Check your connection and try again.";
         return;
       }
-      pickerMap.invalidateSize();
       renderPickerPlaces(form.elements.id.value);
       const hasPoint = [latitude, longitude].every((value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)));
-      if (hasPoint) {
-        pickerMap.setView([Number(latitude), Number(longitude)], zoom || 15);
-        setPickerPoint(latitude, longitude);
-      } else {
-        const home = pickerHomeBounds();
-        if (home.length) pickerMap.fitBounds(home, { padding: [40, 40] });
-        else pickerMap.setView([46.166, 21.316], 13);
-        clearPickerPoint();
-      }
+      focusPickerMap(hasPoint ? latitude : null, hasPoint ? longitude : null, zoom || 15);
+      if (hasPoint) setPickerPoint(latitude, longitude);
+      else clearPickerPoint();
     });
   };
   if (id == null) {
@@ -1084,10 +1166,6 @@ function closeLocationModal() {
 
 document.getElementById("invites-refresh")?.addEventListener("click", loadInvites);
 document.getElementById("locations-refresh")?.addEventListener("click", loadLocations);
-document.getElementById("locations-add-button")?.addEventListener("click", () => {
-  showPage("points");
-  openLocationModal(null);
-});
 document.getElementById("osm-suggest-apply")?.addEventListener("click", () => {
   const form = document.getElementById("location-form");
   if (form && osmSuggestion) form.elements.name.value = osmSuggestion;
@@ -1194,11 +1272,37 @@ document.getElementById("location-image-clear")?.addEventListener("click", () =>
   if (form) form.elements.image.value = "";
   updateImagePreview();
 });
+async function prepareImageForUpload(file) {
+  if (!file || !file.type.startsWith("image/") || ["image/gif", "image/svg+xml"].includes(file.type)) return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const maxDimension = 2048;
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) return file;
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, width, height);
+    context.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close?.();
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.86));
+    if (!blob) return file;
+    const name = file.name.replace(/\.[^.]+$/, "") || "location-photo";
+    return new File([blob], `${name}.jpg`, { type: "image/jpeg", lastModified: Date.now() });
+  } catch {
+    return file;
+  }
+}
+
 async function uploadPendingLocationPhoto(locationId) {
-  const file = pendingLocationPhoto;
+  const file = await prepareImageForUpload(pendingLocationPhoto);
   if (!file || !locationId) return;
   const body = new FormData();
-  body.append("file", file);
+  body.append("file", file, file.name);
   const response = await fetch(`/api/locations/${locationId}/images`, { method: "POST", body, credentials: "same-origin", headers: { Accept: "application/json" } });
   const result = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -1249,43 +1353,69 @@ document.getElementById("location-photo")?.addEventListener("change", (event) =>
   document.getElementById("location-form-error").textContent = "";
   input.value = "";
 });
-document.getElementById("image-upload")?.addEventListener("click", async (event) => {
+const imagePicker = document.getElementById("image-file");
+const imageDropzone = document.getElementById("image-dropzone");
+let imageUploading = false;
+async function uploadImageFiles(fileList) {
   const errorMessage = document.getElementById("image-modal-error");
   const form = document.getElementById("location-form");
   const id = form?.elements.id.value || "";
-  const picker = document.getElementById("image-file");
   errorMessage.textContent = "";
-  const file = picker?.files?.[0];
-  if (!file) {
-    errorMessage.textContent = "Choose an image file first.";
+  const files = [...(fileList || [])].filter((file) => file.type.startsWith("image/"));
+  if (!files.length) {
+    errorMessage.textContent = "That is not an image file. Drop a PNG, JPG or WebP.";
     return;
   }
   if (!id) {
     errorMessage.textContent = "Save the location first, then upload files.";
     return;
   }
-  const button = event.currentTarget;
-  button.disabled = true;
+  if (imageUploading) return;
+  imageUploading = true;
+  imageDropzone?.classList.add("is-uploading");
+  imageDropzone?.setAttribute("aria-busy", "true");
   try {
-    const body = new FormData();
-    body.append("file", file);
-    const response = await fetch(`/api/locations/${id}/images`, { method: "POST", body, credentials: "same-origin", headers: { Accept: "application/json" } });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.detail || "Upload failed. Try again.");
-    if (payload.image) {
-      const key = String(id);
-      sessionImages[key] = [...(sessionImages[key] || []), payload.image].filter(Boolean);
+    for (const file of files) {
+      const uploadFile = await prepareImageForUpload(file);
+      const body = new FormData();
+      body.append("file", uploadFile, uploadFile.name);
+      const response = await fetch(`/api/locations/${id}/images`, { method: "POST", body, credentials: "same-origin", headers: { Accept: "application/json" } });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.detail || "Upload failed. Try again.");
+      if (payload.image) {
+        const key = String(id);
+        sessionImages[key] = [...(sessionImages[key] || []), payload.image].filter(Boolean);
+      }
     }
-    picker.value = "";
+    if (imagePicker) imagePicker.value = "";
     refreshImageGallery();
     await loadLocations();
-    showToast("Image uploaded.");
+    showToast(files.length > 1 ? `${files.length} images uploaded.` : "Image uploaded.");
   } catch (error) {
     errorMessage.textContent = error.message;
   } finally {
-    button.disabled = false;
+    imageUploading = false;
+    imageDropzone?.classList.remove("is-uploading");
+    imageDropzone?.removeAttribute("aria-busy");
   }
+}
+imagePicker?.addEventListener("change", () => uploadImageFiles(imagePicker.files));
+imageDropzone?.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  imageDropzone.classList.add("is-dragover");
 });
+imageDropzone?.addEventListener("dragleave", (event) => {
+  if (!imageDropzone.contains(event.relatedTarget)) imageDropzone.classList.remove("is-dragover");
+});
+imageDropzone?.addEventListener("drop", (event) => {
+  event.preventDefault();
+  imageDropzone.classList.remove("is-dragover");
+  uploadImageFiles(event.dataTransfer?.files);
+});
+["dragover", "drop"].forEach((type) => document.addEventListener(type, (event) => {
+  const modal = document.getElementById("image-modal");
+  if (modal && !modal.classList.contains("is-hidden")) event.preventDefault();
+}));
 document.getElementById("image-download-all")?.addEventListener("click", async (event) => {
   const errorMessage = document.getElementById("image-modal-error");
   const id = document.getElementById("location-form")?.elements.id.value || "";
@@ -1414,9 +1544,15 @@ document.getElementById("register-form")?.addEventListener("submit", async (even
   const button = form.querySelector("button[type=submit]");
   const message = document.getElementById("register-form-message");
   message.textContent = "";
+  if (!form.elements.legal?.checked) {
+    message.textContent = "You must accept the Terms of Use and Privacy Notice to create an account.";
+    form.elements.legal?.focus();
+    return;
+  }
+  const termsVersion = document.querySelector('meta[name="aradlens-legal-version"]')?.content || "";
   button.disabled = true;
   try {
-    const payload = { code: form.elements.code.value, username: form.elements.username.value, email: form.elements.email.value, password: form.elements.password.value };
+    const payload = { code: form.elements.code.value, username: form.elements.username.value, email: form.elements.email.value, password: form.elements.password.value, legal_accepted: true, terms_version: termsVersion };
     const account = await apiRequest("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     const createdUsername = account.username || "";
     form.reset();
@@ -1426,18 +1562,23 @@ document.getElementById("register-form")?.addEventListener("submit", async (even
   } catch (error) { message.textContent = error.message; }
   finally { button.disabled = false; }
 });
-document.getElementById("location-form")?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const form = event.currentTarget;
-  const button = form.querySelector("button[type=submit]");
+async function saveLocation() {
+  const form = document.getElementById("location-form");
+  const button = document.getElementById("location-save");
+  if (!form || !button) return;
   const errorMessage = document.getElementById("location-form-error");
+  const name = form.elements.name.value.trim();
   const id = form.elements.id.value;
-  if (form.elements.latitude.value === "" || form.elements.longitude.value === "") {
-    errorMessage.textContent = "Pick a point on the map first.";
-    button.disabled = false;
+  if (!name) {
+    errorMessage.textContent = "Give the location a name.";
+    form.elements.name.focus();
     return;
   }
-  const payload = { name: form.elements.name.value, latitude: Number(form.elements.latitude.value), longitude: Number(form.elements.longitude.value) };
+  if (form.elements.latitude.value === "" || form.elements.longitude.value === "") {
+    errorMessage.textContent = "Pick a point on the map first.";
+    return;
+  }
+  const payload = { name, latitude: Number(form.elements.latitude.value), longitude: Number(form.elements.longitude.value) };
   if (form.elements.description.value) payload.description = form.elements.description.value;
   if (form.elements.image.value) payload.image = form.elements.image.value;
   errorMessage.textContent = "";
@@ -1465,6 +1606,291 @@ document.getElementById("location-form")?.addEventListener("submit", async (even
     }
   } catch (error) { errorMessage.textContent = error.message; }
   finally { button.disabled = false; }
+}
+document.getElementById("location-save")?.addEventListener("click", saveLocation);
+document.getElementById("location-form")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  saveLocation();
+});
+
+const tourTemplateLocations = [
+  { id: 1, name: "string" },
+  { id: 2, name: "Palatul Cultural" },
+  { id: 3, name: "Primăria" },
+  { id: 4, name: "Teatrul Slavici" },
+  { id: 5, name: "Catedrala Veche" },
+  { id: 7, name: "Aeroport" },
+  { id: 8, name: "Biserica Roșie" },
+  { id: 9, name: "Catedrala Arhiepiscopală „Sfânta Treime”" },
+];
+let tourModalOpener = null;
+let tourSelectedIds = [];
+
+function tourLocations() {
+  return cachedLocations.length ? cachedLocations : tourTemplateLocations;
+}
+
+function tourLocationName(id, tour) {
+  const listed = (tour?.locations || []).find((location) => String(location.id) === String(id));
+  if (listed?.name) return listed.name;
+  const cached = tourLocations().find((location) => String(location.id) === String(id));
+  return cached?.name || `Location #${id}`;
+}
+
+function renderTourPicker() {
+  const pool = document.getElementById("tour-location-pool");
+  const order = document.getElementById("tour-location-order");
+  const count = document.getElementById("tour-stop-count");
+  if (!pool || !order) return;
+  pool.replaceChildren();
+  const selected = new Set(tourSelectedIds.map(String));
+  const locations = tourLocations();
+  const available = locations.filter((location) => !selected.has(String(location.id)));
+  if (!locations.length) {
+    const empty = document.createElement("p");
+    empty.className = "tour-empty";
+    empty.textContent = "No important points yet. Add one first.";
+    pool.append(empty);
+  } else if (!available.length) {
+    const empty = document.createElement("p");
+    empty.className = "tour-empty";
+    empty.textContent = "All points are on this tour.";
+    pool.append(empty);
+  } else {
+    const sorted = [...available].sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+    for (const location of sorted) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "tour-pool-item";
+      button.textContent = `+ ${location.name || `Location #${location.id}`}`;
+      button.addEventListener("click", () => {
+        tourSelectedIds.push(location.id);
+        renderTourPicker();
+      });
+      pool.append(button);
+    }
+  }
+  order.replaceChildren();
+  if (!tourSelectedIds.length) {
+    const empty = document.createElement("li");
+    empty.className = "tour-empty";
+    empty.textContent = "No stops selected.";
+    order.append(empty);
+  }
+  tourSelectedIds.forEach((id, index) => {
+    const item = document.createElement("li");
+    item.className = "tour-stop";
+    const number = document.createElement("span");
+    number.className = "tour-stop-number";
+    number.textContent = String(index + 1);
+    const name = document.createElement("span");
+    name.className = "tour-stop-name";
+    name.textContent = tourLocationName(id);
+    const actions = document.createElement("span");
+    actions.className = "tour-stop-actions";
+    const up = document.createElement("button");
+    up.type = "button";
+    up.className = "tour-stop-action";
+    up.textContent = "↑";
+    up.setAttribute("aria-label", `Move ${tourLocationName(id)} up`);
+    up.disabled = index === 0;
+    up.addEventListener("click", () => {
+      [tourSelectedIds[index - 1], tourSelectedIds[index]] = [tourSelectedIds[index], tourSelectedIds[index - 1]];
+      renderTourPicker();
+    });
+    const down = document.createElement("button");
+    down.type = "button";
+    down.className = "tour-stop-action";
+    down.textContent = "↓";
+    down.setAttribute("aria-label", `Move ${tourLocationName(id)} down`);
+    down.disabled = index === tourSelectedIds.length - 1;
+    down.addEventListener("click", () => {
+      [tourSelectedIds[index + 1], tourSelectedIds[index]] = [tourSelectedIds[index], tourSelectedIds[index + 1]];
+      renderTourPicker();
+    });
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "tour-stop-action";
+    remove.textContent = "×";
+    remove.setAttribute("aria-label", `Remove ${tourLocationName(id)} from the route`);
+    remove.addEventListener("click", () => {
+      tourSelectedIds.splice(index, 1);
+      renderTourPicker();
+    });
+    actions.append(up, down, remove);
+    item.append(number, name, actions);
+    order.append(item);
+  });
+  if (count) count.textContent = `${tourSelectedIds.length} stop${tourSelectedIds.length === 1 ? "" : "s"}`;
+}
+
+async function openTourModal(tour = null) {
+  const modal = document.getElementById("tour-modal");
+  const form = document.getElementById("tour-form");
+  if (!modal || !form) return;
+  tourModalOpener = document.activeElement;
+  form.reset();
+  document.getElementById("tour-form-error").textContent = "";
+  const deleteButton = document.getElementById("tour-delete");
+  if (tour) {
+    form.elements.id.value = String(tour.id);
+    form.elements.name.value = tour.name || "";
+    form.elements.description.value = tour.description || "";
+    tourSelectedIds = [...(tour.location_ids || (tour.locations || []).map((location) => location.id))];
+    document.getElementById("tour-modal-title").textContent = `Edit tour ${tour.name}`;
+    if (deleteButton) deleteButton.hidden = false;
+  } else {
+    form.elements.id.value = "";
+    tourSelectedIds = [];
+    document.getElementById("tour-modal-title").textContent = "Add tour";
+    if (deleteButton) deleteButton.hidden = true;
+  }
+  renderTourPicker();
+  modal.classList.remove("is-hidden");
+  document.getElementById("tour-name")?.focus();
+}
+
+function closeTourModal() {
+  document.getElementById("tour-modal")?.classList.add("is-hidden");
+  if (tourModalOpener && document.contains(tourModalOpener)) tourModalOpener.focus();
+  tourModalOpener = null;
+}
+
+let toursRequestId = 0;
+async function loadTours() {
+  const message = document.getElementById("tours-message");
+  const list = document.getElementById("tours-list");
+  if (!message || !list) return;
+  const requestId = ++toursRequestId;
+  setMessage(message, "Loading tours…");
+  message.setAttribute("role", "status");
+  list.replaceChildren();
+  try {
+    const payload = await apiRequest("/api/tours");
+    if (requestId !== toursRequestId) return;
+    const tours = Array.isArray(payload) ? payload : Array.isArray(payload?.tours) ? payload.tours : [];
+    cachedTours = tours;
+    for (const tour of tours) list.append(renderTourRow(tour));
+    message.textContent = tours.length ? `${tours.length} tour${tours.length === 1 ? "" : "s"}` : "No tours yet.";
+  } catch (error) {
+    if (requestId !== toursRequestId) return;
+    message.textContent = `${error.message} Click Refresh to try again.`;
+  }
+}
+
+function renderTourRow(tour) {
+  const row = document.createElement("div");
+  row.className = "setting-row admin-row tour-row";
+  const details = document.createElement("span");
+  const title = document.createElement("strong");
+  title.textContent = tour.name || `Tour #${tour.id}`;
+  const route = document.createElement("small");
+  route.className = "tour-route";
+  const ids = Array.isArray(tour.location_ids) && tour.location_ids.length
+    ? tour.location_ids
+    : (tour.locations || []).map((location) => location.id);
+  const names = ids.map((id) => tourLocationName(id, tour)).filter((name) => !name.startsWith("Location #"));
+  route.textContent = names.length
+    ? `${names.length} stop${names.length === 1 ? "" : "s"} · ${names.join(" → ")}`
+    : `${ids.length} stop${ids.length === 1 ? "" : "s"}`;
+  if (tour.description) {
+    const description = document.createElement("small");
+    description.className = "tour-description";
+    description.textContent = tour.description;
+    details.append(title, route, description);
+  } else {
+    details.append(title, route);
+  }
+  row.append(details);
+  const edit = document.createElement("button");
+  edit.className = "button button-soft";
+  edit.type = "button";
+  edit.textContent = "Edit";
+  edit.addEventListener("click", () => openTourModal(tour));
+  const remove = document.createElement("button");
+  remove.className = "button button-soft";
+  remove.type = "button";
+  remove.textContent = "Delete";
+  remove.addEventListener("click", async () => {
+    if (!window.confirm(`Delete tour ${tour.name}? This cannot be undone.`)) return;
+    remove.disabled = true;
+    try {
+      await apiRequest(`/api/tours/${tour.id}`, { method: "DELETE" });
+      showToast("Tour deleted.");
+      await loadTours();
+    } catch (error) {
+      showToast(error.message);
+      remove.disabled = false;
+    }
+  });
+  row.append(edit, remove);
+  return row;
+}
+
+document.getElementById("tours-refresh")?.addEventListener("click", loadTours);
+document.getElementById("tour-add-button")?.addEventListener("click", () => {
+  showPage("tours");
+  openTourModal();
+});
+document.getElementById("tour-modal-close")?.addEventListener("click", closeTourModal);
+document.getElementById("tour-cancel")?.addEventListener("click", closeTourModal);
+document.querySelector("#tour-modal [data-close-tour-modal]")?.addEventListener("click", closeTourModal);
+document.getElementById("tour-delete")?.addEventListener("click", async (event) => {
+  const form = document.getElementById("tour-form");
+  const id = form?.elements.id.value;
+  if (!id) return;
+  const name = form.elements.name.value || `#${id}`;
+  if (!window.confirm(`Delete tour ${name}? This cannot be undone.`)) return;
+  const errorMessage = document.getElementById("tour-form-error");
+  const button = document.getElementById("tour-delete");
+  errorMessage.textContent = "";
+  button.disabled = true;
+  try {
+    await apiRequest(`/api/tours/${id}`, { method: "DELETE" });
+    closeTourModal();
+    showToast("Tour deleted.");
+    await loadTours();
+  } catch (error) {
+    errorMessage.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+document.getElementById("tour-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const errorMessage = document.getElementById("tour-form-error");
+  const name = form.elements.name.value.trim();
+  const description = form.elements.description.value.trim();
+  const id = form.elements.id.value;
+  if (!name) {
+    errorMessage.textContent = "Give the tour a name.";
+    form.elements.name.focus();
+    return;
+  }
+  if (!tourSelectedIds.length) {
+    errorMessage.textContent = "Add at least one important point to the route.";
+    return;
+  }
+  errorMessage.textContent = "";
+  const submitButton = form.querySelector('button[type="submit"]');
+  if (submitButton) submitButton.disabled = true;
+  try {
+    const payload = { name, description, location_ids: tourSelectedIds };
+    if (id) {
+      await apiRequest(`/api/tours/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      showToast("Tour updated.");
+    } else {
+      await apiRequest("/api/tours", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      showToast("Tour created.");
+    }
+    closeTourModal();
+    await loadTours();
+  } catch (error) {
+    errorMessage.textContent = error.message;
+  } finally {
+    if (submitButton) submitButton.disabled = false;
+  }
 });
 
 function setOverviewStat(id, value) {
@@ -1481,7 +1907,7 @@ function renderOverviewQueue(places) {
   const missingPhoto = places.filter((place) => !place.image);
   if (missingPhoto.length) items.push({ marker: "!", markerClass: "marker-yellow", title: `${missingPhoto.length} place(s) missing a photo`, sub: "Could use a little love" });
   const missingDescription = places.filter((place) => !place.description);
-  if (missingDescription.length) items.push({ marker: "…", markerClass: "marker-lilac", title: `${missingDescription.length} place(s) missing a description`, sub: "Add details from the Important points page" });
+  if (missingDescription.length) items.push({ marker: "…", markerClass: "marker-fog", title: `${missingDescription.length} place(s) missing a description`, sub: "Add details from the Important points page" });
   if (badge) badge.textContent = String(items.length);
   if (!items.length) {
     const calm = document.createElement("div");
