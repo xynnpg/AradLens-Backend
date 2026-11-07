@@ -610,6 +610,26 @@ const server = http.createServer((req, res) => {
   }).catch(() => sendJson(res, 500, { detail: "Unexpected server error" }));
 });
 
+/* A version for the asset links, derived from the files themselves rather
+   than from a number someone has to remember to bump. Recomputed per
+   request, so a deploy that replaces a file busts the cache by itself. */
+function assetVersion() {
+  const material = ["styles.css", "app.js", "fonts.css"].map((name) => {
+    try {
+      const info = fs.statSync(path.join(root, name));
+      return `${info.mtimeMs.toFixed(0)}:${info.size}`;
+    } catch {
+      return "0:0";
+    }
+  }).join("|");
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < material.length; index += 1) {
+    hash ^= material.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(36);
+}
+
 function serveStatic(req, res, decodedPath) {
   const filePath = path.resolve(root, decodedPath === "/" ? "index.html" : `.${decodedPath}`);
   if (filePath !== root && !filePath.startsWith(`${root}${path.sep}`)) {
@@ -627,7 +647,14 @@ function serveStatic(req, res, decodedPath) {
     let body = data;
     if (extension === ".html") {
       const html = data.toString("utf8")
-        .replace(/(<meta name="aradlens-api-origin" content=")[^"]*(" \/>)/, `$1${escapeHtml(apiOrigin)}$2`);
+        .replace(/(<meta name="aradlens-api-origin" content=")[^"]*(" \/>)/, `$1${escapeHtml(apiOrigin)}$2`)
+        /* Stamp the asset links with a version derived from the files
+           themselves, so a deploy that changes the CSS or the JS always
+           produces a new URL. A hand-kept query string silently rots the
+           moment someone forgets to bump it, and any caching proxy in
+           front of the app then keeps serving the old build. */
+        .replace(/(\?v=)[0-9a-z]*/gi, `$1${assetVersion()}`)
+        .replace(/(href|src)="(\/[^"?]+\.(?:css|js))"/gi, (match, attribute, url) => `${attribute}="${url}?v=${assetVersion()}"`);
       body = Buffer.from(html, "utf8");
     }
     const cacheControl = extension === ".html" || extension === ".js" || extension === ".css"
