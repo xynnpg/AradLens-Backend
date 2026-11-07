@@ -1,0 +1,9 @@
+{
+  "name": "aradlens-admin",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check app.js && node --check server.js"
+  }
+}

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#251b35" />
+    <title>AradLens — Admin workspace</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='10' fill='%236c5ce7'/%3E%3Ccircle cx='12' cy='12' r='5' fill='white'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Improve secondary text readability */
+      .metric-foot { font-size: 12px; color: var(--muted); }
+      .metric-foot span:first-child { font-size: 12px; }
+      .metric-foot span:last-child { color: #6b6368; font-size: 12px; }
+      
+      .nav-label { font-size: 11px; color: #8f8797; }
+      
+      .eyebrow { color: #7a7480; font-size: 11px; }
+      
+      .health-label { font-size: 13px; color: #5a535c; }
+      .health-label i { margin-right: 6px; }
+      
+      .activity-row { font-size: 13px; }
+      .activity-row span:nth-child(n+2) { color: #7a7480; }
+      
+      .queue-item small { font-size: 12px; color: #7a7480; }
+      
+      .point-meta { font-size: 12px; color: #7a7480; }
+      
+      .panel-heading p { color: #7a7480; font-size: 13px; }
+      
+      /* Improve contrast for status indicators and tags */
+      .breadcrumbs { font-size: 12px; color: #8a838f; }
+      .topbar-date { color: #8a838f; }
+    </style>
+  </head>
+  <body>
+    <div id="login-view" class="login-view">
+      <div class="login-illustration" aria-hidden="true">
+        <div class="sun"></div><div class="horizon"></div>
+        <span class="illustration-pin pin-one"></span><span class="illustration-pin pin-two"></span><span class="illustration-pin pin-three"></span>
+      </div>
+      <div class="login-panel">
+        <div class="brand-mark"><span class="brand-dot"></span><span>Arad<span>Lens</span></span></div>
+        <p class="eyebrow">Admin workspace</p>
+        <h1>Keep Arad<br /><em>in focus.</em></h1>
+        <p class="login-intro">Curate the places people love, spot what needs attention, and keep the city guide trustworthy.</p>
+        <form id="login-form" aria-describedby="login-error">
+          <label for="username">Username</label>
+          <input id="username" name="username" autocomplete="username" placeholder="admin" required />
+          <label for="password">Password</label>
+          <input id="password" name="password" autocomplete="current-password" type="password" placeholder="••••••••" required />
+          <p id="login-error" class="form-error" role="alert"></p>
+          <button class="button button-primary button-wide" type="submit">Enter workspace <span aria-hidden="true">↗</span></button>
+        </form>
+        <p class="login-hint">Prototype access: <strong>admin</strong> / <strong>admin</strong></p>
+      </div>
+    </div>
+
+    <div id="app-view" class="app-shell is-hidden">
+      <button class="sidebar-scrim" aria-label="Close navigation"></button>
+      <aside class="sidebar">
+        <div class="brand-mark"><span class="brand-dot"></span><span>Arad<span>Lens</span></span></div>
+        <div class="workspace-switcher"><span class="avatar avatar-small">AM</span><span><strong>Arad city guide</strong><small>Admin workspace</small></span><span class="chevron">⌄</span></div>
+        <nav class="main-nav" aria-label="Main navigation">
+          <p class="nav-label">Workspace</p>
+          <button class="nav-item is-active" type="button" data-page="overview"><span class="nav-icon" aria-hidden="true">⌂</span>Overview</button>
+          <button class="nav-item" type="button" data-page="points"><span class="nav-icon" aria-hidden="true">⌖</span>Important points <span class="nav-count">12</span></button>
+          <button class="nav-item" type="button" data-page="users"><span class="nav-icon" aria-hidden="true">◎</span>Users</button>
+          <p class="nav-label nav-label-spaced">Monitor</p>
+          <button class="nav-item" type="button" data-page="debug"><span class="nav-icon nav-icon-alert" aria-hidden="true">⊙</span>Debug <span class="status-dot" aria-hidden="true"></span></button>
+          <button class="nav-item" type="button" data-page="activity"><span class="nav-icon" aria-hidden="true">◷</span>Activity log</button>
+        </nav>
+        <div class="sidebar-bottom">
+          <button class="nav-item" type="button" data-page="settings"><span class="nav-icon" aria-hidden="true">⚙</span>Settings</button>
+          <button id="logout-button" class="nav-item" type="button"><span class="nav-icon" aria-hidden="true">↪</span>Sign out</button>
+          <div class="sidebar-footer"><span class="avatar">AM</span><span><strong>Alex Morgan</strong><small>Administrator</small></span><span class="more">···</span></div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+          <div class="breadcrumbs"><span>Arad city guide</span><b>/</b><strong id="breadcrumb-current">Overview</strong></div>
+          <div class="topbar-actions"><button id="global-search-button" class="icon-button" type="button" aria-label="Search points">⌕</button><button id="notifications-button" class="icon-button notification-button" type="button" aria-label="Notifications">♢<span aria-hidden="true"></span></button><span class="topbar-divider"></span><span class="topbar-date">Tue, 14 May 2024</span></div>
+        </header>
+
+        <div id="page-overview" class="page active-page">
+          <div class="page-heading"><div><p class="eyebrow">Tuesday, 14 May 2024</p><h2>Good morning, Alex <span aria-hidden="true">✦</span></h2><p class="heading-copy">Here’s the pulse of your Arad guide today.</p></div><button class="button button-dark" data-page-action="points">+ Add important point</button></div>
+          <section class="metric-grid" aria-label="Workspace summary">
+            <article class="metric-card metric-card-dark"><div class="metric-top"><span>Published points</span><span class="metric-icon">⌖</span></div><strong>248</strong><div class="metric-foot"><span class="positive">↗ 8.4%</span><span>vs last month</span></div><div class="sparkline sparkline-light"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+            <article class="metric-card metric-card-lilac"><div class="metric-top"><span>New users</span><span class="metric-icon">◎</span></div><strong>1,842</strong><div class="metric-foot"><span class="positive">↗ 12.8%</span><span>vs last month</span></div><div class="sparkline sparkline-plum"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+            <article class="metric-card metric-card-peach"><div class="metric-top"><span>Needs attention</span><span class="metric-icon">!</span></div><strong>07</strong><div class="metric-foot"><span class="negative">↗ 2</span><span>since yesterday</span></div><div class="attention-bar"><span></span><span></span><span></span><span></span><span></span></div></article>
+          </section>
+          <div class="overview-grid">
+            <section class="panel health-panel">            <div class="panel-heading"><div><h3>Guide health</h3><p>Everything your visitors rely on, at a glance.</p></div><button class="text-button" type="button" data-page-action="debug">View debug ↗</button></div><div class="health-summary"><div class="health-score"><div class="health-ring"><span>98.6<small>%</small></span></div><div><strong>Looking good</strong><p>Last checked 4 min ago</p></div></div><div class="health-list"><div><span class="health-label"><i class="signal green"></i>API response</span><strong>142ms</strong></div><div><span class="health-label"><i class="signal green"></i>App crashes</span><strong>0 today</strong></div><div><span class="health-label"><i class="signal orange"></i>Slow screens</span><strong>2</strong></div></div></div><div class="health-chart"><div class="chart-axis"><span>100%</span><span>75%</span><span>50%</span><span>25%</span></div><div class="chart-lines"><i></i><i></i><i></i><i></i><svg viewBox="0 0 650 125" preserveAspectRatio="none" aria-label="Guide health over the past seven days"><path d="M0,90 C45,88 55,68 100,72 S145,85 190,64 S230,56 270,61 S315,45 350,55 S390,64 420,45 S465,28 510,40 S560,48 600,28 S630,18 650,23" fill="none" stroke="#6c5ce7" stroke-width="3" vector-effect="non-scaling-stroke"/><circle cx="650" cy="23" r="5" fill="#6c5ce7"/></svg><div class="chart-days"><span>08 May</span><span>09 May</span><span>10 May</span><span>11 May</span><span>12 May</span><span>13 May</span><span>Today</span></div></div></div></section>
+            <section class="panel queue-panel"><div class="panel-heading"><div><h3>Editorial queue <span class="badge">4</span></h3><p>Small actions that keep the guide fresh.</p></div><button class="more-button" type="button" aria-label="More editorial options" data-toast="Use the queue items to jump directly to the work.">•••</button></div><div class="queue-list"><button class="queue-item" type="button" data-page-action="points"><span class="queue-marker marker-coral">P</span><span><strong>3 points need review</strong><small>Updated by a contributor</small></span><b>›</b></button><button class="queue-item" type="button" data-page-action="points"><span class="queue-marker marker-yellow">!</span><span><strong>1 place is missing a photo</strong><small>Could use a little love</small></span><b>›</b></button><button class="queue-item" type="button" data-page-action="users"><span class="queue-marker marker-lilac">◎</span><span><strong>12 new users this week</strong><small>See who’s discovering Arad</small></span><b>›</b></button></div><button class="button button-soft button-wide" type="button" data-page-action="points">Review all tasks <span aria-hidden="true">↗</span></button></section>
+          </div>
+          <section class="panel activity-panel"><div class="panel-heading"><div><h3>Recent activity</h3><p>The latest changes across your workspace.</p></div><button class="text-button" data-page-action="activity">View activity ↗</button></div><div class="activity-table"><div class="activity-row activity-head"><span>Change</span><span>By</span><span>When</span><span></span></div><div class="activity-row"><span class="activity-change"><span class="queue-marker marker-mint">+</span><strong>Added “Mureș Floodplain”</strong></span><span class="user-cell"><span class="avatar avatar-tiny">IR</span> Ioana Radu</span><span>14 min ago</span><span class="activity-arrow">↗</span></div><div class="activity-row"><span class="activity-change"><span class="queue-marker marker-lilac">↻</span><strong>Updated “Neptun Beach” details</strong></span><span class="user-cell"><span class="avatar avatar-tiny avatar-pink">DV</span> David Varga</span><span>1 hour ago</span><span class="activity-arrow">↗</span></div><div class="activity-row"><span class="activity-change"><span class="queue-marker marker-yellow">!</span><strong>Flagged a duplicate listing</strong></span><span class="user-cell"><span class="avatar avatar-tiny avatar-orange">AM</span> Alex Morgan</span><span>3 hours ago</span><span class="activity-arrow">↗</span></div></div></section>
+        </div>
+
+        <div id="page-points" class="page"><div class="page-heading"><div><p class="eyebrow">Content library</p><h2>Important points</h2><p class="heading-copy">The places that make Arad worth finding.</p></div><button class="button button-dark" type="button" data-toast="Adding points will be available when the API is connected.">+ Add important point</button></div><div class="filter-row"><label class="search-field" for="points-search"><span aria-hidden="true">⌕</span><input id="points-search" name="points-search" autocomplete="off" placeholder="Search points…" /></label><label class="sr-only" for="points-category">Filter by category</label><select id="points-category" class="filter-button"><option value="all">All categories</option><option value="Nature">Nature</option><option value="Leisure">Leisure</option><option value="Culture">Culture</option><option value="Parks">Parks</option></select><label class="sr-only" for="points-status">Filter by status</label><select id="points-status" class="filter-button"><option value="all">All statuses</option><option value="Published">Published</option><option value="Needs review">Needs review</option></select><span class="filter-spacer"></span><button class="icon-button view-toggle" type="button" aria-label="List view" aria-pressed="false">≡</button><button class="icon-button view-toggle" type="button" aria-label="Grid view" aria-pressed="true">▦</button></div><div class="points-grid"><article class="point-card"><div class="point-image image-mures"><span class="point-badge">P</span><span class="point-category">Nature</span></div><div class="point-body"><div><h3>Mureș Floodplain</h3><p>Quiet paths, open skies</p></div><span class="status-tag status-live">Published</span></div><div class="point-meta"><span>Updated 14 min ago</span><span>↗</span></div></article><article class="point-card"><div class="point-image image-neptun"><span class="point-badge">N</span><span class="point-category">Leisure</span></div><div class="point-body"><div><h3>Neptun Beach</h3><p>Riverside sun in the city</p></div><span class="status-tag status-live">Published</span></div><div class="point-meta"><span>Updated 1 hr ago</span><span>↗</span></div></article><article class="point-card"><div class="point-image image-palace"><span class="point-badge">C</span><span class="point-category">Culture</span></div><div class="point-body"><div><h3>Arad City Hall</h3><p>Art Nouveau, right downtown</p></div><span class="status-tag status-review">Needs review</span></div><div class="point-meta"><span>Updated yesterday</span><span>↗</span></div></article><article class="point-card"><div class="point-image image-park"><span class="point-badge">P</span><span class="point-category">Parks</span></div><div class="point-body"><div><h3>Children’s Park</h3><p>Green space for slow afternoons</p></div><span class="status-tag status-live">Published</span></div><div class="point-meta"><span>Updated 2 days ago</span><span>↗</span></div></article></div></div>
+
+        <div id="page-users" class="page"><div class="page-heading"><div><p class="eyebrow">People using AradLens</p><h2>Users</h2><p class="heading-copy">A clear view of who’s discovering the city.</p></div><button class="button button-soft" type="button" data-toast="CSV export will be available when the API is connected.">Download CSV ↘</button></div><div class="user-stat-row"><div><span>All users</span><strong>1,842</strong></div><div><span>Active this week</span><strong>1,204</strong></div><div><span>New this month</span><strong>286</strong></div><div><span>Returning</span><strong>64%</strong></div></div><div class="panel table-panel"><div class="filter-row"><label class="search-field" for="users-search"><span aria-hidden="true">⌕</span><input id="users-search" name="users-search" autocomplete="off" placeholder="Search by name or email…" /></label><label class="sr-only" for="users-status">Filter users by status</label><select id="users-status" class="filter-button"><option value="all">All users</option><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div><div class="users-table"><div class="user-row user-head"><span>User</span><span>Last active</span><span>Saved places</span><span>Status</span></div><div class="user-row"><span class="user-cell"><span class="avatar avatar-tiny">MC</span><strong>Maria Cernat</strong></span><span>Today, 09:42</span><span>18 places</span><span class="status-tag status-live">Active</span></div><div class="user-row"><span class="user-cell"><span class="avatar avatar-tiny avatar-pink">AS</span><strong>Andrei Stoica</strong></span><span>Today, 08:17</span><span>7 places</span><span class="status-tag status-live">Active</span></div><div class="user-row"><span class="user-cell"><span class="avatar avatar-tiny avatar-orange">EL</span><strong>Elena Luca</strong></span><span>Yesterday</span><span>24 places</span><span class="status-tag status-muted">Inactive</span></div><div class="user-row"><span class="user-cell"><span class="avatar avatar-tiny avatar-blue">RP</span><strong>Radu Pop</strong></span><span>12 May 2024</span><span>3 places</span><span class="status-tag status-live">Active</span></div></div></div></div>
+
+        <div id="page-debug" class="page"><div class="page-heading"><div><p class="eyebrow">Monitor</p><h2>Debug &amp; device health</h2><p class="heading-copy">Stay ahead of the small things before they become a bad experience.</p></div><button class="button button-dark" type="button" data-api-health>Run health check ↻</button></div><div class="debug-banner"><span class="debug-icon">✓</span><div><strong>No active incidents</strong><p>All core services are responding normally. Last check completed 4 minutes ago.</p></div><span class="banner-time">Auto-refreshing</span></div><div class="debug-grid"><div class="panel"><div class="panel-heading"><div><h3>Device health</h3><p>Last 7 days across supported devices.</p></div><button class="text-button" type="button" data-toast="The device report will be available when the API is connected.">View report ↗</button></div><div class="device-list"><div class="device-row"><span class="device-icon"></span><span><strong>iOS</strong><small>1,028 active devices</small></span><div class="device-bar"><i style="width:98%"></i></div><b>98%</b></div><div class="device-row"><span class="device-icon android">◆</span><span><strong>Android</strong><small>812 active devices</small></span><div class="device-bar"><i style="width:96%"></i></div><b>96%</b></div><div class="device-row"><span class="device-icon">◫</span><span><strong>Web</strong><small>426 active devices</small></span><div class="device-bar"><i style="width:99%"></i></div><b>99%</b></div></div></div><div class="panel incident-panel"><div class="panel-heading"><div><h3>Recent incidents</h3><p>Crashes and unusual behavior.</p></div><span class="badge badge-green">0 open</span></div><div class="empty-state"><span class="empty-icon">✦</span><strong>Quiet skies</strong><p>No crashes or unresolved bugs in the last 24 hours.</p><button class="text-button" type="button" data-toast="There are no incidents in the current prototype data.">Browse incident history ↗</button></div></div></div></div>
+
+        <div id="page-activity" class="page"><div class="page-heading"><div><p class="eyebrow">Workspace history</p><h2>Activity log</h2><p class="heading-copy">A readable trail of changes, reviews, and people at work.</p></div><button class="button button-soft" type="button" data-toast="Activity export will be available when the API is connected.">Export log ↘</button></div><div class="panel activity-panel full-panel"><div class="panel-heading"><div><h3>All activity</h3><p>Showing the latest 50 changes.</p></div><label class="search-field search-small" for="activity-search"><span aria-hidden="true">⌕</span><input id="activity-search" name="activity-search" autocomplete="off" placeholder="Filter activity…" /></label></div><div class="activity-table"><div class="activity-row"><span class="activity-change"><span class="queue-marker marker-mint">+</span><strong>Added “Mureș Floodplain”</strong></span><span class="user-cell">Ioana Radu</span><span>14 min ago</span><span class="activity-arrow">↗</span></div><div class="activity-row"><span class="activity-change"><span class="queue-marker marker-lilac">↻</span><strong>Updated “Neptun Beach” details</strong></span><span class="user-cell">David Varga</span><span>1 hour ago</span><span class="activity-arrow">↗</span></div><div class="activity-row"><span class="activity-change"><span class="queue-marker marker-yellow">!</span><strong>Flagged a duplicate listing</strong></span><span class="user-cell">Alex Morgan</span><span>3 hours ago</span><span class="activity-arrow">↗</span></div><div class="activity-row"><span class="activity-change"><span class="queue-marker marker-coral">P</span><strong>Published “Arad Fortress”</strong></span><span class="user-cell">Alex Morgan</span><span>Yesterday</span><span class="activity-arrow">↗</span></div></div></div></div>
+        <div id="page-settings" class="page"><div class="page-heading"><div><p class="eyebrow">Workspace preferences</p><h2>Settings</h2><p class="heading-copy">Keep your admin workspace tuned to the way you work.</p></div><button class="button button-dark" type="button" data-toast="Settings saved for this prototype session.">Save changes</button></div><div class="settings-grid"><section class="panel settings-panel"><div class="panel-heading"><div><h3>Notifications</h3><p>Choose which updates deserve your attention.</p></div></div><label class="setting-row"><span><strong>Incident alerts</strong><small>Get notified when crashes or API issues appear.</small></span><input class="toggle-input" type="checkbox" checked /><i class="toggle"></i></label><label class="setting-row"><span><strong>Editorial reminders</strong><small>Receive a daily summary of points awaiting review.</small></span><input class="toggle-input" type="checkbox" checked /><i class="toggle"></i></label><label class="setting-row"><span><strong>Weekly activity digest</strong><small>A short recap of changes across the workspace.</small></span><input class="toggle-input" type="checkbox" /><i class="toggle"></i></label></section><section class="panel settings-panel"><div class="panel-heading"><div><h3>Account security</h3><p>Change the password for your authenticated API account.</p></div></div><form id="change-password-form" class="settings-form" aria-describedby="change-password-error"><div class="setting-field"><label for="old-password">Current password</label><input id="old-password" name="old_password" type="password" autocomplete="current-password" required /></div><div class="setting-field"><label for="new-password">New password</label><input id="new-password" name="new_password" type="password" autocomplete="new-password" minlength="8" required /><small class="field-help">Use at least 8 characters.</small></div><p id="change-password-error" class="form-error" role="alert"></p><button class="button button-soft" type="submit">Change password</button></form></section><section class="panel settings-panel"><div class="panel-heading"><div><h3>Workspace</h3><p>Basic details for this admin space.</p></div></div><div class="setting-field"><label for="workspace-name">Workspace name</label><input id="workspace-name" name="workspace-name" autocomplete="off" value="Arad city guide" /></div><div class="setting-field"><label for="timezone">Timezone</label><select id="timezone" name="timezone"><option>Europe/Bucharest (GMT+3)</option><option>UTC (GMT+0)</option></select></div></section></div></div>
+      </main>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
