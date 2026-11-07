@@ -51,10 +51,20 @@
   --r-xl:20px;
   --r-pill:999px;
   /* motion */
-  --ease:cubic-bezier(.175,.885,.32,1.1);
   --dur-1:120ms;
   --dur-2:160ms;
   --dur-3:220ms;
+  --dur-press:160ms;
+  --dur-control:200ms;
+  --dur-surface:240ms;
+  --dur-gentle:280ms;
+  --ease-exit:cubic-bezier(.4,0,1,1);
+  /* Spring easings. Fallback is a calm ease-out, never a fake bounce;
+     browsers that support linear() take the pre-sampled spring instead. */
+  --spring-press:cubic-bezier(.2,.8,.2,1);
+  --spring-control:cubic-bezier(.2,.8,.2,1);
+  --spring-surface:cubic-bezier(.2,.8,.2,1);
+  --spring-gentle:cubic-bezier(.2,.8,.2,1);
   /* avatars */
   --avatar-rose:#ffc9d6;
   --avatar-clay:#ffcb96;
@@ -100,6 +110,14 @@
   scrollbar-width:thin;
   scrollbar-color:var(--border-strong) var(--canvas);
 }
+@supports (transition-timing-function:linear(0,1)) {
+  :root {
+    --spring-press:linear(0, 0.040901, 0.135847, 0.254396, 0.377489, 0.493961, 0.597963, 0.687105, 0.761139, 0.821057, 0.868474, 0.905245, 0.933219, 0.954104, 0.969399, 0.980377, 0.98808, 0.993347, 0.996837, 0.999056, 1);
+    --spring-control:linear(0, 0.041292, 0.13821, 0.260386, 0.388102, 0.50938, 0.617685, 0.710171, 0.786369, 0.84724, 0.894509, 0.93022, 0.956447, 0.975124, 0.98796, 0.996398, 1.001617, 1.004554, 1.00593, 1.006288, 1);
+    --spring-surface:linear(0, 0.040901, 0.135847, 0.254396, 0.377489, 0.493961, 0.597963, 0.687105, 0.761139, 0.821057, 0.868474, 0.905245, 0.933219, 0.954104, 0.969399, 0.980377, 0.98808, 0.993347, 0.996837, 0.999056, 1);
+    --spring-gentle:linear(0, 0.052807, 0.167367, 0.300809, 0.430757, 0.546791, 0.645214, 0.725908, 0.790486, 0.841241, 0.880575, 0.910718, 0.933607, 0.950855, 0.96377, 0.973386, 0.980512, 0.985771, 0.989637, 0.992471, 1);
+  }
+}
 * {
   box-sizing:border-box;
 }
@@ -117,7 +135,7 @@ button {
 }
 button:focus-visible,input:focus-visible {
   outline:2px solid var(--focus);
-  outline-offset:3px;
+  outline-offset:2px;
 }
 .is-hidden {
   display:none!important;
@@ -180,7 +198,6 @@ button:focus-visible,input:focus-visible {
 .sky-orb {
   position:absolute;
   z-index:1;
-  transition:opacity .25s ease-out,transform .25s ease-out;
 }
 .sky-sun {
   width:128px;
@@ -496,10 +513,6 @@ button:focus-visible,input:focus-visible {
   align-items:center;
   justify-content:center;
   gap:9px;
-  transition:transform .18s,box-shadow .18s,background .18s;
-}
-.button:hover {
-  transform:translateY(-2px);
 }
 .button-primary {
   background:var(--accent);
@@ -1124,7 +1137,6 @@ button:focus-visible,input:focus-visible {
   border:1px solid var(--line);
   border-radius:var(--r-lg);
   overflow:hidden;
-  transition:transform .18s,box-shadow .18s;
 }
 .point-card:hover {
   transform:translateY(-4px);
@@ -1379,7 +1391,7 @@ button:focus-visible,input:focus-visible {
   border-radius:var(--r-lg);
   position:relative;
   flex:0 0 auto;
-  transition:background .18s;
+  transition:background-color var(--dur-1) ease-out;
 }
 .toggle:after {
   content:"";
@@ -1391,7 +1403,7 @@ button:focus-visible,input:focus-visible {
   top:3px;
   left:3px;
   box-shadow:var(--shadow-1);
-  transition:transform .18s;
+  transition:transform var(--dur-control) var(--spring-control);
 }
 .toggle-input:checked+.toggle {
   background:var(--accent);
@@ -1517,22 +1529,25 @@ button:focus-visible,input:focus-visible {
     opacity:0;
     pointer-events:none;
     z-index:4;
-    transition:opacity .2s;
+    transition:opacity 120ms var(--ease-exit);
   }
   .sidebar-scrim.is-visible {
     opacity:1;
     pointer-events:auto;
+    transition:opacity 160ms ease-out;
   }
   .sidebar {
     position:fixed;
-    left:-260px;
+    left:0;
     top:0;
     bottom:0;
     z-index:5;
-    transition:left .2s;
+    transform:translateX(-100%);
+    transition:transform 120ms var(--ease-exit);
   }
   .sidebar.is-open {
-    left:0;
+    transform:none;
+    transition:transform var(--dur-surface) var(--spring-surface);
   }
   .main-content {
     width:100%;
@@ -1825,12 +1840,9 @@ select.filter-button {
   opacity:.7;
   transform:none;
 }
-.button:active,.nav-item:active,.icon-button:active {
-  transform:translateY(1px);
-}
 .queue-item:focus-visible,.text-button:focus-visible,.more-button:focus-visible,.filter-button:focus-visible,.search-field:focus-within {
   outline:2px solid var(--focus);
-  outline-offset:3px;
+  outline-offset:2px;
 }
 @media(max-width:760px) {
   .points-grid.list-view .point-card {
@@ -2007,9 +2019,6 @@ html[data-theme="night"] .horizon {
 .button-soft {
   background:transparent;
   color:var(--ink);
-}
-.button:hover {
-  transform:translateY(-2px);
 }
 .sidebar {
   width:270px;
@@ -2276,10 +2285,9 @@ html[data-theme="night"] .horizon {
   stroke-linejoin:round;
   opacity:.82;
   z-index:1;
-  transition:transform .18s ease-out,opacity .18s ease-out;
+  transition:opacity var(--dur-1) ease-out;
 }
 .point-card:hover .point-drawing {
-  transform:translateY(-2px);
   opacity:1;
 }
 .point-photo {
@@ -2719,7 +2727,7 @@ html[data-theme="night"]{
   font-size:11px;
   color:var(--text-2);
   cursor:pointer;
-  transition:border-color var(--dur-1) ease-out,color var(--dur-1) ease-out;
+  transition:border-color var(--dur-1) ease-out,color var(--dur-1) ease-out,transform var(--dur-press) var(--spring-press);
 }
 .category-action:hover {
   border-color:var(--accent);
@@ -2863,7 +2871,7 @@ html[data-theme="night"]{
 }
 #points-view-list[aria-pressed="true"],#points-view-grid[aria-pressed="true"] {
   outline:2px solid var(--focus);
-  outline-offset:1px;
+  outline-offset:2px;
 }
 .page-heading h2 {
   letter-spacing:-.02em;
@@ -3356,15 +3364,27 @@ html[data-theme="night"]{
   }
 }
 
-/* Motion — one curve, short durations, transform and colour only. */
+/* Motion — restrained spring feedback. Colour stays short and conventional
+   (120ms ease-out); movement uses the semantic spring token for its role:
+   press for controls, control for switches/nav/rows, surface for cards and
+   overlays, gentle for page arrival. */
 .button{
   transition:background-color var(--dur-1) ease-out,
              border-color var(--dur-1) ease-out,
              color var(--dur-1) ease-out,
-             transform 100ms ease-out;
+             transform var(--dur-press) var(--spring-press);
 }
-.button:active{
+.button:active:not(:disabled){
   transform:scale(.975);
+}
+.button-primary:hover:not(:disabled){
+  background:var(--accent-hi);
+}
+.button-dark:hover:not(:disabled){
+  background:color-mix(in srgb,var(--ink) 86%,var(--canvas));
+}
+.button-soft:hover:not(:disabled):not([aria-selected="true"]){
+  background:var(--surface-2);
 }
 .icon-button,
 .nav-item,
@@ -3375,14 +3395,64 @@ html[data-theme="night"]{
 .account-menu button{
   transition:background-color var(--dur-1) ease-out,
              border-color var(--dur-1) ease-out,
-             color var(--dur-1) ease-out;
+             color var(--dur-1) ease-out,
+             transform var(--dur-press) var(--spring-press);
+}
+/* Press-only secondary controls — no hover translation, just a compact
+   .98 tap (queue rows .99, map zoom buttons .96). Disabled controls never
+   move. */
+.theme-toggle,
+.mobile-menu,
+.card-open,
+.text-action,
+.tour-pool-item,
+.tour-stop-action,
+.image-thumb-select,
+.image-thumb-delete,
+.capture-remove,
+.leaflet-bar a{
+  transition:transform var(--dur-press) var(--spring-press);
+}
+.icon-button:active:not(:disabled),
+.nav-item:active:not(:disabled),
+.text-button:active:not(:disabled),
+.more-button:active:not(:disabled),
+button.filter-button:active:not(:disabled),
+.account-menu button:active:not(:disabled),
+.account-button:active:not(:disabled),
+.theme-toggle:active:not(:disabled),
+.mobile-menu:active:not(:disabled),
+.card-open:active:not(:disabled),
+.text-action:active:not(:disabled),
+.category-action:active:not(:disabled),
+.tour-pool-item:active:not(:disabled),
+.tour-stop-action:active:not(:disabled),
+.image-thumb-select:active,
+.image-thumb-delete:active,
+.capture-remove:active,
+.toast-dismiss:active{
+  transform:scale(.98);
+}
+.queue-item:active:not(:disabled){
+  transform:scale(.99);
+}
+.leaflet-bar a:active{
+  transform:scale(.96);
+}
+.password-toggle{
+  transition:transform var(--dur-press) var(--spring-press);
+}
+.password-toggle:active{
+  transform:translateY(-50%) scale(.98);
 }
 .point-card{
-  transition:transform var(--dur-2) ease-out,box-shadow var(--dur-2) ease-out;
+  transition:transform var(--dur-surface) var(--spring-surface),
+             border-color var(--dur-1) ease-out;
 }
 .point-card:hover{
   transform:translateY(-2px);
-  box-shadow:var(--shadow-2);
+  border-color:var(--border-strong);
+  box-shadow:none;
 }
 
 /* Focus — always visible, accent coloured, two pixels. */
@@ -3897,11 +3967,11 @@ body {
   max-width:380px;
 }
 .auth-tabs .button {
-  border:0;
+  border:1px solid transparent;
   height:32px;
 }
 .auth-tabs .button[aria-selected="true"] {
-  border:1px solid var(--border);
+  border-color:var(--border);
 }
 
 /* The illustration holds still. An endlessly drifting grid reads as
@@ -3939,17 +4009,19 @@ body {
 @media (max-width:760px){
   .sidebar {
     position:fixed;
-    left:-260px;
+    left:0;
     top:0;
     bottom:0;
     width:260px;
     flex:0 0 260px;
     padding:16px 12px;
     z-index:5;
-    transition:left .2s ease-out;
+    transform:translateX(-100%);
+    transition:transform 120ms var(--ease-exit);
   }
   .sidebar.is-open {
-    left:0;
+    transform:none;
+    transition:transform var(--dur-surface) var(--spring-surface);
   }
   .topbar {
     height:56px;
@@ -4251,15 +4323,13 @@ body {
 
 /* ============================================================
    17. SEGMENTED CONTROL
-   The focus ring sits inside the tab so the control's rounded
-   corner never cuts it.
+   The focus ring uses the same 2px ring / 2px offset as every
+   other control, so tabs, segmented options and buttons read
+   as one system.
    ============================================================ */
 .auth-tabs .button:focus-visible {
   outline:2px solid var(--focus);
-  outline-offset:-2px;
-}
-.auth-tabs .button[aria-selected="true"]:focus-visible {
-  outline-color:var(--accent-fg);
+  outline-offset:2px;
 }
 
 
@@ -4758,7 +4828,9 @@ body {
   overflow-wrap:anywhere;
 }
 .segmented {
-  display:inline-flex;
+  position:relative;
+  display:inline-grid;
+  grid-template-columns:repeat(2,minmax(72px,1fr));
   gap:4px;
   padding:3px;
   border:1px solid var(--border);
@@ -4768,11 +4840,16 @@ body {
 .segmented .button {
   height:28px;
   padding:0 15px;
+  margin-top:0;
+  justify-self:stretch;
   border:1px solid transparent;
   background:transparent;
   color:var(--text-3);
   font-size:12px;
   font-weight:600;
+}
+.segmented .button:active {
+  transform:none;
 }
 .segmented .button[aria-pressed="true"] {
   background:var(--surface);
@@ -4783,7 +4860,39 @@ body {
 }
 .segmented .button:focus-visible {
   outline:2px solid var(--focus);
-  outline-offset:-2px;
+  outline-offset:2px;
+}
+/* Progressive enhancement: an Apple-style thumb slides behind the two
+   options as aria-pressed changes. Browsers without :has() keep the filled
+   active button above. */
+@supports selector(:has(*)) {
+  .segmented::before {
+    content:"";
+    box-sizing:border-box;
+    position:absolute;
+    top:3px;
+    bottom:3px;
+    left:3px;
+    width:calc((100% - 6px - 4px) / 2);
+    background:var(--surface);
+    border:1px solid var(--border-strong);
+    border-radius:var(--r-lg);
+    box-shadow:var(--shadow-1);
+    transition:transform var(--dur-control) var(--spring-control);
+    z-index:0;
+  }
+  .segmented:has(.button[aria-pressed="true"]:nth-of-type(2))::before {
+    transform:translateX(calc(100% + 4px));
+  }
+  .segmented .button {
+    position:relative;
+    z-index:1;
+  }
+  .segmented .button[aria-pressed="true"] {
+    background:transparent;
+    border-color:transparent;
+    box-shadow:none;
+  }
 }
 
 /* ============================================================
@@ -4971,6 +5080,24 @@ body {
   color:var(--accent-text);
 }
 
+/* Collapsed desktop rail: the account menu escapes the sidebar's overflow
+   clip and flies out to the right of the rail. The JS sets --menu-left /
+   --menu-bottom from the account button's bounding rect; the flyout opens
+   upward with an 8px gap. */
+#account-menu.is-rail-flyout {
+  position:fixed;
+  left:var(--menu-left, 100px);
+  bottom:var(--menu-bottom, 20px);
+  width:220px;
+  min-width:220px;
+  max-width:220px;
+  z-index:100;
+  transform-origin:left bottom;
+}
+#account-menu.is-rail-flyout:not(.is-hidden) {
+  animation:menu-flyout var(--dur-surface) var(--spring-surface) backwards;
+}
+
 /* The login page's escape hatch sits under the form: same width
    as the sign-in button, a little lower so the two never read
    as one control. */
@@ -5003,6 +5130,10 @@ body {
   from { opacity:0; transform:translateY(-6px); }
   to { opacity:1; transform:none; }
 }
+@keyframes menu-flyout {
+  from { opacity:0; transform:translateX(-6px) scale(.98); }
+  to { opacity:1; transform:none; }
+}
 @keyframes tile-settle {
   from { opacity:.55; transform:scale(.96); }
   to { opacity:1; transform:none; }
@@ -5013,24 +5144,23 @@ body {
 }
 
 .page.active-page {
-  animation:page-arrive var(--dur-3) var(--ease) backwards;
+  animation:page-arrive var(--dur-gentle) var(--spring-gentle) backwards;
 }
 .modal:not(.is-hidden) .modal-backdrop {
-  animation:veil-in var(--dur-2) var(--ease) backwards;
+  animation:veil-in 160ms ease-out backwards;
 }
 .modal:not(.is-hidden) .modal-panel {
-  animation:dialog-arrive var(--dur-3) var(--ease) backwards;
+  animation:dialog-arrive var(--dur-surface) var(--spring-surface) backwards;
 }
-.account-menu:not(.is-hidden),
 .account-menu:not(.is-hidden) {
-  animation:menu-drop var(--dur-2) var(--ease) backwards;
+  animation:menu-drop var(--dur-surface) var(--spring-surface) backwards;
 }
 .nav-item.is-active {
-  animation:tile-settle var(--dur-2) var(--ease) backwards;
+  animation:tile-settle var(--dur-control) var(--spring-control) backwards;
 }
 .admin-list>*,
 #users-admins-list>.user-row {
-  animation:row-arrive var(--dur-2) var(--ease) backwards;
+  animation:row-arrive var(--dur-control) var(--spring-control) backwards;
 }
 .admin-list>*:nth-child(1),
 #users-admins-list>.user-row:nth-child(1) { animation-delay:0ms; }
@@ -5061,10 +5191,12 @@ body {
   font-size:12.5px;
   line-height:1.5;
   transform:translateY(10px) scale(.985);
-  transition:opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+  transition:opacity 120ms var(--ease-exit), transform 120ms var(--ease-exit);
 }
 .toast.is-visible {
   transform:none;
+  transition:opacity 160ms ease-out,
+             transform var(--dur-surface) var(--spring-surface);
 }
 .toast-mark {
   display:grid;
@@ -5094,7 +5226,7 @@ body {
   line-height:1;
   color:inherit;
   opacity:.5;
-  transition:opacity var(--dur-1) ease-out, background-color var(--dur-1) ease-out;
+  transition:opacity var(--dur-1) ease-out, background-color var(--dur-1) ease-out, transform var(--dur-press) var(--spring-press);
 }
 .toast-dismiss:hover {
   opacity:1;
@@ -5204,7 +5336,8 @@ html.is-restoring #app-view {
   color:var(--rail-fg);
   text-align:left;
   cursor:pointer;
-  transition:background-color var(--dur-1) ease-out;
+  transition:background-color var(--dur-1) ease-out,
+             transform var(--dur-press) var(--spring-press);
 }
 .account-button:hover {
   background:var(--rail-2);
@@ -5364,6 +5497,35 @@ html.is-restoring #app-view {
    none, and every surface renders in its final state.
    ============================================================ */
 @media (prefers-reduced-motion:reduce){
+  .button:active,
+  .icon-button:active,
+  .nav-item:active,
+  .text-button:active,
+  .more-button:active,
+  .filter-button:active,
+  .queue-item:active,
+  .account-button:active,
+  .account-menu button:active,
+  .theme-toggle:active,
+  .mobile-menu:active,
+  .card-open:active,
+  .card-open:hover,
+  .text-action:active,
+  .category-action:active,
+  .tour-pool-item:active,
+  .tour-stop-action:active,
+  .image-thumb-select:active,
+  .image-thumb-delete:active,
+  .capture-remove:active,
+  .toast-dismiss:active,
+  .point-card:hover,
+  .point-card:hover .point-drawing,
+  .leaflet-bar a:active {
+    transform:none !important;
+  }
+  .password-toggle:active {
+    transform:translateY(-50%) !important;
+  }
   *,
   *::before,
   *::after{

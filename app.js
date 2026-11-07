@@ -3288,6 +3288,32 @@ function renderAccountMenu() {
   }
 }
 
+function clearAccountMenuFlyout() {
+  const menu = document.getElementById("account-menu");
+  if (!menu) return;
+  menu.classList.remove("is-rail-flyout");
+  menu.style.removeProperty("--menu-left");
+  menu.style.removeProperty("--menu-bottom");
+}
+
+function positionAccountMenuFlyout() {
+  const menu = document.getElementById("account-menu");
+  const button = document.getElementById("account-switcher");
+  if (!menu || !button) return;
+  const collapsed = window.innerWidth > 760 && document.body.classList.contains("nav-collapsed");
+  if (!collapsed) {
+    clearAccountMenuFlyout();
+    return;
+  }
+  // Apply the fixed-position flyout before measuring: while the menu is still
+  // position:absolute its 196px min-width overflows the 84px rail and shifts
+  // the account button, which would skew --menu-bottom.
+  menu.classList.add("is-rail-flyout");
+  const rect = button.getBoundingClientRect();
+  menu.style.setProperty("--menu-left", `${Math.round(rect.right + 10)}px`);
+  menu.style.setProperty("--menu-bottom", `${Math.round(window.innerHeight - rect.top + 8)}px`);
+}
+
 function toggleMenu(menuId, buttonId) {
   const menu = document.getElementById(menuId);
   const button = document.getElementById(buttonId);
@@ -3296,6 +3322,12 @@ function toggleMenu(menuId, buttonId) {
   closeMenus();
   menu.classList.toggle("is-hidden", !willOpen);
   button.setAttribute("aria-expanded", String(willOpen));
+  if (menuId === "account-menu" && willOpen) {
+    positionAccountMenuFlyout();
+    requestAnimationFrame(() => {
+      if (!menu.classList.contains("is-hidden")) positionAccountMenuFlyout();
+    });
+  }
 }
 
 function closeMenus() {
@@ -3303,6 +3335,7 @@ function closeMenus() {
     document.getElementById(ids[0])?.classList.add("is-hidden");
     document.getElementById(ids[1])?.setAttribute("aria-expanded", "false");
   }
+  clearAccountMenuFlyout();
 }
 
 async function switchAccount(username) {
@@ -3401,6 +3434,7 @@ async function runDebugHealth() {
 
 function setSidebarCollapsed(collapsed) {
   document.body.classList.toggle("nav-collapsed", collapsed);
+  closeMenus();
   try {
     window.localStorage.setItem("aradlens-nav", collapsed ? "collapsed" : "open");
   } catch {}
@@ -3417,6 +3451,19 @@ document.getElementById("sidebar-collapse")?.addEventListener("click", () => {
 if (readPreference("localStorage", "aradlens-nav", ["open", "collapsed"], "open") === "collapsed") {
   setSidebarCollapsed(true);
 }
+let wasDesktop = window.innerWidth > 760;
+window.addEventListener("resize", () => {
+  const isDesktop = window.innerWidth > 760;
+  const crossed = isDesktop !== wasDesktop;
+  wasDesktop = isDesktop;
+  const menu = document.getElementById("account-menu");
+  if (!menu || menu.classList.contains("is-hidden")) return;
+  if (crossed) {
+    closeMenus();
+  } else if (menu.classList.contains("is-rail-flyout")) {
+    positionAccountMenuFlyout();
+  }
+});
 
 const initialPage = window.location.hash.slice(1);
 if (pageNames[initialPage]) showPage(initialPage, false);

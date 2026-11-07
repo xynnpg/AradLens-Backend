@@ -76,7 +76,8 @@ The system is called **Clay**. `styles.css` is organised in layers, in this orde
    `--accent-on-rail`), the state pair (`--ok-*`, `--warn-*`, `--bad-*`,
    `--signal-mint`), `--focus`, `--schematic`, the three depth tokens
    (`--shadow-1/2/3`), the radius ladder (`--r-xs` … `--r-pill`) and the motion
-   tokens (`--ease`, `--dur-1/2/3`).
+   tokens (`--dur-1`, `--dur-press`, `--dur-control`, `--dur-surface`,
+   `--dur-gentle`, `--ease-exit`, and the `--spring-*` easings).
 2. **Legacy aliases** — the older names (`--paper`, `--concrete`, `--steel`,
    `--grid-line`, `--line`, `--print`, `--muted`, `--mint-fill`, `--apricot-fill`,
    `--coral-fill`, `--signal-*`, …) are kept as `var()` aliases of the new

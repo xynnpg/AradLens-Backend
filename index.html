@@ -72,21 +72,34 @@
       .image-dropzone-sub { font-size: 11px; color: var(--muted); }
       .image-file-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
       .card-open { background: none; border: 0; padding: 4px 6px; font-size: 14px; line-height: 1; color: inherit; cursor: pointer; }
-      .card-open:hover { color: var(--accent); transform: translateY(-2px); }
+      .card-open:hover { color: var(--accent); }
 
       /* Collapsible sidebar (desktop) */
       .desktop-collapse { display: none; }
       @media (min-width: 761px) {
         .desktop-collapse { display: inline-flex; }
-        body.nav-collapsed .sidebar { width: 84px; flex-basis: 84px; padding-left: 10px; padding-right: 10px; }
+        body.nav-collapsed .sidebar { width: 84px; flex-basis: 84px; padding-left: 10px; padding-right: 10px; z-index: 80; }
         body.nav-collapsed .sidebar .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
-        body.nav-collapsed .sidebar .nav-item span,
+        body.nav-collapsed .sidebar .nav-item > span:not(.nav-count):not(.nav-status),
+        body.nav-collapsed .sidebar-footer .footer-copy {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border: 0;
+        }
         body.nav-collapsed .sidebar .nav-label,
         body.nav-collapsed .sidebar .brand-mark span:last-child,
-        body.nav-collapsed .sidebar-footer .footer-copy,
+        body.nav-collapsed .sidebar .nav-item .nav-count,
+        body.nav-collapsed .sidebar .nav-item .nav-status,
         body.nav-collapsed .sidebar-footer .chevron { display: none; }
         body.nav-collapsed .sidebar .brand-mark { justify-content: center; padding: 0; }
         body.nav-collapsed .sidebar-footer { justify-content: center; padding-left: 0; padding-right: 0; }
+        body.nav-collapsed .sidebar .account-button { justify-content: center; padding: 6px; gap: 0; }
         body.nav-collapsed .sidebar-legal { display: none; }
       }
 
