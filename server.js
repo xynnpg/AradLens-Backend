@@ -51,13 +51,24 @@ async function proxyApi(req, res, pathname) {
   const token = cookies.aradlens_token;
   const clientAuthorization = typeof req.headers.authorization === "string" ? req.headers.authorization : "";
   const isLogin = pathname === "/api/auth/login" && req.method === "POST";
+  const isRegister = pathname === "/api/auth/register" && req.method === "POST";
   const isMe = pathname === "/api/auth/me" && req.method === "GET";
   const isPasswordChange = pathname === "/api/auth/change-password" && req.method === "POST";
   const isHealth = pathname === "/api/health" && req.method === "GET";
   const isLogout = pathname === "/api/auth/logout" && req.method === "POST";
   const isAdminEndpoint = /^\/api\/admins(?:\/\d+)?$/.test(pathname) && ["GET", "POST", "PUT", "DELETE"].includes(req.method);
+  const isInvitesList = pathname === "/api/invites" && req.method === "GET";
+  const isInviteCreate = pathname === "/api/invites" && req.method === "POST";
+  const isInviteEndpoint = isInvitesList || isInviteCreate;
+  const isLocationsList = pathname === "/api/locations" && req.method === "GET";
+  const isLocationDetails = /^\/api\/locations\/\d+$/.test(pathname) && req.method === "GET";
+  const isLocationCreate = pathname === "/api/locations" && req.method === "POST";
+  const isLocationUpdate = /^\/api\/locations\/\d+$/.test(pathname) && ["PATCH", "PUT"].includes(req.method);
+  const isLocationDelete = /^\/api\/locations\/\d+$/.test(pathname) && req.method === "DELETE";
+  const isLocationWrite = isLocationCreate || isLocationUpdate || isLocationDelete;
+  const isPublicLocationRead = isLocationsList || isLocationDetails;
 
-  if (!isLogin && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAdminEndpoint) return false;
+  if (!isLogin && !isRegister && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAdminEndpoint && !isInviteEndpoint && !isPublicLocationRead && !isLocationWrite) return false;
   if (devMode && isMe && token === "dev-token") {
     sendJson(res, 200, { username: "admin", role: "Administrator" });
     return true;
@@ -77,13 +88,13 @@ async function proxyApi(req, res, pathname) {
     return true;
   }
   const authorization = token ? `Bearer ${token}` : clientAuthorization;
-  if ((isMe || isPasswordChange || isAdminEndpoint) && !authorization) {
+  if ((isMe || isPasswordChange || isAdminEndpoint || isInviteEndpoint || isLocationWrite) && !authorization) {
     sendJson(res, 401, { detail: "Not authenticated" });
     return true;
   }
 
   let payload;
-  if (isLogin || isPasswordChange || req.method === "POST" || req.method === "PUT") {
+  if (isLogin || isRegister || isPasswordChange || isInviteCreate || isLocationCreate || isLocationUpdate || req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
     try {
       payload = await readJsonBody(req);
     } catch (error) {
@@ -103,9 +114,10 @@ async function proxyApi(req, res, pathname) {
   }
 
   const upstreamPath = isLogin ? "/auth/login"
+    : isRegister ? "/auth/register"
     : isMe ? "/auth/me"
       : isPasswordChange ? "/auth/change-password"
-        : isAdminEndpoint ? pathname.replace(/^\/api/, "")
+        : (isAdminEndpoint || isInviteEndpoint || isPublicLocationRead || isLocationWrite) ? pathname.replace(/^\/api/, "")
           : "/health";
   const upstreamHeaders = { Accept: "*/*" };
   if (payload) upstreamHeaders["Content-Type"] = "application/json";
@@ -113,7 +125,7 @@ async function proxyApi(req, res, pathname) {
 
   try {
     const upstream = await fetch(`${apiOrigin}${upstreamPath}`, {
-      method: isLogin || isPasswordChange || isAdminEndpoint ? req.method : "GET",
+      method: req.method,
       headers: upstreamHeaders,
       body: payload ? JSON.stringify(payload) : undefined,
     });

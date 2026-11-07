@@ -270,11 +270,17 @@ function setAuthenticated(isAuthenticated, admin = null) {
     element.hidden = !isSuperadmin;
     element.classList.toggle("is-hidden", !isSuperadmin);
   });
-  document.getElementById("admin-users-panel").classList.toggle("is-hidden", !isSuperadmin);
   if (!isAuthenticated) {
     document.getElementById("admins-list").replaceChildren();
-    document.getElementById("admin-users-list").replaceChildren();
+    document.getElementById("users-admins-list")?.replaceChildren();
+    document.getElementById("invites-list")?.replaceChildren();
+    document.getElementById("locations-list")?.replaceChildren();
+    ["stat-admins-total", "stat-admins-active", "stat-admins-inactive", "stat-admins-super"].forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) element.textContent = "—";
+    });
     resetAdminForm();
+    if (typeof resetLocationForm === "function") resetLocationForm();
   }
   loginView.classList.toggle("is-hidden", isAuthenticated);
   appView.classList.toggle("is-hidden", !isAuthenticated);
@@ -299,7 +305,9 @@ function showPage(page, updateUrl = true) {
   document.querySelector(".sidebar")?.classList.remove("is-open");
   document.querySelector(".sidebar-scrim")?.classList.remove("is-visible");
   document.querySelector(".mobile-menu")?.setAttribute("aria-expanded", "false");
-  if (["admins", "users"].includes(page) && String(authenticatedAdmin?.role || "").toLowerCase() === "superadmin") loadAdmins();
+  if ((page === "admins" || page === "users") && authenticatedAdmin) loadAdmins();
+  if (page === "admins" && authenticatedAdmin) loadInvites();
+  if (page === "points") loadLocations();
   if (updateUrl) history.replaceState(null, "", `#${page}`);
 }
 
@@ -342,6 +350,17 @@ document.getElementById("toggle-login-password").addEventListener("click", (even
   event.currentTarget.setAttribute("aria-pressed", String(!visible));
 });
 
+const registerForm = document.getElementById("register-form");
+function showAuthTab(tab) {
+  const isRegister = tab === "register";
+  loginForm.classList.toggle("is-hidden", isRegister);
+  registerForm?.classList.toggle("is-hidden", !isRegister);
+  document.getElementById("auth-tab-login")?.setAttribute("aria-selected", String(!isRegister));
+  document.getElementById("auth-tab-register")?.setAttribute("aria-selected", String(isRegister));
+}
+document.getElementById("auth-tab-login")?.addEventListener("click", () => showAuthTab("login"));
+document.getElementById("auth-tab-register")?.addEventListener("click", () => showAuthTab("register"));
+
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   loginError.textContent = "";
@@ -372,6 +391,8 @@ document.getElementById("logout-button").addEventListener("click", async () => {
   await apiRequest("/api/auth/logout", { method: "POST" }).catch(() => {});
   setAuthenticated(false);
   loginForm.reset();
+  document.getElementById("register-form")?.reset();
+  showAuthTab("login");
 });
 
 const sidebar = document.querySelector(".sidebar");
@@ -501,7 +522,7 @@ document.getElementById("users-status")?.addEventListener("change", (event) => {
     row.hidden = event.target.value !== "all" && stableValue(row.querySelector(".status-tag"), "value") !== event.target.value;
   });
 });
-filterRows("users-search", ".user-row:not(.user-head)", [".user-cell", ".status-tag"]);
+filterRows("users-search", ".user-row:not(.user-head)", [".user-cell", ".user-email", ".status-tag"]);
 filterRows("activity-search", "#page-activity .activity-row", [".activity-change", ".user-cell"]);
 document.querySelectorAll(".view-toggle").forEach((button) => {
   button.addEventListener("click", () => {
@@ -513,23 +534,32 @@ document.querySelectorAll(".view-toggle").forEach((button) => {
 if (sessionStorage.getItem("aradlens-admin-auth") === "true") {
   apiRequest("/api/auth/me").then((admin) => setAuthenticated(true, admin)).catch(() => setAuthenticated(false));
 }
-document.getElementById("page-users").append(document.getElementById("admin-users-panel"));
+document.getElementById("page-points")?.append(document.getElementById("locations-panel"));
+document.getElementById("page-admins")?.append(document.getElementById("invites-panel"));
 
 let adminsRequestId = 0;
 async function loadAdmins() {
-  if (String(authenticatedAdmin?.role || "").toLowerCase() !== "superadmin") return;
+  if (!authenticatedAdmin) return;
   const requestId = ++adminsRequestId;
   const message = document.getElementById("admins-message");
   const list = document.getElementById("admins-list");
-  const usersMessage = document.getElementById("admin-users-message");
-  const usersList = document.getElementById("admin-users-list");
-  [message, usersMessage].forEach((element) => { setMessage(element, "Loading administrators…"); element?.setAttribute("role", "status"); });
+  const usersMessage = document.getElementById("users-admins-message");
+  const usersList = document.getElementById("users-admins-list");
+  if (message) { setMessage(message, "Loading administrators…"); message.setAttribute("role", "status"); }
+  if (usersMessage) { setMessage(usersMessage, "Loading administrators…"); usersMessage.setAttribute("role", "status"); }
   list?.replaceChildren();
   usersList?.replaceChildren();
   try {
     const admins = await apiRequest("/api/admins");
     if (requestId !== adminsRequestId) return;
     if (!Array.isArray(admins)) throw new Error("The API returned an invalid administrator list.");
+    const activeCount = admins.filter((admin) => admin.is_active).length;
+    const superCount = admins.filter((admin) => String(admin.role || "").toLowerCase() === "superadmin").length;
+    const setStat = (id, value) => { const element = document.getElementById(id); if (element) element.textContent = String(value); };
+    setStat("stat-admins-total", admins.length);
+    setStat("stat-admins-active", activeCount);
+    setStat("stat-admins-inactive", admins.length - activeCount);
+    setStat("stat-admins-super", superCount);
     for (const admin of admins) {
       const row = document.createElement("div");
       row.className = "setting-row admin-row";
@@ -578,28 +608,24 @@ async function loadAdmins() {
       name.textContent = admin.username;
       userCell.append(name);
       const email = document.createElement("span");
+      email.className = "user-email";
       email.textContent = admin.email;
       const role = document.createElement("span");
       role.textContent = admin.role;
       const status = document.createElement("span");
       status.className = `status-tag ${admin.is_active ? "status-live" : "status-muted"}`;
+      status.dataset.value = admin.is_active ? "Active" : "Inactive";
       status.textContent = admin.is_active ? "Active" : "Inactive";
-      const actions = document.createElement("span");
-      actions.className = "admin-actions";
-      actions.append(row.querySelector("button:first-of-type").cloneNode(true), row.querySelector("button:last-of-type").cloneNode(true));
-      actions.querySelectorAll("button").forEach((button) => {
-        button.addEventListener("click", () => row.querySelector(`button:nth-of-type(${button.textContent === "Edit" ? 1 : 2})`).click());
-      });
-      userRow.append(userCell, email, role, status, actions);
-      usersList.append(userRow);
+      userRow.append(userCell, email, role, status);
+      usersList?.append(userRow);
     }
     const resultMessage = admins.length ? `${admins.length} administrator(s)` : "No administrators found.";
-    message.textContent = resultMessage;
-    usersMessage.textContent = resultMessage;
+    if (message) message.textContent = resultMessage;
+    if (usersMessage) usersMessage.textContent = resultMessage;
   } catch (error) {
     const resultMessage = `${error.message} Click Refresh to try again.`;
-    message.textContent = resultMessage;
-    usersMessage.textContent = resultMessage;
+    if (message) message.textContent = resultMessage;
+    if (usersMessage) usersMessage.textContent = resultMessage;
   }
 }
 
@@ -614,6 +640,7 @@ function resetAdminForm() {
 }
 
 document.getElementById("admins-refresh").addEventListener("click", loadAdmins);
+document.getElementById("users-refresh")?.addEventListener("click", loadAdmins);
 document.getElementById("admin-cancel").addEventListener("click", resetAdminForm);
 document.getElementById("admin-form").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -631,6 +658,167 @@ document.getElementById("admin-form").addEventListener("submit", async (event) =
     resetAdminForm();
     await loadAdmins();
     showToast(id ? "Administrator updated." : "Administrator created.");
+  } catch (error) { errorMessage.textContent = error.message; }
+  finally { button.disabled = false; }
+});
+
+let invitesRequestId = 0;
+async function loadInvites() {
+  const message = document.getElementById("invites-message");
+  const list = document.getElementById("invites-list");
+  if (!message || !list) return;
+  const requestId = ++invitesRequestId;
+  setMessage(message, "Loading invites…");
+  message.setAttribute("role", "status");
+  list.replaceChildren();
+  try {
+    const invites = await apiRequest("/api/invites");
+    if (requestId !== invitesRequestId) return;
+    if (!Array.isArray(invites)) throw new Error("The API returned an invalid invite list.");
+    for (const invite of invites) {
+      const row = document.createElement("div");
+      row.className = "setting-row admin-row";
+      const details = document.createElement("span");
+      const used = invite.used_at ? `used ${invite.used_at}` : "unused";
+      const revoked = invite.is_revoked ? " · revoked" : "";
+      details.textContent = `#${invite.id} · ${invite.code} · ${invite.role} · expires ${invite.expires_at} · ${used}${revoked}`;
+      const copyButton = document.createElement("button");
+      copyButton.className = "button button-soft";
+      copyButton.type = "button";
+      copyButton.textContent = "Copy code";
+      copyButton.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(invite.code);
+          showToast("Invite code copied.");
+        } catch {
+          showToast(invite.code);
+        }
+      });
+      row.append(details, copyButton);
+      list.append(row);
+    }
+    message.textContent = invites.length ? `${invites.length} invite(s)` : "No invites found.";
+  } catch (error) {
+    message.textContent = `${error.message} Click Refresh to try again.`;
+  }
+}
+
+function resetLocationForm() {
+  const form = document.getElementById("location-form");
+  if (!form) return;
+  form.reset();
+  form.elements.id.value = "";
+  document.getElementById("location-form-title").textContent = "Add location";
+  document.getElementById("location-form-error").textContent = "";
+}
+
+let locationsRequestId = 0;
+async function loadLocations() {
+  const message = document.getElementById("locations-message");
+  const list = document.getElementById("locations-list");
+  if (!message || !list) return;
+  const requestId = ++locationsRequestId;
+  setMessage(message, "Loading locations…");
+  message.setAttribute("role", "status");
+  list.replaceChildren();
+  try {
+    const locations = await apiRequest("/api/locations");
+    if (requestId !== locationsRequestId) return;
+    if (!Array.isArray(locations)) throw new Error("The API returned an invalid location list.");
+    for (const location of locations) {
+      const row = document.createElement("div");
+      row.className = "setting-row admin-row";
+      const details = document.createElement("span");
+      details.textContent = `#${location.id} · ${location.name} · ${location.latitude}, ${location.longitude}${location.description ? ` · ${location.description}` : ""}`;
+      row.append(details);
+      const editButton = document.createElement("button");
+      editButton.className = "button button-soft";
+      editButton.type = "button";
+      editButton.textContent = "Edit";
+      editButton.addEventListener("click", async () => {
+        editButton.disabled = true;
+        try {
+          const record = await apiRequest(`/api/locations/${location.id}`);
+          const form = document.getElementById("location-form");
+          form.elements.id.value = record.id;
+          form.elements.name.value = record.name || "";
+          form.elements.latitude.value = record.latitude ?? "";
+          form.elements.longitude.value = record.longitude ?? "";
+          form.elements.description.value = record.description || "";
+          form.elements.image.value = record.image || "";
+          document.getElementById("location-form-title").textContent = `Edit location #${record.id}`;
+          showPage("points");
+          form.elements.name.focus();
+        } catch (error) { message.textContent = error.message; }
+        finally { editButton.disabled = false; }
+      });
+      row.append(editButton);
+      list.append(row);
+    }
+    message.textContent = locations.length ? `${locations.length} location(s)` : "No locations found.";
+  } catch (error) {
+    message.textContent = `${error.message} Click Refresh to try again.`;
+  }
+}
+
+document.getElementById("invites-refresh")?.addEventListener("click", loadInvites);
+document.getElementById("locations-refresh")?.addEventListener("click", loadLocations);
+document.getElementById("locations-add-button")?.addEventListener("click", () => {
+  showPage("points");
+  resetLocationForm();
+  document.getElementById("location-name")?.focus();
+});
+document.getElementById("location-cancel")?.addEventListener("click", resetLocationForm);
+document.getElementById("invite-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector("button[type=submit]");
+  const errorMessage = document.getElementById("invite-form-error");
+  errorMessage.textContent = "";
+  button.disabled = true;
+  try {
+    const payload = { role: form.elements.role.value, expires_in_minutes: Number(form.elements.expires_in_minutes.value) };
+    const invite = await apiRequest("/api/invites", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    form.reset();
+    await loadInvites();
+    showToast(`Invite created: ${invite.code}`);
+  } catch (error) { errorMessage.textContent = error.message; }
+  finally { button.disabled = false; }
+});
+document.getElementById("register-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector("button[type=submit]");
+  const message = document.getElementById("register-form-message");
+  message.textContent = "";
+  button.disabled = true;
+  try {
+    const payload = { code: form.elements.code.value, username: form.elements.username.value, email: form.elements.email.value, password: form.elements.password.value };
+    const account = await apiRequest("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    const createdUsername = account.username || "";
+    form.reset();
+    showAuthTab("login");
+    if (createdUsername) document.getElementById("username").value = createdUsername;
+    showToast(`Account created: ${createdUsername || "sign in to continue."}`);
+  } catch (error) { message.textContent = error.message; }
+  finally { button.disabled = false; }
+});
+document.getElementById("location-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector("button[type=submit]");
+  const errorMessage = document.getElementById("location-form-error");
+  const id = form.elements.id.value;
+  const payload = { name: form.elements.name.value, latitude: Number(form.elements.latitude.value), longitude: Number(form.elements.longitude.value) };
+  if (form.elements.description.value) payload.description = form.elements.description.value;
+  if (form.elements.image.value) payload.image = form.elements.image.value;
+  errorMessage.textContent = "";
+  button.disabled = true;
+  try {
+    await apiRequest(id ? `/api/locations/${id}` : "/api/locations", { method: id ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    resetLocationForm();
+    await loadLocations();
+    showToast(id ? "Location updated." : "Location created.");
   } catch (error) { errorMessage.textContent = error.message; }
   finally { button.disabled = false; }
 });
