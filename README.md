@@ -8,6 +8,7 @@ AradLens API and keeps the session token out of the browser.
 
 - Sign in, register via invite, and change password through same-origin `/api/*` routes.
 - Browse, search, filter, create, edit, and delete locations, including images.
+- Tag locations with a category, and manage the category list (create, rename, delete).
 - Chain important points into ordered tours, with create, edit, and delete actions.
 - Record a location on a phone without signing in: generate a 24-hour capture link.
 - Issue invite codes, update administrator roles and active status, and edit your own account.

@@ -21,12 +21,18 @@ same-origin to the admin server; `server.js` is authoritative.
 | `GET` | `/api/invites` | Yes | List invites |
 | `POST` | `/api/invites` | Yes | Create invite |
 | `GET` | `/api/locations` | No | List locations |
-| `GET` | `/api/locations/:id` | No | Location detail |
-| `POST` | `/api/locations` | Yes | Create location |
-| `PATCH` / `PUT` | `/api/locations/:id` | Yes | Update location |
+| `GET` | `/api/locations/:id` | No | Location detail (carries `images` as an array of image ids) |
+| `POST` | `/api/locations` | Yes | Create location (`category_id` optional) |
+| `PATCH` / `PUT` | `/api/locations/:id` | Yes | Update location (`category_id` optional; `null` clears it) |
 | `DELETE` | `/api/locations/:id` | Yes | Delete location |
-| `GET` | `/api/locations/:id/images` | No | Download images (ZIP) |
-| `POST` | `/api/locations/:id/images` | Yes | Upload image |
+| `POST` | `/api/locations/:id/images` | Yes | Upload an image (`multipart/form-data`, field `file`); returns `{ id, location_id, image, created_at }` |
+| `GET` | `/api/locations/images/:imageId` | No | Download one image file |
+| `DELETE` | `/api/locations/:id/images/:imageId` | Yes | Delete one image from a location |
+| `GET` | `/api/categories` | No | List categories |
+| `GET` | `/api/categories/:id` | No | Category detail |
+| `POST` | `/api/categories` | Yes | Create category (`{ name }`) |
+| `PUT` | `/api/categories/:id` | Yes | Rename category (`{ name }`) |
+| `DELETE` | `/api/categories/:id` | Yes | Delete category |
 | `GET` | `/api/tours` | No | List tours |
 | `POST` | `/api/tours` | Yes | Create a tour from ordered location ids |
 | `GET` | `/api/tours/:id` | No | Tour detail |
@@ -46,6 +52,23 @@ Registration and capture writes require the current legal terms version. The
 proxy validates and records consent, then strips `legal_accepted` and
 `terms_version` before forwarding upstream. Consent records are appended to
 `CONSENT_LOG_PATH` (default `./data/consent.log`).
+
+## Images
+
+Photos live in their own table upstream. A location carries `images` as an array
+of image ids, and every id is a separate file:
+
+- Upload with `POST /api/locations/:id/images` (`multipart/form-data`, field
+  `file`). The response is the new image record:
+  `{ "id": 8, "location_id": 8, "image": "/media/locations/….png", "created_at": "…" }`.
+- Read a file with `GET /api/locations/images/:imageId`; the proxy streams the
+  bytes with the upstream content type, so the admin app can serve every photo
+  from its own origin (the page CSP only allows same-origin images).
+- Remove one with `DELETE /api/locations/:id/images/:imageId`.
+
+There is no ZIP download any more: the old `GET /api/locations/:id/images` route
+answers `405` upstream. The gallery works from the location detail, which is the
+only response that lists every image of a location.
 
 ## Capture links
 
@@ -78,7 +101,7 @@ never signs in.
 The proxy rewrites paths before calling the API:
 
 - `/api/auth/*` → `/auth/*`
-- `/api/admins*`, `/api/invites*`, `/api/locations*`, `/api/tours*` → the same path without the `/api` prefix
+- `/api/admins*`, `/api/invites*`, `/api/locations*`, `/api/categories*`, `/api/tours*` → the same path without the `/api` prefix
 - everything else → `/health`
 
 ## Auth behavior
@@ -92,8 +115,8 @@ The proxy rewrites paths before calling the API:
   The proxy prefers the active cookie token; if none, it forwards the client header.
 - **Gate** — with no token available, the proxy returns `401 { "detail": "Not
   authenticated" }` for the routes marked "Yes", except `/api/auth/switch`, which
-  returns `404`. `GET /api/locations/:id/images` is not gated, but forwards the token
-  when present.
+  returns `404`. `GET /api/locations/images/:imageId` is not gated, but forwards
+  the token when present.
 - **Expiry** — `app.js` treats a `401` on any non-login call as an expired session,
   clears local state, and returns to the login view.
 - **Logout / switch** — `/api/auth/logout` removes the active account and clears

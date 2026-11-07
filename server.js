@@ -311,8 +311,18 @@ async function proxyApi(req, res, pathname) {
   const isLocationUpdate = /^\/api\/locations\/\d+$/.test(pathname) && ["PATCH", "PUT"].includes(req.method);
   const isLocationDelete = /^\/api\/locations\/\d+$/.test(pathname) && req.method === "DELETE";
   const isLocationWrite = isLocationCreate || isLocationUpdate || isLocationDelete;
-  const isLocationImages = /^\/api\/locations\/\d+\/images$/.test(pathname) && ["GET", "POST"].includes(req.method);
-  const isLocationImagesWrite = isLocationImages && req.method === "POST";
+  const isLocationImages = /^\/api\/locations\/\d+\/images$/.test(pathname) && req.method === "POST";
+  const isLocationImageFile = /^\/api\/locations\/images\/\d+$/.test(pathname) && req.method === "GET";
+  const isLocationImageDelete = /^\/api\/locations\/\d+\/images\/\d+$/.test(pathname) && req.method === "DELETE";
+  const isLocationImageEndpoint = isLocationImages || isLocationImageFile || isLocationImageDelete;
+  const isLocationImageWrite = isLocationImages || isLocationImageDelete;
+  const isCategoriesList = pathname === "/api/categories" && req.method === "GET";
+  const isCategoryDetails = /^\/api\/categories\/\d+$/.test(pathname) && req.method === "GET";
+  const isCategoryCreate = pathname === "/api/categories" && req.method === "POST";
+  const isCategoryUpdate = /^\/api\/categories\/\d+$/.test(pathname) && req.method === "PUT";
+  const isCategoryDelete = /^\/api\/categories\/\d+$/.test(pathname) && req.method === "DELETE";
+  const isCategoryEndpoint = isCategoriesList || isCategoryDetails || isCategoryCreate || isCategoryUpdate || isCategoryDelete;
+  const isCategoryWrite = isCategoryCreate || isCategoryUpdate || isCategoryDelete;
   const isPublicLocationRead = isLocationsList || isLocationDetails;
   const captureMatch = /^\/api\/capture\/([A-Za-z0-9_-]+)$/.exec(pathname);
   const captureImageMatch = /^\/api\/capture\/([A-Za-z0-9_-]+)\/images$/.exec(pathname);
@@ -321,7 +331,7 @@ async function proxyApi(req, res, pathname) {
   const isCaptureImage = Boolean(captureImageMatch) && req.method === "POST";
   const isCaptureLinkCreate = pathname === "/api/capture-links" && req.method === "POST";
 
-  if (!isLogin && !isRegister && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isOwnAdminEndpoint && !isInviteEndpoint && !isTourEndpoint && !isPublicLocationRead && !isLocationWrite && !isLocationImages && !isCaptureInfo && !isCaptureCreate && !isCaptureImage && !isCaptureLinkCreate) return false;
+  if (!isLogin && !isRegister && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isOwnAdminEndpoint && !isInviteEndpoint && !isTourEndpoint && !isPublicLocationRead && !isLocationWrite && !isLocationImageEndpoint && !isCategoryEndpoint && !isCaptureInfo && !isCaptureCreate && !isCaptureImage && !isCaptureLinkCreate) return false;
   if ((isLogin || isRegister) && !rateLimit(req, "auth", 20, 15 * 60 * 1000)) {
     sendJson(res, 429, { detail: "Too many authentication attempts. Try again later." }, { "Retry-After": "900" });
     return true;
@@ -357,7 +367,7 @@ async function proxyApi(req, res, pathname) {
     return true;
   }
   const authorization = token ? `Bearer ${token}` : clientAuthorization;
-  if ((isMe || isPasswordChange || isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourWrite || isLocationWrite || isLocationImagesWrite || isCaptureLinkCreate) && !authorization) {
+  if ((isMe || isPasswordChange || isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourWrite || isLocationWrite || isLocationImageWrite || isCategoryWrite || isCaptureLinkCreate) && !authorization) {
     sendJson(res, 401, { detail: "Not authenticated" });
     return true;
   }
@@ -525,7 +535,7 @@ async function proxyApi(req, res, pathname) {
     : isRegister ? "/auth/register"
     : isMe ? "/auth/me"
       : isPasswordChange ? "/auth/change-password"
-        : (isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourEndpoint || isPublicLocationRead || isLocationWrite || isLocationImages) ? pathname.replace(/^\/api/, "")
+        : (isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourEndpoint || isPublicLocationRead || isLocationWrite || isLocationImageEndpoint || isCategoryEndpoint) ? pathname.replace(/^\/api/, "")
           : "/health";
   const upstreamHeaders = { Accept: req.headers.accept || "*/*" };
   if (payload) upstreamHeaders["Content-Type"] = Buffer.isBuffer(payload) ? req.headers["content-type"] : "application/json";
