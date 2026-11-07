@@ -1,0 +1,13 @@
+.git
+.github
+.agents
+.impeccable
+.playwright-mcp
+node_modules
+.env
+*.log
+Dockerfile
+compose.yaml
+README.md
+DESIGN.md
+PRODUCT.md

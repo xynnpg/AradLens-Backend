@@ -1,0 +1,11 @@
+services:
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT:-4173}:4173"
+    environment:
+      ARADLENS_API_ORIGIN: "${ARADLENS_API_ORIGIN:-http://api.aradlens.binarysquad.club}"
+      PORT: "4173"
+    restart: unless-stopped
