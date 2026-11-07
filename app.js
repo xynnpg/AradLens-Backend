@@ -358,6 +358,7 @@ function setAuthenticated(isAuthenticated, admin = null) {
     document.getElementById("live-grid")?.replaceChildren();
     document.getElementById("tours-list")?.replaceChildren();
     cachedLocations = [];
+    locationsLoaded = false;
     cachedTours = [];
     cachedCategories = [];
     ["stat-admins-total", "stat-admins-active", "stat-admins-inactive", "stat-admins-super"].forEach((id) => {
@@ -671,6 +672,7 @@ let pickerMap = null;
 let pickerMarker = null;
 let pickerPlacesLayer = null;
 let cachedLocations = [];
+let locationsLoaded = false;
 let cachedTours = [];
 
 /* The API ships placeholder rows (latitude -90, longitude -180). They are not
@@ -1146,6 +1148,7 @@ async function loadLocations() {
     if (requestId !== locationsRequestId) return;
     if (!Array.isArray(locations)) throw new Error("The API returned an invalid location list.");
     cachedLocations = locations;
+    locationsLoaded = true;
     for (const location of locations) {
       seedLocationImages(location.id, location.images);
       grid.append(renderLocationCard(location));
@@ -1154,6 +1157,10 @@ async function loadLocations() {
     const navCount = document.querySelector('.nav-item[data-page="points"] .nav-count');
     if (navCount) navCount.textContent = String(locations.length);
     message.textContent = locations.length ? `${locations.length} location(s)` : "No locations found.";
+    /* The Attention page reads the same list, so it has to be redrawn when
+       the locations arrive. Without this, opening Attention before the
+       Important points page leaves it empty. */
+    if (currentPage === "attention") renderAttention();
   } catch (error) {
     message.textContent = `${error.message} Click Refresh to try again.`;
   }
@@ -2398,7 +2405,7 @@ function renderAttention() {
   if (!places.length) {
     const loading = document.createElement("p");
     loading.className = "attention-empty";
-    loading.textContent = "Loading the guide…";
+    loading.textContent = locationsLoaded ? "There are no points yet." : "Loading the guide…";
     groups.append(loading);
     return;
   }
