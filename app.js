@@ -63,6 +63,8 @@ const uiTranslations = {
   "Confirm new password": "Confirmă parola nouă",
   "Reset password": "Resetează parola",
   "Back to sign in": "Înapoi la autentificare",
+  "Recover your account": "Recuperează-ți contul",
+  "Reset your password": "Resetează-ți parola",
   "If that email exists, a reset link is on its way.": "Dacă emailul există, linkul de resetare este pe drum.",
   "We couldn't send the reset link. Try again.": "Nu am putut trimite linkul de resetare. Încearcă din nou.",
   "The two passwords do not match.": "Cele două parole nu coincid.",
@@ -1265,6 +1267,7 @@ function showAuthView(view) {
   ];
   views.forEach(([name, form]) => form?.classList.toggle("is-hidden", name !== view));
   const isRecovery = view === "forgot" || view === "reset";
+  loginView.querySelector(".login-panel")?.classList.toggle("is-recovery", isRecovery);
   document.querySelector(".auth-tabs")?.classList.toggle("is-hidden", isRecovery);
   document.getElementById("login-hint-row")?.classList.toggle("is-hidden", isRecovery);
   document.getElementById("auth-back-button")?.classList.toggle("is-hidden", !isRecovery);
@@ -2114,7 +2117,10 @@ filterRows("activity-search", "#page-activity .activity-row", [".activity-change
 
 if (passwordResetToken) {
   try { sessionStorage.removeItem("aradlens-admin-auth"); } catch {}
-  setAuthenticated(false);
+  document.documentElement.classList.remove("is-restoring");
+  loginView.classList.remove("is-hidden");
+  appView.classList.add("is-hidden");
+  errorView?.classList.add("is-hidden");
   showAuthView("reset");
 } else if (!errorVariantFromHash() && sessionStorage.getItem("aradlens-admin-auth") === "true") {
   /* One request, not two in a chain. The accounts list is a background
