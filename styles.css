@@ -6432,17 +6432,6 @@ html.is-restoring #app-view {
 .error-footer .legal-links a {
   padding-block:3px;
 }
-.debug-state-actions {
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:18px;
-}
-.debug-state-actions .button {
-  height:38px;
-  padding:0 14px;
-  font-size:12px;
-}
 @media(max-width:980px) {
   .error-view {
     display:block;
@@ -6535,9 +6524,6 @@ html.is-restoring #app-view {
   }
   .error-map-caption {
     display:none;
-  }
-  .debug-state-actions .button {
-    width:100%;
   }
 }
 @media(max-width:360px) {

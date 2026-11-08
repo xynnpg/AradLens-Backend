@@ -501,9 +501,6 @@ const uiTranslations = {
   "If this keeps happening, send the reference to your workspace operator.": "Dacă problema persistă, trimite referința operatorului spațiului de lucru.",
   "Preview": "Previzualizare",
   "This is a demonstration error, not a live incident.": "Aceasta este o eroare demonstrativă, nu un incident real.",
-  "Recovery screens": "Ecrane de recuperare",
-  "Preview the error states an administrator may see. These are simulations and do not affect live data.": "Previzualizează stările de eroare pe care le poate vedea un administrator. Acestea sunt simulări și nu afectează datele reale.",
-
   /* Global search */
   "Search AradLens": "Caută în AradLens",
   "Search (Ctrl+K)": "Caută (Ctrl+K)",
@@ -1026,14 +1023,6 @@ function handleHashRoute() {
 document.getElementById("error-primary")?.addEventListener("click", attemptErrorRecovery);
 document.getElementById("error-secondary")?.addEventListener("click", () => { leaveErrorScreen(); });
 document.getElementById("error-copy-reference")?.addEventListener("click", copyErrorReference);
-document.querySelectorAll("[data-error-preview]").forEach((button) => {
-  button.addEventListener("click", () => showErrorScreen({
-    variant: button.dataset.errorPreview,
-    demo: true,
-    updateUrl: true,
-    returnHash: window.location.hash || "#overview",
-  }));
-});
 
 function setAuthenticated(isAuthenticated, admin = null) {
   authenticatedAdmin = isAuthenticated ? admin : null;
@@ -1080,12 +1069,17 @@ function setAuthenticated(isAuthenticated, admin = null) {
     loadCategories().catch(() => {});
   }
   if (isErrorViewOpen()) renderErrorCopy();
-  if (!isErrorViewOpen()) showPage(currentPage, false, true);
+  if (!isErrorViewOpen()) {
+    const hashPage = window.location.hash.slice(1);
+    if (pageNames[hashPage]) showPage(hashPage, false, true);
+    else showPage(currentPage, false, true);
+  }
 }
 
 function showPage(page, updateUrl = true, force = false) {
   const previousPage = currentPage;
-  currentPage = pageNames[page] && (page !== "admins" || String(authenticatedAdmin?.role || "").toLowerCase() === "superadmin") ? page : "overview";
+  const superadminOnlyPage = page === "admins" || page === "debug";
+  currentPage = pageNames[page] && (!superadminOnlyPage || isSuperadminAccount()) ? page : "overview";
   page = currentPage;
   document.querySelectorAll(".page").forEach((section) => section.classList.remove("active-page"));
   const nextPage = document.getElementById(`page-${page}`);
@@ -4655,7 +4649,7 @@ function buildGlobalSearchEntries() {
     ["settings", "Account, security and appearance.", "profile password theme language preferences settings"],
   ];
   for (const [page, subtitleKey, keywords] of pages) {
-    if (page === "admins" && !isSuperadminAccount()) continue;
+    if ((page === "admins" || page === "debug") && !isSuperadminAccount()) continue;
     const title = t(pageNames[page]);
     const subtitle = t(subtitleKey);
     entries.push({
@@ -4692,21 +4686,23 @@ function buildGlobalSearchEntries() {
     });
   }
 
-  const recovery = [
-    { variant: "404", titleKey: "Preview page-not-found error", keywords: "404 error not found missing page recovery" },
-    { variant: "500", titleKey: "Preview server-error screen", keywords: "500 error server crash recovery" },
-    { variant: "offline", titleKey: "Preview offline error", keywords: "offline network connection error recovery" },
-  ];
-  for (const item of recovery) {
-    const title = t(item.titleKey);
-    entries.push({
-      group: "Recovery",
-      title,
-      subtitle: t("Review the recovery surface."),
-      keywords: `${item.keywords} ${title}`,
-      icon: "recovery",
-      run: () => showErrorScreen({ variant: item.variant, demo: true, updateUrl: true }),
-    });
+  if (isSuperadminAccount()) {
+    const recovery = [
+      { variant: "404", titleKey: "Preview page-not-found error", keywords: "404 error not found missing page recovery" },
+      { variant: "500", titleKey: "Preview server-error screen", keywords: "500 error server crash recovery" },
+      { variant: "offline", titleKey: "Preview offline error", keywords: "offline network connection error recovery" },
+    ];
+    for (const item of recovery) {
+      const title = t(item.titleKey);
+      entries.push({
+        group: "Recovery",
+        title,
+        subtitle: t("Review the recovery surface."),
+        keywords: `${item.keywords} ${title}`,
+        icon: "recovery",
+        run: () => showErrorScreen({ variant: item.variant, demo: true, updateUrl: true }),
+      });
+    }
   }
 
   for (const location of cachedLocations) {

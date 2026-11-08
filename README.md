@@ -15,7 +15,7 @@ AradLens API and keeps the session token out of the browser.
 - Record a location on a phone without signing in: generate a 24-hour capture link.
 - Issue invite codes, update administrator roles and active status, and edit your own account.
 - Review the operations queue, location map picker, and API health.
-- Search the whole workspace from a Spotlight-style panel: pages, places, tours, administrators, categories, actions and recovery previews. Open it with `/`, `Ctrl+K` or the topbar search control.
+- Search the whole workspace from a Spotlight-style panel: pages, places, tours, administrators, categories and actions. Open it with `/`, `Ctrl+K` or the topbar search control.
 - Switch day/night theme and English/Romanian language; the legal pages follow the same saved theme.
 
 ## Development
@@ -34,9 +34,10 @@ The recovery surface can be reviewed without breaking the API:
 - `/#error/404` — page not found
 - `/#error/500` — server error
 
-The Debug page also carries a **Recovery screens** panel with the same
-previews. Unknown hashes show the real 404, and a failed session restore
-shows the offline or server-error surface with a working retry.
+The recovery routes can be opened directly. Unknown hashes show the real 404,
+and a failed session restore shows the offline or server-error surface with a
+working retry. The Debug page is restricted to superadmins and holds the health
+check.
 
 Every installed skill is also a slash command — `/code-review`, `/tdd`,
 `/wizard` — so it can be reached without remembering the skill's id. See
