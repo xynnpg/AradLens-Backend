@@ -247,6 +247,7 @@
         </form>
         <p class="login-hint" id="login-hint-row"><span data-i18n="loginHint">Use your AradLens administrator account.</span> <a href="#" id="forgot-password-link" data-i18n="forgotPassword">Forgot password?</a></p>
         <form id="forgot-password-form" class="is-hidden" aria-describedby="forgot-password-message">
+          <h2 class="auth-recovery-title" data-i18n="Recover your account">Recover your account</h2>
           <p class="login-hint" data-i18n="Enter the email address of your administrator account and we'll send you a reset link.">Enter the email address of your administrator account and we'll send you a reset link.</p>
           <label for="forgot-email" data-i18n="Email">Email</label>
           <input id="forgot-email" name="email" type="email" maxlength="255" required autocomplete="email" placeholder="you@example.com" />
@@ -254,6 +255,7 @@
           <button class="button button-primary button-wide" type="submit" data-i18n="Send reset link">Send reset link</button>
         </form>
         <form id="reset-password-form" class="is-hidden" aria-describedby="reset-password-message">
+          <h2 class="auth-recovery-title" data-i18n="Reset your password">Reset your password</h2>
           <p class="login-hint" data-i18n="Choose a new password for your administrator account.">Choose a new password for your administrator account.</p>
           <label for="reset-password" data-i18n="New password">New password</label>
           <input id="reset-password" name="password" type="password" minlength="8" required autocomplete="new-password" placeholder="••••••••" />
