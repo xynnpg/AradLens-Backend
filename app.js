@@ -3,6 +3,11 @@ const appView = document.getElementById("app-view");
 const errorView = document.getElementById("error-view");
 const loginForm = document.getElementById("login-form");
 const loginError = document.getElementById("login-error");
+const forgotPasswordForm = document.getElementById("forgot-password-form");
+const resetPasswordForm = document.getElementById("reset-password-form");
+const passwordResetToken = /\/reset-password\/?$/.test(window.location.pathname)
+  ? new URLSearchParams(window.location.search).get("token") || ""
+  : "";
 let authenticatedAdmin = null;
 let globalSearchOpen = false;
 let globalSearchQuery = "";
@@ -50,6 +55,20 @@ const uiTranslations = {
   "Curate the places people love, spot what needs attention, and keep the city guide trustworthy.": "Îngrijește locurile apreciate, identifică ce necesită atenție și menține ghidul orașului de încredere.",
   "Language": "Limbă",
   "Password recovery will be available when account recovery is connected.": "Resetarea parolei va fi disponibilă după conectarea serviciului de recuperare a contului.",
+  "Enter the email address of your administrator account and we'll send you a reset link.": "Introdu adresa de email a contului de administrator și îți trimitem un link de resetare.",
+  "Email": "Email",
+  "Send reset link": "Trimite linkul de resetare",
+  "Choose a new password for your administrator account.": "Alege o parolă nouă pentru contul de administrator.",
+  "New password": "Parolă nouă",
+  "Confirm new password": "Confirmă parola nouă",
+  "Reset password": "Resetează parola",
+  "Back to sign in": "Înapoi la autentificare",
+  "If that email exists, a reset link is on its way.": "Dacă emailul există, linkul de resetare este pe drum.",
+  "We couldn't send the reset link. Try again.": "Nu am putut trimite linkul de resetare. Încearcă din nou.",
+  "The two passwords do not match.": "Cele două parole nu coincid.",
+  "This reset link is invalid or has expired.": "Linkul de resetare este invalid sau a expirat.",
+  "Your password has been reset. You can sign in now.": "Parola a fost resetată. Te poți autentifica acum.",
+  "We couldn't reset your password. Try again.": "Nu am putut reseta parola. Încearcă din nou.",
   "Close navigation": "Închide meniul de navigare",
   "Workspace switching will be available when multiple guides are connected.": "Schimbarea spațiului de lucru va fi disponibilă după conectarea mai multor ghiduri.",
   "Arad city guide": "Ghidul orașului Arad",
@@ -665,7 +684,7 @@ async function apiRequest(path, options = {}) {
     throw error;
   }
   const body = await response.json().catch(() => ({}));
-  if (response.status === 401 && path !== "/api/auth/login") {
+  if (response.status === 401 && !["/api/auth/login", "/api/auth/forgot-password", "/api/auth/reset-password"].includes(path)) {
     const message = t("Your session has expired. Sign in again to continue.");
     if (loginError) loginError.textContent = message;
     setAuthenticated(false);
@@ -1212,15 +1231,38 @@ document.getElementById("toggle-login-password").addEventListener("click", (even
 });
 
 const registerForm = document.getElementById("register-form");
-function showAuthTab(tab) {
-  const isRegister = tab === "register";
-  loginForm.classList.toggle("is-hidden", isRegister);
-  registerForm?.classList.toggle("is-hidden", !isRegister);
-  document.getElementById("auth-tab-login")?.setAttribute("aria-selected", String(!isRegister));
-  document.getElementById("auth-tab-register")?.setAttribute("aria-selected", String(isRegister));
+
+function showAuthView(view) {
+  const views = [
+    ["login", loginForm],
+    ["register", registerForm],
+    ["forgot", forgotPasswordForm],
+    ["reset", resetPasswordForm],
+  ];
+  views.forEach(([name, form]) => form?.classList.toggle("is-hidden", name !== view));
+  const isRecovery = view === "forgot" || view === "reset";
+  document.querySelector(".auth-tabs")?.classList.toggle("is-hidden", isRecovery);
+  document.getElementById("login-hint-row")?.classList.toggle("is-hidden", isRecovery);
+  document.getElementById("auth-back-button")?.classList.toggle("is-hidden", !isRecovery);
+  document.getElementById("auth-tab-login")?.setAttribute("aria-selected", String(view === "login"));
+  document.getElementById("auth-tab-register")?.setAttribute("aria-selected", String(view === "register"));
+  if (view === "forgot") document.getElementById("forgot-email")?.focus();
+  if (view === "reset") document.getElementById("reset-password")?.focus();
 }
+
+function showAuthTab(tab) {
+  showAuthView(tab);
+}
+
 document.getElementById("auth-tab-login")?.addEventListener("click", () => showAuthTab("login"));
 document.getElementById("auth-tab-register")?.addEventListener("click", () => showAuthTab("register"));
+document.getElementById("forgot-password-link")?.addEventListener("click", (event) => {
+  event.preventDefault();
+  const message = document.getElementById("forgot-password-message");
+  if (message) message.textContent = "";
+  showAuthView("forgot");
+});
+document.getElementById("auth-back-button")?.addEventListener("click", () => showAuthView("login"));
 
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -1244,6 +1286,82 @@ loginForm.addEventListener("submit", async (event) => {
     submitButton.disabled = false;
     submitButton.classList.remove("is-loading");
     submitButton.firstChild.textContent = t("Sign in");
+  }
+});
+
+function setFormMessage(element, key, kind = "error") {
+  if (!element) return;
+  setMessage(element, key);
+  if (kind === "success") element.dataset.kind = "success";
+  else delete element.dataset.kind;
+}
+
+forgotPasswordForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const message = document.getElementById("forgot-password-message");
+  setFormMessage(message, "", "error");
+  const email = String(new FormData(forgotPasswordForm).get("email") || "").trim();
+  const submitButton = forgotPasswordForm.querySelector("button[type=submit]");
+  submitButton.disabled = true;
+  try {
+    const result = await apiRequest("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    setFormMessage(message, "If that email exists, a reset link is on its way.", "success");
+    if (result?.reset_link) {
+      window.location.href = result.reset_link;
+      return;
+    }
+    forgotPasswordForm.reset();
+  } catch (error) {
+    setFormMessage(message, error.message || "We couldn't send the reset link. Try again.", "error");
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+resetPasswordForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const message = document.getElementById("reset-password-message");
+  setFormMessage(message, "", "error");
+  const form = new FormData(resetPasswordForm);
+  const password = String(form.get("password") || "");
+  const confirm = String(form.get("confirm") || "");
+  if (password !== confirm) {
+    setFormMessage(message, "The two passwords do not match.", "error");
+    return;
+  }
+  if (!passwordResetToken) {
+    setFormMessage(message, "This reset link is invalid or has expired.", "error");
+    return;
+  }
+  const submitButton = resetPasswordForm.querySelector("button[type=submit]");
+  submitButton.disabled = true;
+  try {
+    await apiRequest("/api/auth/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: passwordResetToken, new_password: password }),
+    });
+    resetPasswordForm.reset();
+    window.history.replaceState({}, "", "/");
+    setFormMessage(message, "Your password has been reset. You can sign in now.", "success");
+    window.setTimeout(() => {
+      showAuthView("login");
+      showToast(t("Your password has been reset. You can sign in now."), "success");
+    }, 1400);
+  } catch (error) {
+    setFormMessage(
+      message,
+      error.status === 400
+        ? "This reset link is invalid or has expired."
+        : (error.message || "We couldn't reset your password. Try again."),
+      "error",
+    );
+  } finally {
+    submitButton.disabled = false;
   }
 });
 
@@ -1970,7 +2088,11 @@ document.getElementById("points-search")?.addEventListener("input", filterLiveCa
 filterRows("users-search", "#users-admins-list .user-row", [".user-cell", ".user-email", ".status-tag"]);
 filterRows("activity-search", "#page-activity .activity-row", [".activity-change", ".user-cell"]);
 
-if (!errorVariantFromHash() && sessionStorage.getItem("aradlens-admin-auth") === "true") {
+if (passwordResetToken) {
+  try { sessionStorage.removeItem("aradlens-admin-auth"); } catch {}
+  setAuthenticated(false);
+  showAuthView("reset");
+} else if (!errorVariantFromHash() && sessionStorage.getItem("aradlens-admin-auth") === "true") {
   /* One request, not two in a chain. The accounts list is a background
      refresh that setAuthenticated starts anyway, so the only thing worth
      waiting for is the answer to "who am I". When that answer cannot

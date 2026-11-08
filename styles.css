@@ -498,6 +498,9 @@ button:focus-visible,input:focus-visible {
   font-size:12px;
   margin:2px 0 0;
 }
+.form-error[data-kind="success"] {
+  color:var(--ok-text);
+}
 .login-hint {
   font-size:11px;
   color:var(--muted);

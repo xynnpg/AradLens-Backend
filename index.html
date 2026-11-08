@@ -226,7 +226,24 @@
           <p id="register-form-message" class="form-error" role="alert"></p>
           <button class="button button-primary button-wide" type="submit">Create account</button>
         </form>
-        <p class="login-hint"><span data-i18n="loginHint">Use your AradLens administrator account.</span> <a href="#" data-toast="Password recovery will be available when account recovery is connected." data-i18n="forgotPassword">Forgot password?</a></p>
+        <p class="login-hint" id="login-hint-row"><span data-i18n="loginHint">Use your AradLens administrator account.</span> <a href="#" id="forgot-password-link" data-i18n="forgotPassword">Forgot password?</a></p>
+        <form id="forgot-password-form" class="is-hidden" aria-describedby="forgot-password-message">
+          <p class="login-hint" data-i18n="Enter the email address of your administrator account and we'll send you a reset link.">Enter the email address of your administrator account and we'll send you a reset link.</p>
+          <label for="forgot-email" data-i18n="Email">Email</label>
+          <input id="forgot-email" name="email" type="email" maxlength="255" required autocomplete="email" placeholder="you@example.com" />
+          <p id="forgot-password-message" class="form-error" role="alert"></p>
+          <button class="button button-primary button-wide" type="submit" data-i18n="Send reset link">Send reset link</button>
+        </form>
+        <form id="reset-password-form" class="is-hidden" aria-describedby="reset-password-message">
+          <p class="login-hint" data-i18n="Choose a new password for your administrator account.">Choose a new password for your administrator account.</p>
+          <label for="reset-password" data-i18n="New password">New password</label>
+          <input id="reset-password" name="password" type="password" minlength="8" required autocomplete="new-password" placeholder="••••••••" />
+          <label for="reset-password-confirm" data-i18n="Confirm new password">Confirm new password</label>
+          <input id="reset-password-confirm" name="confirm" type="password" minlength="8" required autocomplete="new-password" placeholder="••••••••" />
+          <p id="reset-password-message" class="form-error" role="alert"></p>
+          <button class="button button-primary button-wide" type="submit" data-i18n="Reset password">Reset password</button>
+        </form>
+        <button id="auth-back-button" class="button button-soft button-wide is-hidden" type="button" data-i18n="Back to sign in">Back to sign in</button>
         <p class="legal-links"><a href="/terms.html">Terms of Use</a><span aria-hidden="true">·</span><a href="/privacy.html">Privacy Notice</a><span aria-hidden="true">·</span><a href="/cookies.html">Cookies</a><span aria-hidden="true">·</span><a href="/content-policy.html">Content Policy</a><span aria-hidden="true">·</span><a href="/accessibility.html">Accessibility</a></p>
       </div>
     </div>
