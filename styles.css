@@ -933,7 +933,7 @@ button:focus-visible,input:focus-visible {
   border-radius:var(--r-pill);
   display:grid;
   place-items:center;
-  background:conic-gradient(var(--accent) 0 98.6%,var(--surface-2) 98.6%);
+  background:conic-gradient(var(--health-color,var(--accent)) 0 var(--health-score,0%),var(--surface-2) var(--health-score,0%));
   position:relative;
 }
 .health-ring:after {
@@ -2253,7 +2253,7 @@ html[data-theme="night"] .horizon {
 }
 .health-ring {
   border-radius:var(--r-pill);
-  background:conic-gradient(var(--accent) 0 98.6%,var(--surface-2) 98.6%);
+  background:conic-gradient(var(--health-color,var(--accent)) 0 var(--health-score,0%),var(--surface-2) var(--health-score,0%));
 }
 .health-ring:after {
   border-radius:var(--r-pill);

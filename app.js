@@ -133,11 +133,12 @@ const uiTranslations = {
   "Everything your visitors rely on, at a glance.": "Tot ce contează pentru vizitatori, dintr-o privire.",
   "View debug ↗": "Vezi diagnosticarea ↗",
   "Looking good": "Totul este în regulă",
-  "Last checked 4 min ago": "Ultima verificare: acum 4 minute",
+  "Checked at {time}": "Verificat la {time}",
   "Response time": "Timp de răspuns",
-  "App crashes": "Blocări ale aplicației",
-  "0 today": "0 astăzi",
-  "Slow screens": "Ecrane cu încărcare lentă",
+  "Missing photos": "Fotografii lipsă",
+  "Missing descriptions": "Descrieri lipsă",
+  "No points yet": "Încă nu există puncte",
+  "Unreachable": "Indisponibil",
   "Guide health over the past seven days": "Starea ghidului în ultimele șapte zile",
   "08 May": "08 mai", "09 May": "09 mai", "10 May": "10 mai", "11 May": "11 mai", "12 May": "12 mai", "13 May": "13 mai",
   "Today": "Astăzi",
@@ -3285,6 +3286,54 @@ function renderLocationPreviewDots(ids) {
     dots.append(dot);
   });
 }
+let carouselLoadToken = 0;
+function setCarouselImage(img, src) {
+  if (!img) return;
+  const stage = img.closest(".image-carousel-stage");
+  if (!src) {
+    img.dataset.carouselToken = "";
+    img.removeAttribute("src");
+    stage?.classList.remove("is-loading", "is-ready", "is-error");
+    return;
+  }
+  if (img.getAttribute("src") === src) {
+    if (img.complete) {
+      stage?.classList.remove("is-loading", "is-error");
+      stage?.classList.add("is-ready");
+    }
+    return;
+  }
+  img.dataset.carouselToken = String(++carouselLoadToken);
+  img.dataset.carouselStarted = String(performance.now());
+  stage?.classList.remove("is-ready", "is-error");
+  stage?.classList.add("is-loading");
+  img.src = src;
+}
+function finishCarouselImage(img) {
+  if (!img) return;
+  const stage = img.closest(".image-carousel-stage");
+  if (!stage) return;
+  const token = img.dataset.carouselToken || "";
+  const started = Number(img.dataset.carouselStarted || 0);
+  const delay = Math.max(0, 240 - (performance.now() - started));
+  window.setTimeout(() => {
+    if ((img.dataset.carouselToken || "") !== token) return;
+    stage.classList.remove("is-loading", "is-error");
+    stage.classList.add("is-ready");
+  }, delay);
+}
+function bindCarouselImage(img) {
+  if (!img) return;
+  img.addEventListener("load", () => finishCarouselImage(img));
+  img.addEventListener("error", () => {
+    const stage = img.closest(".image-carousel-stage");
+    if (!stage) return;
+    stage.classList.remove("is-loading", "is-ready");
+    stage.classList.add("is-error");
+  });
+}
+bindCarouselImage(document.getElementById("location-image-img"));
+bindCarouselImage(document.getElementById("image-gallery-img"));
 function updateImagePreview() {
   const ids = locationImageIds(currentLocationId());
   const box = document.getElementById("location-image-preview");
@@ -3299,7 +3348,7 @@ function updateImagePreview() {
   if (count) count.textContent = total ? t("{n} photo(s)", { n: total }) : t("No photos yet.");
   if (!box || !img) return;
   if (pending) {
-    img.src = pendingPhotoPreviewUrl;
+    setCarouselImage(img, pendingPhotoPreviewUrl);
     box.hidden = false;
     if (addButton) addButton.textContent = t("Manage photos");
     if (prev) prev.hidden = true;
@@ -3309,7 +3358,7 @@ function updateImagePreview() {
     return;
   }
   if (!ids.length) {
-    img.removeAttribute("src");
+    setCarouselImage(img, "");
     box.hidden = true;
     if (addButton) addButton.textContent = t("Add photo");
     if (prev) prev.hidden = true;
@@ -3319,7 +3368,7 @@ function updateImagePreview() {
     return;
   }
   if (locationPreviewIndex >= ids.length) locationPreviewIndex = 0;
-  img.src = imageFileUrl(ids[locationPreviewIndex]);
+  setCarouselImage(img, imageFileUrl(ids[locationPreviewIndex]));
   box.hidden = false;
   if (addButton) addButton.textContent = t("Manage photos");
   const multiple = ids.length > 1;
@@ -3379,6 +3428,7 @@ function refreshImageGallery() {
       select.setAttribute("aria-pressed", String(index === galleryIndex));
       select.setAttribute("aria-label", t("Show photo {n}", { n: index + 1 }));
       const img = document.createElement("img");
+      img.addEventListener("load", () => img.classList.add("is-loaded"));
       img.src = imageFileUrl(imageId);
       img.alt = "";
       img.loading = "lazy";
@@ -3401,10 +3451,10 @@ function refreshImageGallery() {
     preview.onload = () => { if (errorMessage) errorMessage.textContent = ""; };
     preview.onerror = () => { if (preview.src && errorMessage) errorMessage.textContent = t("An image failed to load. Try again in a moment."); };
     if (ids.length) {
-      preview.src = imageFileUrl(ids[galleryIndex]);
+      setCarouselImage(preview, imageFileUrl(ids[galleryIndex]));
       box.hidden = false;
     } else {
-      preview.removeAttribute("src");
+      setCarouselImage(preview, "");
       box.hidden = true;
     }
   }
@@ -4823,11 +4873,52 @@ function renderOverviewLatest(places) {
   }
 }
 
+function renderHealthPanel(places, healthState, latency) {
+  const total = places.length;
+  const attention = places.filter((place) => locationProblems(place).length).length;
+  const missingPhotos = places.filter((place) => !hasPhoto(place)).length;
+  const missingDescriptions = places.filter((place) => !String(place.description || "").trim()).length;
+  const complete = total - attention;
+  const score = total ? (complete / total) * 100 : 0;
+  const scoreText = Number.isInteger(score) ? String(score) : score.toFixed(1);
+  const healthy = healthState === "ok";
+  const ring = document.getElementById("health-ring");
+  const scoreValue = document.getElementById("health-score-value");
+  const statusLabel = document.getElementById("health-status-label");
+  const checkedAt = document.getElementById("health-checked-at");
+  const apiValue = document.getElementById("health-api-value");
+  const missingPhotosValue = document.getElementById("health-missing-photos");
+  const missingDescriptionsValue = document.getElementById("health-missing-descriptions");
+  const signalApi = document.getElementById("health-signal-api");
+  const signalPhotos = document.getElementById("health-signal-photos");
+  const signalDescriptions = document.getElementById("health-signal-descriptions");
+  if (scoreValue) scoreValue.innerHTML = `${scoreText}<small>%</small>`;
+  if (ring) {
+    ring.style.setProperty("--health-score", `${score}%`);
+    ring.style.setProperty("--health-color", healthy && score >= 80 ? "var(--accent)" : "var(--warn-text)");
+  }
+  if (statusLabel) {
+    const statusKey = !healthy ? "Offline" : total === 0 ? "No points yet" : attention ? "Needs attention" : "Looking good";
+    statusLabel.textContent = t(statusKey);
+  }
+  if (checkedAt) {
+    const time = new Date().toLocaleTimeString(currentLanguage === "ro" ? "ro-RO" : "en-GB", { hour: "2-digit", minute: "2-digit" });
+    checkedAt.textContent = t("Checked at {time}", { time });
+  }
+  if (apiValue) apiValue.textContent = healthy && latency != null ? `${latency}ms` : t("Unreachable");
+  if (missingPhotosValue) missingPhotosValue.textContent = String(missingPhotos);
+  if (missingDescriptionsValue) missingDescriptionsValue.textContent = String(missingDescriptions);
+  if (signalApi) signalApi.className = `signal ${healthy ? "green" : "orange"}`;
+  if (signalPhotos) signalPhotos.className = `signal ${missingPhotos ? "orange" : "green"}`;
+  if (signalDescriptions) signalDescriptions.className = `signal ${missingDescriptions ? "orange" : "green"}`;
+}
+
 let overviewRequestId = 0;
 async function loadOverview() {
   if (!authenticatedAdmin) return;
   const requestId = ++overviewRequestId;
   await loadLocations().catch(() => {});
+  if (!locationsLoaded) await loadLocations().catch(() => {});
   await loadAdmins().catch(() => {});
   if (requestId !== overviewRequestId) return;
   const places = cachedLocations;
@@ -4835,14 +4926,17 @@ async function loadOverview() {
   setOverviewStat("stat-admins-overview", cachedAdmins.length);
   setOverviewStat("stat-attention-overview", places.filter((place) => locationProblems(place).length).length);
   const started = performance.now();
+  let healthState = "unreachable";
+  let latency = null;
   try {
     const health = await apiRequest("/api/health");
     if (requestId !== overviewRequestId) return;
-    setOverviewStat("health-api-value", health && health.status === "ok" ? `${Math.round(performance.now() - started)}ms` : "unexpected");
+    latency = Math.round(performance.now() - started);
+    healthState = health && health.status === "ok" ? "ok" : "degraded";
   } catch {
     if (requestId !== overviewRequestId) return;
-    setOverviewStat("health-api-value", "unreachable");
   }
+  renderHealthPanel(places, healthState, latency);
   renderOverviewQueue(places);
   renderOverviewLatest(places);
 }

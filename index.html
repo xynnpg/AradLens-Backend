@@ -56,7 +56,24 @@
       .image-preview img { display: block; width: 100%; height: auto; max-height: 220px; object-fit: cover; }
       .image-preview.image-carousel { max-height: none; overflow: visible; border: 0; background: transparent; }
       .image-carousel-stage { position: relative; overflow: hidden; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface-2); aspect-ratio: 16 / 9; }
-      .image-preview.image-carousel .image-carousel-stage img { display: block; width: 100%; height: 100%; max-height: none; object-fit: cover; }
+      .image-preview.image-carousel .image-carousel-stage img { display: block; width: 100%; height: 100%; max-height: none; object-fit: cover; opacity: 0; transform: scale(1.015); transition: opacity .28s ease-out, transform .45s ease-out; }
+      .image-preview.image-carousel .image-carousel-stage.is-loading img { opacity: 0; transition: none; transform: scale(1.015); }
+      .image-preview.image-carousel .image-carousel-stage.is-ready img { opacity: 1; transform: scale(1); }
+      .image-preview.image-carousel .image-carousel-stage.is-error img { opacity: 1; transform: none; }
+      .image-carousel-stage.is-loading::before { content: ""; position: absolute; inset: 0; z-index: 2; background: linear-gradient(100deg, var(--surface-2) 30%, var(--surface) 50%, var(--surface-2) 70%); background-size: 200% 100%; animation: image-shimmer 1.2s linear infinite; }
+      .image-carousel-stage.is-loading::after { content: ""; position: absolute; top: 50%; left: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border: 2px solid color-mix(in srgb, var(--ink) 20%, transparent); border-top-color: var(--accent); border-radius: 50%; z-index: 3; animation: image-spin .7s linear infinite; }
+      .image-carousel-stage.is-loading .image-carousel-nav, .image-carousel-stage.is-loading .image-carousel-count { opacity: 0; pointer-events: none; }
+      .image-carousel-stage.is-ready .image-carousel-nav, .image-carousel-stage.is-ready .image-carousel-count { opacity: 1; }
+      .image-carousel-nav, .image-carousel-count { transition: opacity .2s ease-out; }
+      .image-thumb img { opacity: 0; transition: opacity .2s ease-out; }
+      .image-thumb img.is-loaded { opacity: 1; }
+      @keyframes image-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+      @keyframes image-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) {
+        .image-carousel-stage.is-loading::before, .image-carousel-stage.is-loading::after { animation: none; }
+        .image-preview.image-carousel .image-carousel-stage img { transition: none; transform: none; }
+        .image-thumb img { transition: none; }
+      }
       .image-carousel-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; display: grid; place-items: center; padding: 0; border: 1px solid var(--border); border-radius: var(--r-pill); background: color-mix(in srgb, var(--canvas) 88%, transparent); color: var(--ink); font: inherit; font-size: 22px; line-height: 1; cursor: pointer; box-shadow: 0 4px 14px color-mix(in srgb, var(--ink) 18%, transparent); backdrop-filter: blur(6px); }
       .image-carousel-nav:hover { background: var(--canvas); }
       .image-carousel-nav:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
@@ -338,7 +355,7 @@
             <article class="metric-card metric-card-peach"><div class="metric-top"><span>Needs attention</span><span class="metric-icon">!</span></div><strong id="stat-attention-overview">—</strong><div class="metric-foot"><span>Live calculation</span></div></article>
           </section>
           <div class="overview-grid">
-            <section class="panel health-panel">            <div class="panel-heading"><div><h3>Guide health</h3><p>Everything your visitors rely on, at a glance.</p></div><button class="text-button superadmin-only" type="button" data-page-action="debug" hidden>View debug ↗</button></div><div class="health-summary"><div class="health-score"><div class="health-ring"><span>98.6<small>%</small></span></div><div><strong>Looking good</strong><p>Last checked 4 min ago</p></div></div><div class="health-list"><div><span class="health-label"><i class="signal green"></i>Response time</span><strong id="health-api-value">…</strong></div><div><span class="health-label"><i class="signal green"></i>App crashes</span><strong>0 today</strong></div><div><span class="health-label"><i class="signal orange"></i>Slow screens</span><strong>2</strong></div></div></div>
+            <section class="panel health-panel">            <div class="panel-heading"><div><h3>Guide health</h3><p>Everything your visitors rely on, at a glance.</p></div><button class="text-button superadmin-only" type="button" data-page-action="debug" hidden>View debug ↗</button></div><div class="health-summary"><div class="health-score"><div class="health-ring" id="health-ring"><span id="health-score-value">—<small>%</small></span></div><div><strong id="health-status-label">Loading…</strong><p id="health-checked-at">Loading…</p></div></div><div class="health-list"><div><span class="health-label"><i class="signal green" id="health-signal-api"></i>Response time</span><strong id="health-api-value">—</strong></div><div><span class="health-label"><i class="signal green" id="health-signal-photos"></i>Missing photos</span><strong id="health-missing-photos">—</strong></div><div><span class="health-label"><i class="signal green" id="health-signal-descriptions"></i>Missing descriptions</span><strong id="health-missing-descriptions">—</strong></div></div></div>
             </section>
             <section class="panel queue-panel"><div class="panel-heading"><div><h3>Editorial queue <span class="badge" id="overview-queue-count">–</span></h3><p>Small actions that keep the guide fresh.</p></div></div><div class="queue-list" id="overview-queue"><div class="queue-item"><span><strong>Loading editorial queue…</strong><small>Items appear as the guide loads.</small></span></div></div><button class="button button-soft button-wide" type="button" data-page-action="attention">View all <span aria-hidden="true">&#8599;</span></button></section>
           </div>
