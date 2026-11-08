@@ -12,6 +12,7 @@ let globalSearchReturnFocus = null;
 let globalSearchBackground = [];
 let globalSearchDataTask = null;
 let globalSearchPreviousPaddingRight = "";
+let locationPreviewIndex = 0;
 document.addEventListener("click", (event) => {
   const addButton = event.target?.closest?.("#locations-add-button, #overview-add-point");
   if (!addButton) return;
@@ -89,7 +90,7 @@ const uiTranslations = {
   "View debug ↗": "Vezi diagnosticarea ↗",
   "Looking good": "Totul este în regulă",
   "Last checked 4 min ago": "Ultima verificare: acum 4 minute",
-  "API response": "Răspuns API",
+  "Response time": "Timp de răspuns",
   "App crashes": "Blocări ale aplicației",
   "0 today": "0 astăzi",
   "Slow screens": "Ecrane cu încărcare lentă",
@@ -319,10 +320,10 @@ const uiTranslations = {
   "Live count · admins": "Număr live · administratori",
   "Live calculation": "Calcul live",
   "Loading editorial queue…": "Se încarcă coada editorială…",
-  "Live items appear when the API responds.": "Elementele live apar când API-ul răspunde.",
+  "Items appear as the guide loads.": "Elementele apar pe măsură ce ghidul se încarcă.",
   "View all": "Vezi tot",
   "Latest locations": "Ultimele locații",
-  "Recently added places, live from the API.": "Locuri adăugate recent, live din API.",
+  "The newest places in the guide.": "Cele mai noi locuri din ghid.",
   "View points ↗": "Vezi punctele ↗",
   "Place": "Loc",
   "Coordinates": "Coordonate",
@@ -333,12 +334,11 @@ const uiTranslations = {
   "Missing photo": "Fără fotografie",
   "Missing description": "Fără descriere",
   "Complete": "Complet",
-  "Live locations": "Locații live",
-  "Live API data · GET /locations": "Date live din API · GET /locations",
-  "Live API data · /locations": "Date live din API · /locations",
-  "Live API data · /categories": "Date live din API · /categories",
+  "Locations": "Locații",
+  "Places currently in the guide.": "Locurile disponibile acum în ghid.",
+  "Add or update a place in the guide.": "Adaugă sau actualizează un loc în ghid.",
+  "Organize the categories visitors browse.": "Organizează categoriile pe care le răsfoiesc vizitatorii.",
   "Chain important points into a guided route for visitors.": "Lansează punctele importante într-un traseu ghidat pentru vizitatori.",
-  "Chain important points into a guided route · GET /tours": "Lansează punctele importante într-un traseu ghidat · GET /tours",
   "Chain important points in the order visitors should walk them.": "Lansează punctele importante în ordinea în care vizitatorii ar trebui să le parcurgă.",
   "+ Add tour": "+ Adaugă tur",
   "Add tour": "Adaugă tur",
@@ -355,7 +355,7 @@ const uiTranslations = {
   "Delete tour": "Șterge turul",
   "No tours yet.": "Încă nu există tururi.",
   "Add details from the Important points page": "Adaugă detalii din pagina Puncte de interes",
-  "Administrator accounts with live API data.": "Conturi de administrator cu date live din API.",
+  "The people who manage the Arad guide.": "Oamenii care administrează ghidul Arad.",
   "Export CSV ↘": "Exportă CSV ↘",
   "Total admins": "Total administratori",
   "Superadmins": "Superadmini",
@@ -380,6 +380,11 @@ const uiTranslations = {
   "No photos yet. Drop a file below to add one.": "Încă nu există fotografii. Trage un fișier dedesubt pentru a adăuga una.",
   "An image failed to load. Try again in a moment.": "Imaginea nu a putut fi încărcată. Încearcă din nou în câteva momente.",
   "There is no photo to download.": "Nu există nicio fotografie de descărcat.",
+  "Show photo {n}": "Arată fotografia {n}",
+  "Delete photo {n}": "Șterge fotografia {n}",
+  "Previous photo": "Fotografia anterioară",
+  "Next photo": "Fotografia următoare",
+  "Photo {current} of {total}": "Fotografia {current} din {total}",
   "That is not an image file. Drop a PNG, JPG or WebP.": "Nu este un fișier imagine. Trage un PNG, JPG sau WebP.",
   "Save the location first, then upload files.": "Salvează mai întâi locația, apoi încarcă fișierele.",
   "Save the location first.": "Salvează mai întâi locația.",
@@ -2436,6 +2441,7 @@ function resetLocationForm() {
     pendingPhotoPreviewUrl = "";
   }
   setLocationPhotoStatus("");
+  locationPreviewIndex = 0;
   updateImagePreview();
 }
 
@@ -2514,6 +2520,10 @@ function renderLocationCard(location) {
   open.setAttribute("aria-label", t("Edit {name}", { name: location.name }));
   open.addEventListener("click", () => openLocationModal(location.id));
   card.querySelector(".point-meta").append(open);
+  card.addEventListener("click", (event) => {
+    if (event.target.closest("button, a")) return;
+    openLocationModal(location.id);
+  });
   return card;
 }
 
@@ -2880,6 +2890,8 @@ function openLocationModal(id) {
       pendingPhotoPreviewUrl = "";
     }
     setLocationPhotoStatus("");
+    locationPreviewIndex = 0;
+    updateImagePreview();
     document.getElementById("location-modal-title").textContent = t("Add location");
     if (deleteButton) deleteButton.hidden = true;
     clearPickerPoint();
@@ -2894,6 +2906,7 @@ function openLocationModal(id) {
     form.elements.description.value = record.description || "";
     setLocationImages(record.id, record.images);
     renderCategoryOptions(record.category?.id === undefined || record.category?.id === null ? "" : record.category.id);
+    locationPreviewIndex = 0;
     updateImagePreview();
     document.getElementById("location-modal-title").textContent = t("Edit location #{id}", { id: record.id });
     if (deleteButton) deleteButton.hidden = false;
@@ -2963,30 +2976,86 @@ function removeLocationImage(locationId, imageId) {
   const id = Number(imageId);
   locationImages.set(key, (locationImages.get(key) || []).filter((value) => value !== id));
 }
+function locationPreviewIds() {
+  return locationImageIds(currentLocationId());
+}
+function moveLocationPreview(delta) {
+  const ids = locationPreviewIds();
+  if (ids.length < 2) return;
+  locationPreviewIndex = (locationPreviewIndex + delta + ids.length) % ids.length;
+  updateImagePreview();
+}
+function renderLocationPreviewDots(ids) {
+  const dots = document.getElementById("location-image-dots");
+  if (!dots) return;
+  dots.replaceChildren();
+  if (ids.length < 2) {
+    dots.hidden = true;
+    return;
+  }
+  dots.hidden = false;
+  ids.forEach((imageId, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "image-carousel-dot";
+    dot.setAttribute("aria-label", t("Show photo {n}", { n: index + 1 }));
+    dot.setAttribute("aria-current", String(index === locationPreviewIndex));
+    dot.addEventListener("click", () => {
+      locationPreviewIndex = index;
+      updateImagePreview();
+    });
+    dots.append(dot);
+  });
+}
 function updateImagePreview() {
   const ids = locationImageIds(currentLocationId());
   const box = document.getElementById("location-image-preview");
   const img = document.getElementById("location-image-img");
   const addButton = document.getElementById("location-image-button");
   const count = document.getElementById("location-image-count");
-  if (count) count.textContent = ids.length ? t("{n} photo(s)", { n: ids.length }) : t("No photos yet.");
+  const prev = document.getElementById("location-image-prev");
+  const next = document.getElementById("location-image-next");
+  const position = document.getElementById("location-image-position");
+  const pending = Boolean(pendingLocationPhoto && pendingPhotoPreviewUrl);
+  const total = ids.length + (pending ? 1 : 0);
+  if (count) count.textContent = total ? t("{n} photo(s)", { n: total }) : t("No photos yet.");
   if (!box || !img) return;
-  if (pendingLocationPhoto && pendingPhotoPreviewUrl) {
+  if (pending) {
     img.src = pendingPhotoPreviewUrl;
     box.hidden = false;
     if (addButton) addButton.textContent = t("Manage photos");
+    if (prev) prev.hidden = true;
+    if (next) next.hidden = true;
+    if (position) position.hidden = true;
+    renderLocationPreviewDots([]);
     return;
   }
-  if (ids.length) {
-    img.src = imageFileUrl(ids[0]);
-    box.hidden = false;
-    if (addButton) addButton.textContent = t("Manage photos");
-  } else {
+  if (!ids.length) {
     img.removeAttribute("src");
     box.hidden = true;
     if (addButton) addButton.textContent = t("Add photo");
+    if (prev) prev.hidden = true;
+    if (next) next.hidden = true;
+    if (position) position.hidden = true;
+    renderLocationPreviewDots([]);
+    return;
   }
+  if (locationPreviewIndex >= ids.length) locationPreviewIndex = 0;
+  img.src = imageFileUrl(ids[locationPreviewIndex]);
+  box.hidden = false;
+  if (addButton) addButton.textContent = t("Manage photos");
+  const multiple = ids.length > 1;
+  if (prev) prev.hidden = !multiple;
+  if (next) next.hidden = !multiple;
+  if (position) {
+    position.hidden = !multiple;
+    position.textContent = `${locationPreviewIndex + 1} / ${ids.length}`;
+    position.setAttribute("aria-label", t("Photo {current} of {total}", { current: locationPreviewIndex + 1, total: ids.length }));
+  }
+  renderLocationPreviewDots(ids);
 }
+document.getElementById("location-image-prev")?.addEventListener("click", () => moveLocationPreview(-1));
+document.getElementById("location-image-next")?.addEventListener("click", () => moveLocationPreview(1));
 let pendingLocationPhoto = null;
 let pendingPhotoPreviewUrl = "";
 function setLocationPhotoStatus(text, state = "") {
@@ -3002,8 +3071,19 @@ function refreshImageGallery() {
   const preview = document.getElementById("image-gallery-img");
   const box = document.getElementById("image-gallery-preview");
   const errorMessage = document.getElementById("image-modal-error");
+  const prev = document.getElementById("image-gallery-prev");
+  const next = document.getElementById("image-gallery-next");
+  const position = document.getElementById("image-gallery-position");
   const ids = locationImageIds(currentLocationId());
   if (galleryIndex >= ids.length) galleryIndex = 0;
+  const multiple = ids.length > 1;
+  if (prev) prev.hidden = !multiple;
+  if (next) next.hidden = !multiple;
+  if (position) {
+    position.hidden = !ids.length;
+    position.textContent = ids.length ? `${galleryIndex + 1} / ${ids.length}` : "";
+    if (ids.length) position.setAttribute("aria-label", t("Photo {current} of {total}", { current: galleryIndex + 1, total: ids.length }));
+  }
   if (strip) {
     strip.replaceChildren();
     if (!ids.length) {
@@ -3052,6 +3132,14 @@ function refreshImageGallery() {
   }
   updateImagePreview();
 }
+function moveGallery(delta) {
+  const ids = locationImageIds(currentLocationId());
+  if (ids.length < 2) return;
+  galleryIndex = (galleryIndex + delta + ids.length) % ids.length;
+  refreshImageGallery();
+}
+document.getElementById("image-gallery-prev")?.addEventListener("click", () => moveGallery(-1));
+document.getElementById("image-gallery-next")?.addEventListener("click", () => moveGallery(1));
 function openImageModal() {
   const modal = document.getElementById("image-modal");
   if (!modal) return;
@@ -3109,6 +3197,9 @@ async function uploadPendingLocationPhoto(locationId) {
     pendingPhotoPreviewUrl = "";
   }
   setLocationPhotoStatus("");
+  locationPreviewIndex = 0;
+  updateImagePreview();
+  if (!document.getElementById("image-modal")?.classList.contains("is-hidden")) refreshImageGallery();
 }
 document.getElementById("location-record")?.addEventListener("click", (event) => {
   recordPickerLocation(event.currentTarget);
@@ -3150,14 +3241,10 @@ document.getElementById("location-photo")?.addEventListener("change", (event) =>
   if (!file) return;
   pendingLocationPhoto = file;
   setLocationPhotoStatus(t("Photo ready — it uploads when you save."), "ready");
-  const preview = document.getElementById("location-image-preview");
-  const img = document.getElementById("location-image-img");
-  if (preview && img) {
-    if (pendingPhotoPreviewUrl) URL.revokeObjectURL(pendingPhotoPreviewUrl);
-    pendingPhotoPreviewUrl = URL.createObjectURL(file);
-    img.src = pendingPhotoPreviewUrl;
-    preview.hidden = false;
-  }
+  if (pendingPhotoPreviewUrl) URL.revokeObjectURL(pendingPhotoPreviewUrl);
+  pendingPhotoPreviewUrl = URL.createObjectURL(file);
+  locationPreviewIndex = 0;
+  updateImagePreview();
   document.getElementById("location-form-error").textContent = "";
   input.value = "";
 });
@@ -4449,7 +4536,10 @@ function renderOverviewLatest(places) {
     go.type = "button";
     go.textContent = "↗";
     go.setAttribute("aria-label", t("Open {name} in Important points", { name: place.name }));
-    go.addEventListener("click", () => showPage("points"));
+    go.addEventListener("click", () => {
+      showPage("points");
+      openLocationModal(place.id);
+    });
     row.append(name, coords, id, go);
     list.append(row);
   }
