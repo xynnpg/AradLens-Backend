@@ -10,10 +10,13 @@ AradLens API and keeps the session token out of the browser.
 - Browse, search, filter, create, edit, and delete locations, including images.
 - Tag locations with a category, and manage the category list (create, rename, delete).
 - Chain important points into ordered tours, with create, edit, and delete actions.
+- Open a tour as a route map with numbered stops, walking order, distance, a stop list, and a Direct/Streets toggle for road-following walking routes.
+- Place locations on a Romania-only picker with place search, fit-to-country, and device location.
 - Record a location on a phone without signing in: generate a 24-hour capture link.
 - Issue invite codes, update administrator roles and active status, and edit your own account.
 - Review the operations queue, location map picker, and API health.
-- Switch day/night theme and English/Romanian language.
+- Search the whole workspace from a Spotlight-style panel: pages, places, tours, administrators, categories, actions and recovery previews. Open it with `/`, `Ctrl+K` or the topbar search control.
+- Switch day/night theme and English/Romanian language; the legal pages follow the same saved theme.
 
 ## Development
 
@@ -22,6 +25,18 @@ AradLens API and keeps the session token out of the browser.
 | `npm start` | Run the proxy and serve the workspace on port 4173. |
 | `npm run check` | Syntax-check `app.js` and `server.js`. |
 | `npm run skills:commands` | Regenerate `.opencode/commands/` from `.agents/skills/`. |
+
+### Preview error screens
+
+The recovery surface can be reviewed without breaking the API:
+
+- `/#error` — lost connection
+- `/#error/404` — page not found
+- `/#error/500` — server error
+
+The Debug page also carries a **Recovery screens** panel with the same
+previews. Unknown hashes show the real 404, and a failed session restore
+shows the offline or server-error surface with a working retry.
 
 Every installed skill is also a slash command — `/code-review`, `/tdd`,
 `/wizard` — so it can be reached without remembering the skill's id. See

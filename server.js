@@ -9,6 +9,17 @@ const root = __dirname;
 const apiOrigin = process.env.ARADLENS_API_ORIGIN || "https://api.aradlens.binarysquad.club";
 const publicOrigin = (process.env.PUBLIC_ORIGIN || "").replace(/\/+$/, "");
 const devMode = process.env.DEV_MODE === "true";
+/* A complete development administrator. The dev login only mints a local
+   token, so any endpoint that checks the live API needs a local answer too;
+   otherwise a 401 from an unrelated page would sign the developer straight
+   back out. */
+const devAdmin = Object.freeze({
+  id: 1,
+  username: "admin",
+  email: "admin@aradlens.local",
+  role: "Administrator",
+  is_active: true,
+});
 const termsVersion = "1.0";
 const consentLogPath = process.env.CONSENT_LOG_PATH || path.join(root, "data", "consent.log");
 const mime = {
@@ -16,6 +27,7 @@ const mime = {
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".geojson": "application/geo+json; charset=utf-8",
   ".woff2": "font/woff2",
   ".png": "image/png",
   ".svg": "image/svg+xml",
@@ -31,12 +43,13 @@ const PUBLIC_STATIC_FILES = new Map([
   ["/cookies.html", "cookies.html"],
   ["/content-policy.html", "content-policy.html"],
   ["/accessibility.html", "accessibility.html"],
+  ["/legal-theme.js", "legal-theme.js"],
   ["/styles.css", "styles.css"],
   ["/app.js", "app.js"],
   ["/fonts.css", "fonts.css"],
   ["/legal.css", "legal.css"],
 ]);
-const PUBLIC_ASSET_EXTENSIONS = new Set([".css", ".js", ".woff2", ".png", ".svg", ".ico", ".txt"]);
+const PUBLIC_ASSET_EXTENSIONS = new Set([".css", ".js", ".geojson", ".woff2", ".png", ".svg", ".ico", ".txt"]);
 const rootRealPath = (() => {
   try {
     return fs.realpathSync(root);
@@ -74,8 +87,40 @@ function securityHeaders(req) {
   return headers;
 }
 
+function isPrivateAddress(address) {
+  const value = String(address || "").replace(/^::ffff:/i, "");
+  return value === "::1"
+    || value.startsWith("127.")
+    || value.startsWith("10.")
+    || /^192\.168\./.test(value)
+    || /^172\.(1[6-9]|2\d|3[01])\./.test(value)
+    || /^f[cd][0-9a-f]{2}:/i.test(value);
+}
+
+const trustedProxyAddresses = new Set(
+  String(process.env.TRUSTED_PROXIES || "")
+    .split(",")
+    .map((value) => value.trim().replace(/^::ffff:/i, ""))
+    .filter(Boolean)
+);
+
+function isTrustedProxy(address) {
+  const value = String(address || "").replace(/^::ffff:/i, "");
+  if (trustedProxyAddresses.size) return trustedProxyAddresses.has(value);
+  return isPrivateAddress(value);
+}
+
 function clientIp(req) {
-  return String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+  const remote = String(req.socket.remoteAddress || "").replace(/^::ffff:/i, "");
+  const forwardedParts = String(req.headers["x-forwarded-for"] || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  /* The last XFF hop is the address the trusted proxy actually saw. A
+     client cannot rotate its rate-limit key by prepending a fake address. */
+  const forwarded = forwardedParts[forwardedParts.length - 1] || "";
+  if (forwarded && isTrustedProxy(remote)) return forwarded;
+  return remote;
 }
 
 const rateBuckets = new Map();
@@ -307,6 +352,7 @@ function clearAccountCookies(secure = false) {
 }
 
 const geocodeCache = new Map();
+const routeCache = new Map();
 
 async function proxyApi(req, res, pathname) {
   if (!sameOriginRequest(req)) {
@@ -359,6 +405,126 @@ async function proxyApi(req, res, pathname) {
       sendJson(res, 200, payload, { "Cache-Control": "private, max-age=3600" });
     } catch {
       sendJson(res, 502, { detail: "Reverse geocoding is unavailable. Enter the place name manually." });
+    }
+    return true;
+  }
+  if (pathname === "/api/geocode/search" && req.method === "GET") {
+    if (!rateLimit(req, "geocode-search", 10, 60_000)) {
+      sendJson(res, 429, { detail: "Too many place searches. Try again shortly." }, { "Retry-After": "60" });
+      return true;
+    }
+    let query = "";
+    try {
+      const requestUrl = new URL(req.url, "http://localhost");
+      query = String(requestUrl.searchParams.get("q") || "").trim();
+    } catch {
+      query = "";
+    }
+    if (query.length < 2 || query.length > 120) {
+      sendJson(res, 400, { detail: "Type at least two characters to search for a place in Romania." });
+      return true;
+    }
+    const cacheKey = `search:${query.toLocaleLowerCase("ro")}`;
+    const cached = geocodeCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      sendJson(res, 200, cached.payload, { "Cache-Control": "private, max-age=3600" });
+      return true;
+    }
+    try {
+      const upstreamUrl = new URL("https://nominatim.openstreetmap.org/search");
+      upstreamUrl.searchParams.set("format", "jsonv2");
+      upstreamUrl.searchParams.set("q", query);
+      upstreamUrl.searchParams.set("countrycodes", "ro");
+      upstreamUrl.searchParams.set("limit", "6");
+      upstreamUrl.searchParams.set("addressdetails", "1");
+      const upstream = await fetch(upstreamUrl, {
+        headers: {
+          Accept: "application/json",
+          "Accept-Language": req.headers["accept-language"] || "ro,en",
+          "User-Agent": "AradLensAdmin/1.0",
+        },
+      });
+      if (!upstream.ok) {
+        sendJson(res, 502, { detail: "Place search is unavailable. Click the map instead." });
+        return true;
+      }
+      const payload = await upstream.json();
+      if (!Array.isArray(payload)) {
+        sendJson(res, 502, { detail: "Place search returned an unexpected result." });
+        return true;
+      }
+      geocodeCache.set(cacheKey, { payload, expiresAt: Date.now() + 60 * 60 * 1000 });
+      if (geocodeCache.size > 500) {
+        const oldestKey = geocodeCache.keys().next().value;
+        if (oldestKey) geocodeCache.delete(oldestKey);
+      }
+      sendJson(res, 200, payload, { "Cache-Control": "private, max-age=3600" });
+    } catch {
+      sendJson(res, 502, { detail: "Place search is unavailable. Click the map instead." });
+    }
+    return true;
+  }
+  if (pathname === "/api/route/walk" && req.method === "GET") {
+    if (!rateLimit(req, "route", 10, 60_000)) {
+      sendJson(res, 429, { detail: "Too many route requests. Try again shortly." }, { "Retry-After": "60" });
+      return true;
+    }
+    let points = [];
+    try {
+      const requestUrl = new URL(req.url, "http://localhost");
+      points = String(requestUrl.searchParams.get("points") || "")
+        .split(";")
+        .map((pair) => pair.split(",").map(Number))
+        .filter((pair) => pair.length === 2 && pair.every(Number.isFinite));
+    } catch {
+      points = [];
+    }
+    if (points.length < 2 || points.length > 25) {
+      sendJson(res, 400, { detail: "Provide between 2 and 25 route points." });
+      return true;
+    }
+    if (points.some(([lat, lng]) => lat < 43.55 || lat > 48.4 || lng < 20.05 || lng > 30.0)) {
+      sendJson(res, 400, { detail: "Route points must be inside Romania." });
+      return true;
+    }
+    const cacheKey = `route:${points.map(([lat, lng]) => `${lat.toFixed(5)},${lng.toFixed(5)}`).join(";")}`;
+    const cached = routeCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      sendJson(res, 200, cached.payload, { "Cache-Control": "private, max-age=3600" });
+      return true;
+    }
+    try {
+      const coordinates = points.map(([lat, lng]) => `${lng},${lat}`).join(";");
+      const upstream = await fetch(`https://routing.openstreetmap.de/routed-foot/route/v1/foot/${coordinates}?overview=full&geometries=geojson&steps=false`, {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "AradLensAdmin/1.0",
+        },
+      });
+      if (!upstream.ok) {
+        sendJson(res, 502, { detail: "Street routing is unavailable. Showing direct lines." });
+        return true;
+      }
+      const payload = await upstream.json();
+      const route = payload?.code === "Ok" ? payload?.routes?.[0] : null;
+      const line = route?.geometry?.coordinates;
+      if (!route || !Array.isArray(line) || line.length < 2) {
+        sendJson(res, 502, { detail: "Street routing returned no route. Showing direct lines." });
+        return true;
+      }
+      const responsePayload = {
+        coordinates: line.map(([lng, lat]) => [lat, lng]),
+        distance: Number(route.distance) || 0,
+        duration: Number(route.duration) || 0,
+      };
+      routeCache.set(cacheKey, { payload: responsePayload, expiresAt: Date.now() + 60 * 60 * 1000 });
+      if (routeCache.size > 200) {
+        const oldestKey = routeCache.keys().next().value;
+        if (oldestKey) routeCache.delete(oldestKey);
+      }
+      sendJson(res, 200, responsePayload, { "Cache-Control": "private, max-age=3600" });
+    } catch {
+      sendJson(res, 502, { detail: "Street routing is unavailable. Showing direct lines." });
     }
     return true;
   }
@@ -429,7 +595,14 @@ async function proxyApi(req, res, pathname) {
     return true;
   }
   if (devMode && isMe && token === "dev-token") {
-    sendJson(res, 200, { username: "admin", role: "Administrator" });
+    sendJson(res, 200, devAdmin);
+    return true;
+  }
+  if (devMode && isAdminList && token === "dev-token") {
+    /* The live API cannot validate the local dev token, so answer the
+       administrator roster here. Without this, the first background
+       request after sign-in returns 401 and the workspace signs out. */
+    sendJson(res, 200, [devAdmin]);
     return true;
   }
   if (devMode && isPasswordChange && token === "dev-token") {

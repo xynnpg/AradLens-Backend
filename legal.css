@@ -38,6 +38,32 @@
   --dur-1:120ms;
   color-scheme:light;
 }
+html[data-theme="night"]{
+  color-scheme:dark;
+  --canvas:#101010;
+  --blueprint:#1a1a19;
+  --surface-2:#242422;
+  --border:rgba(255,255,255,.09);
+  --border-strong:rgba(255,255,255,.17);
+  --ink:#f0efec;
+  --print:#c2c0b6;
+  --muted:#9c9a92;
+  --rail:#0b0b0b;
+  --rail-fg:#faf9f5;
+  --rail-muted:#8e8c85;
+  --accent:#e08a63;
+  --accent-text:#e9a382;
+  --accent-on-rail:#e08a63;
+  --signal:#8cc36a;
+  --signal-fill:#1a2616;
+  --rust:#eb8a80;
+  --rust-fill:#2f1817;
+  --amber:#e0b071;
+  --amber-fill:#2b2214;
+  --focus:#e08a63;
+  --shadow-1:0 1px 2px rgba(0,0,0,.45);
+  --shadow-2:0 0 0 1px rgba(255,255,255,.08),0 1px 2px -1px rgba(0,0,0,.5),0 4px 10px -4px rgba(0,0,0,.45);
+}
 *{box-sizing:border-box}
 html{background:var(--canvas);scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
 body{margin:0;background:var(--canvas);color:var(--ink);font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.7;font-variant-numeric:tabular-nums}
@@ -51,6 +77,13 @@ a:hover{text-decoration-thickness:2px}
 .legal-top nav{display:flex;gap:18px;flex-wrap:wrap;font-size:12px}
 .legal-top nav a{color:var(--rail-muted);text-decoration:none;border-bottom:1px solid transparent;transition:color var(--dur-1) ease-out,border-color var(--dur-1) ease-out}
 .legal-top nav a:hover,.legal-top nav a[aria-current="page"]{color:var(--rail-fg);border-color:var(--accent-on-rail)}
+.legal-theme-toggle{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 10px;border:1px solid rgba(255,255,255,.16);border-radius:var(--r-sm);background:transparent;color:var(--rail-fg);font:inherit;font-size:11px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:border-color var(--dur-1) ease-out,color var(--dur-1) ease-out}
+.legal-theme-toggle:hover{border-color:var(--accent-on-rail);color:var(--accent-on-rail)}
+.legal-theme-toggle:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.legal-theme-icon{font-size:14px;line-height:1}
+.legal-theme-icon-moon{display:none}
+html[data-theme="night"] .legal-theme-icon-sun{display:none}
+html[data-theme="night"] .legal-theme-icon-moon{display:inline}
 .legal-shell{width:min(980px,calc(100% - 40px));margin:36px auto 64px;background:var(--blueprint);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-2);padding:clamp(24px,5vw,58px)}
 .legal-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--muted);margin:0 0 10px}
 .legal-shell h1{font-family:"Literata",Georgia,serif;font-weight:600;font-size:clamp(32px,5vw,52px);line-height:1.04;letter-spacing:-.055em;margin:0 0 16px;text-wrap:balance}
@@ -92,7 +125,7 @@ a:hover{text-decoration-thickness:2px}
 }
 
 @media(max-width:640px){.legal-shell{width:calc(100% - 24px);margin:18px auto 40px;padding:22px 16px}.legal-toc ol{columns:1}.legal-top{padding:14px 16px}.legal-top nav{gap:12px;font-size:11px}.legal-body h2{font-size:19px}.legal-body table{display:block;overflow-x:auto;white-space:nowrap}}
-@media print{.legal-top,.legal-footer nav,.legal-back{display:none}.legal-shell{border:0;box-shadow:none;width:100%;margin:0;padding:0}body{background:#fff;font-size:11pt}.legal-callout{break-inside:avoid}.legal-body h2{break-after:avoid}}
+@media print{.legal-top,.legal-footer nav,.legal-back,.legal-theme-toggle{display:none}.legal-shell{border:0;box-shadow:none;width:100%;margin:0;padding:0}body{background:#fff;font-size:11pt}.legal-callout{break-inside:avoid}.legal-body h2{break-after:avoid}}
 
 /* Reduced motion — legal pages do not load styles.css, so the kill switch
    is repeated here so a reader who asks for less motion gets none. */

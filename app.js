@@ -1,8 +1,17 @@
 const loginView = document.getElementById("login-view");
 const appView = document.getElementById("app-view");
+const errorView = document.getElementById("error-view");
 const loginForm = document.getElementById("login-form");
 const loginError = document.getElementById("login-error");
 let authenticatedAdmin = null;
+let globalSearchOpen = false;
+let globalSearchQuery = "";
+let globalSearchActiveIndex = -1;
+let globalSearchItems = [];
+let globalSearchReturnFocus = null;
+let globalSearchBackground = [];
+let globalSearchDataTask = null;
+let globalSearchPreviousPaddingRight = "";
 document.addEventListener("click", (event) => {
   const addButton = event.target?.closest?.("#locations-add-button, #overview-add-point");
   if (!addButton) return;
@@ -173,9 +182,9 @@ const uiTranslations = {
   "We couldn't complete that request. Check your connection and try again.": "Nu am putut finaliza solicitarea. Verifică conexiunea și încearcă din nou.",
   "Signing in…": "Autentificare în curs…", "Sign in": "Autentificare",
   "We couldn't sign you in. Check your username and password, then try again.": "Nu te-am putut autentifica. Verifică numele de utilizator și parola, apoi încearcă din nou.",
+  "Your session has expired. Sign in again to continue.": "Sesiunea a expirat. Autentifică-te din nou pentru a continua.",
   "Sign out of AradLens?": "Te deconectezi de la AradLens?",
-  "Shortcuts: / search · g then o overview · g then p points · g then u users · g then d debug": "Comenzi rapide: / căutare · g apoi o prezentare generală · g apoi p puncte de interes · g apoi u utilizatori · g apoi d diagnosticare",
-  "You’re all caught up. No new notifications.": "Ești la zi. Nu ai notificări noi.",
+  "Shortcuts: / or Ctrl K search · g then o overview · g then p points · g then u users · g then d debug": "Comenzi rapide: / sau Ctrl K căutare · g apoi o prezentare generală · g apoi p puncte de interes · g apoi u utilizatori · g apoi d diagnosticare",
   "Checking…": "Verificare în curs…", "AradLens API is healthy.": "API-ul AradLens funcționează normal.", "The API responded with an unexpected status.": "API-ul a răspuns cu o stare neașteptată.",
   "Check API health": "Verifică starea API-ului",
   "Change your password?\n\nYour current session will remain active.": "Schimbi parola?\n\nSesiunea actuală va rămâne activă.",
@@ -306,8 +315,6 @@ const uiTranslations = {
   "I am at least 18 years old and I accept the": "Am cel puțin 18 ani și accept",
   "and the": "și",
   "You must accept the Terms of Use and Privacy Notice to create an account.": "Trebuie să accepți Condițiile de utilizare și Notificarea de confidențialitate pentru a crea un cont.",
-  "Prototype": "Prototip",
-  "Sample queue shown until the API loads — live values replace it automatically.": "Se afișează o coadă de probă până când API-ul încarcă — valorile reale o înlocuiesc automat.",
   "Live count · locations": "Număr live · locații",
   "Live count · admins": "Număr live · administratori",
   "Live calculation": "Calcul live",
@@ -465,6 +472,79 @@ const uiTranslations = {
   "{message} Click Refresh to try again.": "{message} Apasă Reîmprospătează pentru a încerca din nou.",
   "{message} Click Run health check to try again.": "{message} Apasă Verifică starea serviciilor pentru a încerca din nou.",
 
+  /* Error and recovery surfaces */
+  "Offline": "Fără conexiune",
+  "Page not found": "Pagina nu a fost găsită",
+  "Server error": "Eroare de server",
+  "The guide lost": "Ghidul a pierdut",
+  "its signal.": "semnalul.",
+  "Your browser can’t reach AradLens right now. Check your connection, then try again. Nothing you saved has been lost.": "Browserul tău nu poate ajunge la AradLens acum. Verifică conexiunea, apoi încearcă din nou. Nimic din ce ai salvat nu s-a pierdut.",
+  "This page isn’t": "Această pagină nu este",
+  "on the map.": "pe hartă.",
+  "The address you followed doesn’t match anything in the workspace. Check the link, or head back to a known place.": "Adresa pe care ai urmat-o nu corespunde nimic din spațiul de lucru. Verifică linkul sau întoarce-te la un loc cunoscut.",
+  "The workspace": "Spațiul de lucru",
+  "hit a snag.": "a întâmpinat o problemă.",
+  "AradLens couldn’t finish loading this screen. Your work is safe. Try again, and if it keeps happening, send the reference below to your operator.": "AradLens nu a putut termina încărcarea acestui ecran. Munca ta este în siguranță. Încearcă din nou, iar dacă problema persistă, trimite referința de mai jos operatorului.",
+  "Try again": "Încearcă din nou",
+  "Go to overview": "Mergi la prezentare generală",
+  "Checking connection…": "Se verifică conexiunea…",
+  "Preview closed.": "Previzualizare închisă.",
+  "Back online.": "Conexiune restabilită.",
+  "The workspace is responding again.": "Spațiul de lucru răspunde din nou.",
+  "Still unavailable. Try again in a moment.": "Încă indisponibil. Încearcă din nou într-un moment.",
+  "Still offline. Check your connection, then try again.": "Încă ești offline. Verifică conexiunea, apoi încearcă din nou.",
+  "Reference copied.": "Referința a fost copiată.",
+  "Could not copy the reference. Select it and copy manually.": "Referința nu a putut fi copiată. Selecteaz-o și copiaz-o manual.",
+  "Reference": "Referință",
+  "Reported": "Raportat",
+  "Copy reference": "Copiază referința",
+  "If this keeps happening, send the reference to your workspace operator.": "Dacă problema persistă, trimite referința operatorului spațiului de lucru.",
+  "Preview": "Previzualizare",
+  "This is a demonstration error, not a live incident.": "Aceasta este o eroare demonstrativă, nu un incident real.",
+  "Recovery screens": "Ecrane de recuperare",
+  "Preview the error states an administrator may see. These are simulations and do not affect live data.": "Previzualizează stările de eroare pe care le poate vedea un administrator. Acestea sunt simulări și nu afectează datele reale.",
+
+  /* Global search */
+  "Search AradLens": "Caută în AradLens",
+  "Search (Ctrl+K)": "Caută (Ctrl+K)",
+  "Search anything…": "Caută orice…",
+  "Close search": "Închide căutarea",
+  "Search results": "Rezultatele căutării",
+  "Type to search places, tours, administrators, pages and actions.": "Scrie pentru a căuta locuri, tururi, administratori, pagini și acțiuni.",
+  "Pages": "Pagini",
+  "Places": "Locuri",
+  "Recovery": "Recuperare",
+  "Page": "Pagină",
+  "Action": "Acțiune",
+  "Tour": "Tur",
+  "Pulse of the guide today.": "Pulsul ghidului astăzi.",
+  "Places in the live guide.": "Locurile din ghidul live.",
+  "Walking routes through the city.": "Trasee de mers prin oraș.",
+  "Everything that needs a look.": "Tot ce necesită atenție.",
+  "People with workspace access.": "Persoanele cu acces la spațiul de lucru.",
+  "API and device health.": "Starea API-ului și a dispozitivelor.",
+  "Roles, invites and permissions.": "Roluri, invitații și permisiuni.",
+  "Account, security and appearance.": "Cont, securitate și aspect.",
+  "Create a new place.": "Creează un loc nou.",
+  "Rename or remove the guide's categories.": "Redenumește sau elimină categoriile ghidului.",
+  "Record a place from a phone.": "Înregistrează un loc de pe telefon.",
+  "Review and create administrator invites.": "Verifică și creează invitații pentru administratori.",
+  "Update the password for this account.": "Actualizează parola acestui cont.",
+  "End this session.": "Încheie această sesiune.",
+  "Change how the workspace looks.": "Schimbă aspectul spațiului de lucru.",
+  "Review the recovery surface.": "Previzualizează ecranul de recuperare.",
+  "No matches for “{query}”.": "Nicio potrivire pentru „{query}”.",
+  "Try a place, tour, administrator, page or action.": "Încearcă un loc, un tur, un administrator, o pagină sau o acțiune.",
+  "1 result": "1 rezultat",
+  "{n} results": "{n} rezultate",
+  "Preview page-not-found error": "Previzualizează eroarea pagină negăsită",
+  "Preview server-error screen": "Previzualizează ecranul de eroare de server",
+  "Preview offline error": "Previzualizează eroarea offline",
+  "Switch to night theme": "Schimbă la tema de noapte",
+  "Switch to day theme": "Schimbă la tema de zi",
+  "stop": "oprire",
+  "stops": "opriri",
+
   /* Singular/plural pairs used by counted(). */
   "administrator": "administrator",
   "active account": "cont activ",
@@ -473,6 +553,53 @@ const uiTranslations = {
   "No invites found.": "Nu s-a găsit nicio invitație.",
   "0 stops": "0 opriri",
   "No locations found.": "Nu s-a găsit nicio locație.",
+  "View route on the map": "Vezi traseul pe hartă",
+  "View {name} on the map": "Vezi {name} pe hartă",
+  "Tour route": "Traseul turului",
+  "Walking order": "Ordinea de parcurgere",
+  "Direct": "Direct",
+  "Streets": "Străzi",
+  "Route view": "Vizualizare traseu",
+  "Street route": "Traseu pe străzi",
+  "Finding street route…": "Se caută traseul pe străzi…",
+  "walking": "pe jos",
+  "Street route unavailable.": "Traseul pe străzi nu este disponibil.",
+  "Too many route requests. Try again shortly.": "Prea multe cereri de traseu. Încearcă din nou curând.",
+  "Provide between 2 and 25 route points.": "Furnizează între 2 și 25 de puncte de traseu.",
+  "Route points must be inside Romania.": "Punctele traseului trebuie să fie în România.",
+  "Street routing is unavailable. Showing direct lines.": "Traseul pe străzi nu este disponibil. Se afișează linii directe.",
+  "Street routing returned no route. Showing direct lines.": "Traseul pe străzi nu a returnat nicio rută. Se afișează linii directe.",
+  "{n} on map": "{n} pe hartă",
+  "Loading route…": "Se încarcă traseul…",
+  "The stops in this tour, in walking order.": "Opririle acestui tur, în ordinea de parcurgere.",
+  "This tour has no stops yet. Add points to the route first.": "Acest tur nu are încă opriri. Adaugă mai întâi puncte pe traseu.",
+  "Important point": "Punct de interes",
+  "No map position": "Fără poziție pe hartă",
+  "No mapped stops yet. Add coordinates to the points in this tour to see the route.": "Nicio oprire pe hartă încă. Adaugă coordonate punctelor din acest tur pentru a vedea traseul.",
+  "Search a place in Romania": "Caută un loc în România",
+  "Fit Romania": "Încadrează România",
+  "Use my location": "Folosește locația mea",
+  "Clear point": "Șterge punctul",
+  "Romania only": "Doar România",
+  "Search": "Caută",
+  "Searching places in Romania…": "Se caută locuri în România…",
+  "No places found in Romania. Try a different name.": "Nu s-a găsit niciun loc în România. Încearcă alt nume.",
+  "Choose a point inside Romania.": "Alege un punct în România.",
+  "Type at least two characters to search for a place in Romania.": "Scrie cel puțin două caractere pentru a căuta un loc în România.",
+  "1 place found in Romania.": "Un loc găsit în România.",
+  "{n} places found in Romania.": "{n} locuri găsite în România.",
+  "Place search is unavailable. Click the map instead.": "Căutarea locurilor nu este disponibilă. Apasă pe hartă.",
+  "Too many place searches. Try again shortly.": "Prea multe căutări de locuri. Încearcă din nou curând.",
+  "Place search returned an unexpected result.": "Căutarea locurilor a returnat un rezultat neașteptat.",
+  "The Romania outline could not be loaded. Reload the dialog and try again.": "Conturul României nu a putut fi încărcat. Reîncarcă dialogul și încearcă din nou.",
+  "Loading Romania outline…": "Se încarcă conturul României…",
+  "Recording…": "Se înregistrează…",
+  "Position recorded.": "Poziție înregistrată.",
+  "Pick both coordinates or clear the point.": "Alege ambele coordonate sau șterge punctul.",
+  "Unnamed place": "Loc fără nume",
+  "Place search results": "Rezultatele căutării de locuri",
+  "Tour route map": "Harta traseului turului",
+  "No coordinates": "Fără coordonate",
 };
 
 function readPreference(storageName, key, allowed, fallback) {
@@ -533,16 +660,24 @@ async function apiRequest(path, options = {}) {
   try {
     response = await fetch(path, { ...apiOptions, ...options, headers: { ...apiOptions.headers, ...(options.headers || {}) } });
   } catch {
-    throw new Error("The request could not reach AradLens. Check your connection and try again.");
+    const error = new Error("The request could not reach AradLens. Check your connection and try again.");
+    error.offline = true;
+    throw error;
   }
   const body = await response.json().catch(() => ({}));
   if (response.status === 401 && path !== "/api/auth/login") {
+    const message = t("Your session has expired. Sign in again to continue.");
+    if (loginError) loginError.textContent = message;
     setAuthenticated(false);
-    throw new Error("Your session has expired. Sign in again to continue.");
+    const error = new Error(message);
+    error.status = 401;
+    throw error;
   }
   if (!response.ok) {
     const detail = Array.isArray(body.detail) ? body.detail.map((item) => item.msg).join(" ") : body.detail;
-    throw new Error(detail || "We couldn't complete that request. Check your connection and try again.");
+    const error = new Error(detail || "We couldn't complete that request. Check your connection and try again.");
+    error.status = response.status;
+    throw error;
   }
   return body;
 }
@@ -556,11 +691,16 @@ function applyTheme() {
   document.querySelectorAll("[data-theme-label]").forEach((label) => { label.textContent = translations[currentLanguage][currentTheme]; });
   document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
     const nextTheme = currentTheme === "day" ? "night" : "day";
-    button.setAttribute("aria-label", currentTheme === "day" ? translations[currentLanguage].switchNight : translations[currentLanguage].switchDay);
+    /* The visible word is the current theme. Keep it inside the accessible
+       name so the control never reads as something other than what it shows. */
+    const currentLabel = translations[currentLanguage][currentTheme];
+    const actionLabel = currentTheme === "day" ? translations[currentLanguage].switchNight : translations[currentLanguage].switchDay;
+    button.setAttribute("aria-label", `${currentLabel}. ${actionLabel}`);
     button.querySelector(".theme-icon-sun")?.style.setProperty("display", currentTheme === "day" ? "inline" : "none");
     button.querySelector(".theme-icon-moon")?.style.setProperty("display", currentTheme === "night" ? "inline" : "none");
     button.dataset.nextTheme = nextTheme;
   });
+  refreshRomaniaTheme();
   syncSettingsControls();
 }
 
@@ -614,14 +754,286 @@ function applyLanguage() {
   applyTheme();
   updateTopbarDate();
   if (authenticatedAdmin) updateAccountChrome();
+  if (isErrorViewOpen()) renderErrorCopy();
   /* Lists that were built from cached data still hold the old words.
      Re-render them rather than leaving a half-translated page. */
   renderAccountMenu();
   if (!document.getElementById("category-modal")?.classList.contains("is-hidden")) renderCategoryList();
   if (cachedCategories.length) renderCategoryOptions(document.getElementById("location-category")?.value || "");
   if (currentPage === "attention") renderAttention();
-  showPage(currentPage, false, true);
+  if (!isErrorViewOpen()) showPage(currentPage, false, true);
 }
+
+/* ============================================================
+   ERROR SURFACE
+   One screen, three honest explanations. The demo routes
+   (#error, #error/404, #error/500) exist so the state can be
+   reviewed without breaking the API, and the Debug page exposes
+   the same previews as buttons. Real 404s, unreachable sessions
+   and server failures use the same surface with real copy.
+   ============================================================ */
+const ERROR_VARIANTS = {
+  offline: {
+    tone: "bad",
+    statusLabel: "Offline",
+    code: "NO SIGNAL",
+    titleLead: "The guide lost",
+    titleTail: "its signal.",
+    message: "Your browser can’t reach AradLens right now. Check your connection, then try again. Nothing you saved has been lost.",
+    primary: "Try again",
+    prefix: "NET",
+    marker: "!",
+  },
+  "404": {
+    tone: "warn",
+    statusLabel: "Page not found",
+    code: "404",
+    titleLead: "This page isn’t",
+    titleTail: "on the map.",
+    message: "The address you followed doesn’t match anything in the workspace. Check the link, or head back to a known place.",
+    primary: "Go to overview",
+    prefix: "NAV",
+    marker: "?",
+  },
+  "500": {
+    tone: "bad",
+    statusLabel: "Server error",
+    code: "500",
+    titleLead: "The workspace",
+    titleTail: "hit a snag.",
+    message: "AradLens couldn’t finish loading this screen. Your work is safe. Try again, and if it keeps happening, send the reference below to your operator.",
+    primary: "Try again",
+    prefix: "SRV",
+    marker: "!",
+  },
+};
+let errorState = null;
+
+function isErrorViewOpen() {
+  return Boolean(errorView && !errorView.classList.contains("is-hidden"));
+}
+
+function hasStoredSession() {
+  try { return sessionStorage.getItem("aradlens-admin-auth") === "true"; } catch { return false; }
+}
+
+function makeErrorReference(prefix) {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const values = new Uint8Array(6);
+  try { crypto.getRandomValues(values); } catch {
+    for (let index = 0; index < values.length; index += 1) values[index] = Math.floor(Math.random() * 256);
+  }
+  const code = Array.from(values, (value) => alphabet[value % alphabet.length]).join("");
+  return `AL-${prefix}-${code.slice(0, 4)}-${code.slice(4)}`;
+}
+
+function errorVariantFromHash() {
+  const raw = window.location.hash.replace(/^#/, "");
+  if (raw !== "error" && !raw.startsWith("error/")) return null;
+  const variant = raw.split("/")[1] || "offline";
+  return ERROR_VARIANTS[variant] ? variant : "offline";
+}
+
+function renderErrorCopy() {
+  if (!errorState) return;
+  const variant = ERROR_VARIANTS[errorState.variant];
+  const statusLabel = document.getElementById("error-status-label");
+  const statusCode = document.getElementById("error-status-code");
+  const lead = document.getElementById("error-title-lead");
+  const tail = document.getElementById("error-title-tail");
+  const message = document.getElementById("error-message");
+  const primary = document.getElementById("error-primary");
+  const secondary = document.getElementById("error-secondary");
+  const preview = document.getElementById("error-preview-note");
+  const reference = document.getElementById("error-reference");
+  const reported = document.getElementById("error-reported");
+  const copy = document.getElementById("error-copy-reference");
+  const marker = document.getElementById("error-marker-mark");
+  if (statusLabel) {
+    const nextStatus = t(variant.statusLabel);
+    if (statusLabel.textContent !== nextStatus) statusLabel.textContent = nextStatus;
+  }
+  if (statusCode) statusCode.textContent = variant.code;
+  if (lead) lead.textContent = t(variant.titleLead);
+  if (tail) tail.textContent = t(variant.titleTail);
+  if (message) message.textContent = t(variant.message);
+  const canReturnToWorkspace = Boolean(authenticatedAdmin) || hasStoredSession();
+  if (primary) {
+    primary.disabled = false;
+    primary.textContent = t(errorState.variant === "404" && !canReturnToWorkspace ? "Sign in" : variant.primary);
+  }
+  if (secondary) {
+    secondary.hidden = errorState.variant === "404";
+    secondary.disabled = false;
+    secondary.textContent = t(canReturnToWorkspace ? "Back to workspace" : "Sign in");
+  }
+  if (preview) preview.hidden = !errorState.demo;
+  if (reference) reference.textContent = errorState.reference;
+  if (reported) reported.textContent = formatDateTime(errorState.reportedAt);
+  if (copy) copy.setAttribute("aria-label", t("Copy reference"));
+  if (marker) marker.textContent = variant.marker;
+  document.title = `${t(variant.statusLabel)} · AradLens`;
+}
+
+function showErrorScreen(options = {}) {
+  if (globalSearchOpen) closeGlobalSearch({ restoreFocus: false });
+  const variantKey = ERROR_VARIANTS[options.variant] ? String(options.variant) : "offline";
+  const variant = ERROR_VARIANTS[variantKey];
+  const currentHash = window.location.hash || "#overview";
+  const returnHash = options.returnHash
+    || (variantKey === "404" || currentHash.startsWith("#error") ? "#overview" : currentHash);
+  errorState = {
+    variant: variantKey,
+    demo: Boolean(options.demo),
+    retry: typeof options.retry === "function" ? options.retry : null,
+    returnHash,
+    reference: makeErrorReference(variant.prefix),
+    reportedAt: new Date().toISOString(),
+  };
+  errorView.dataset.tone = variant.tone;
+  renderErrorCopy();
+  errorView.classList.remove("is-hidden");
+  document.querySelectorAll(".modal").forEach((modal) => modal.classList.add("is-hidden"));
+  closeMenus();
+  loginView.classList.add("is-hidden");
+  appView.classList.add("is-hidden");
+  document.documentElement.classList.remove("is-restoring");
+  if (options.updateUrl) history.replaceState(null, "", `#error/${variantKey}`);
+  window.scrollTo(0, 0);
+  window.requestAnimationFrame(() => {
+    document.getElementById("error-title")?.focus({ preventScroll: true });
+  });
+}
+
+function restoreWorkspaceView() {
+  if (!isErrorViewOpen()) return;
+  errorView.classList.add("is-hidden");
+  errorState = null;
+  if (authenticatedAdmin) {
+    loginView.classList.add("is-hidden");
+    appView.classList.remove("is-hidden");
+  } else {
+    appView.classList.add("is-hidden");
+    loginView.classList.remove("is-hidden");
+  }
+  document.title = currentLanguage === "ro" ? "AradLens - Spațiu de administrare" : "AradLens - Admin workspace";
+}
+
+async function leaveErrorScreen() {
+  if (!isErrorViewOpen()) return;
+  const targetHash = errorState?.returnHash || "#overview";
+  errorView.classList.add("is-hidden");
+  errorState = null;
+  document.title = currentLanguage === "ro" ? "AradLens - Spațiu de administrare" : "AradLens - Admin workspace";
+  let admin = authenticatedAdmin;
+  if (!admin && hasStoredSession()) {
+    try { admin = await apiRequest("/api/auth/me"); } catch (error) {
+      admin = null;
+      if (loginError) loginError.textContent = error?.message || "";
+    }
+  }
+  if (admin) {
+    if (!authenticatedAdmin) setAuthenticated(true, admin);
+    else {
+      loginView.classList.add("is-hidden");
+      appView.classList.remove("is-hidden");
+    }
+    const page = targetHash.replace(/^#/, "");
+    const nextPage = pageNames[page] ? page : "overview";
+    showPage(nextPage, false, true);
+    history.replaceState(null, "", `#${nextPage}`);
+    window.requestAnimationFrame(() => {
+      const heading = document.querySelector(`#page-${nextPage} .page-heading h2`);
+      if (heading) {
+        heading.setAttribute("tabindex", "-1");
+        heading.focus({ preventScroll: true });
+      }
+    });
+  } else {
+    setAuthenticated(false);
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    window.requestAnimationFrame(() => document.getElementById("username")?.focus({ preventScroll: true }));
+  }
+}
+
+async function attemptErrorRecovery() {
+  if (!errorState) return;
+  const variant = errorState.variant;
+  if (variant === "404") {
+    errorState.returnHash = "#overview";
+    await leaveErrorScreen();
+    return;
+  }
+  const primary = document.getElementById("error-primary");
+  if (errorState.demo) {
+    if (primary) {
+      primary.disabled = true;
+      primary.textContent = t("Checking connection…");
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 700));
+    if (primary) primary.disabled = false;
+    await leaveErrorScreen();
+    showToast(t("Preview closed."), "success");
+    return;
+  }
+  if (errorState.retry) {
+    if (primary) {
+      primary.disabled = true;
+      primary.textContent = t("Checking connection…");
+    }
+    try {
+      await errorState.retry();
+      await leaveErrorScreen();
+      showToast(t(variant === "offline" ? "Back online." : "The workspace is responding again."), "success");
+    } catch (error) {
+      renderErrorCopy();
+      showToast(error?.message || t("Still unavailable. Try again in a moment."), "error");
+    }
+    return;
+  }
+  if (variant === "offline" && !navigator.onLine) {
+    showToast(t("Still offline. Check your connection, then try again."), "error");
+    return;
+  }
+  window.location.reload();
+}
+
+async function copyErrorReference() {
+  if (!errorState) return;
+  try {
+    await navigator.clipboard.writeText(errorState.reference);
+    showToast(t("Reference copied."), "success");
+  } catch {
+    showToast(t("Could not copy the reference. Select it and copy manually."), "error");
+  }
+}
+
+function handleHashRoute() {
+  const preview = errorVariantFromHash();
+  if (preview) {
+    showErrorScreen({ variant: preview, demo: true });
+    return;
+  }
+  if (isErrorViewOpen()) restoreWorkspaceView();
+  const page = window.location.hash.slice(1) || "overview";
+  if (pageNames[page]) {
+    showPage(page, false);
+    return;
+  }
+  showErrorScreen({ variant: "404", demo: false });
+}
+
+document.getElementById("error-primary")?.addEventListener("click", attemptErrorRecovery);
+document.getElementById("error-secondary")?.addEventListener("click", () => { leaveErrorScreen(); });
+document.getElementById("error-copy-reference")?.addEventListener("click", copyErrorReference);
+document.querySelectorAll("[data-error-preview]").forEach((button) => {
+  button.addEventListener("click", () => showErrorScreen({
+    variant: button.dataset.errorPreview,
+    demo: true,
+    updateUrl: true,
+    returnHash: window.location.hash || "#overview",
+  }));
+});
 
 function setAuthenticated(isAuthenticated, admin = null) {
   authenticatedAdmin = isAuthenticated ? admin : null;
@@ -633,6 +1045,7 @@ function setAuthenticated(isAuthenticated, admin = null) {
     element.classList.toggle("is-hidden", !isSuperadmin);
   });
   if (!isAuthenticated) {
+    if (globalSearchOpen) closeGlobalSearch({ restoreFocus: false });
     document.getElementById("admins-list").replaceChildren();
     document.getElementById("location-modal")?.classList.add("is-hidden");
     document.getElementById("category-modal")?.classList.add("is-hidden");
@@ -656,8 +1069,8 @@ function setAuthenticated(isAuthenticated, admin = null) {
     addingAccount = false;
     document.getElementById("login-back-button")?.classList.add("is-hidden");
   }
-  loginView.classList.toggle("is-hidden", isAuthenticated);
-  appView.classList.toggle("is-hidden", !isAuthenticated);
+  loginView.classList.toggle("is-hidden", isAuthenticated || isErrorViewOpen());
+  appView.classList.toggle("is-hidden", !isAuthenticated || isErrorViewOpen());
   if (isAuthenticated) sessionStorage.setItem("aradlens-admin-auth", "true");
   else sessionStorage.removeItem("aradlens-admin-auth");
   if (isAuthenticated) {
@@ -666,7 +1079,8 @@ function setAuthenticated(isAuthenticated, admin = null) {
     refreshAccounts();
     loadCategories().catch(() => {});
   }
-  showPage(currentPage, false, true);
+  if (isErrorViewOpen()) renderErrorCopy();
+  if (!isErrorViewOpen()) showPage(currentPage, false, true);
 }
 
 function showPage(page, updateUrl = true, force = false) {
@@ -780,6 +1194,11 @@ document.querySelectorAll("[data-theme-toggle]").forEach((button) => button.addE
   writePreference("localStorage", "aradlens-theme", currentTheme);
   applyTheme();
 }));
+window.addEventListener("storage", (event) => {
+  if (event.key !== "aradlens-theme" || !["day", "night"].includes(event.newValue) || event.newValue === currentTheme) return;
+  currentTheme = event.newValue;
+  applyTheme();
+});
 document.querySelectorAll(".language-picker select").forEach((select) => select.addEventListener("change", (event) => {
   currentLanguage = ["en", "ro"].includes(event.target.value) ? event.target.value : "en";
   writePreference("localStorage", "aradlens-language", currentLanguage);
@@ -871,12 +1290,24 @@ mobileMenu.addEventListener("click", () => {
   mobileMenu.setAttribute("aria-expanded", String(isOpen));
 });
 sidebarScrim.addEventListener("click", closeMobileNavigation);
+function isTypingTarget(target) {
+  return Boolean(target && (target.matches?.("input, textarea, select") || target.isContentEditable));
+}
+
 document.addEventListener("keydown", (event) => {
+  if (globalSearchOpen) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeGlobalSearch();
+    }
+    return;
+  }
   if (event.key === "Escape") {
     closeMobileNavigation();
     closeMenus();
     if (!document.getElementById("image-modal")?.classList.contains("is-hidden")) closeImageModal();
     else if (!document.getElementById("location-modal")?.classList.contains("is-hidden")) closeLocationModal();
+    else if (!document.getElementById("tour-view-modal")?.classList.contains("is-hidden")) closeTourView();
     else if (!document.getElementById("tour-modal")?.classList.contains("is-hidden")) closeTourModal();
     else if (!document.getElementById("capture-modal")?.classList.contains("is-hidden")) closeCaptureModal();
     else if (!document.getElementById("confirm-modal")?.classList.contains("is-hidden")) closeConfirm();
@@ -885,19 +1316,20 @@ document.addEventListener("keydown", (event) => {
     else if (!document.getElementById("invites-modal")?.classList.contains("is-hidden")) closeInvitesModal();
     else if (!document.getElementById("password-modal")?.classList.contains("is-hidden")) closePasswordModal();
   }
-  if (event.key === "/" && document.activeElement?.tagName !== "INPUT") {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
     event.preventDefault();
-    showPage("points");
-    document.getElementById("points-search")?.focus();
+    openGlobalSearch();
+    return;
   }
-  if (event.key === "?" && document.activeElement?.tagName !== "INPUT") showToast("Shortcuts: / search · g then o overview · g then p points · g then u users · g then d debug");
+  if (event.key === "/" && !isTypingTarget(event.target)) {
+    event.preventDefault();
+    openGlobalSearch();
+    return;
+  }
+  if (event.key === "?" && !isTypingTarget(event.target)) showToast("Shortcuts: / or Ctrl K search · g then o overview · g then p points · g then u users · g then d debug");
 });
 
-document.getElementById("global-search-button").addEventListener("click", () => {
-  showPage("points");
-  window.requestAnimationFrame(() => document.getElementById("points-search")?.focus());
-});
-document.getElementById("notifications-button").addEventListener("click", () => showToast("You’re all caught up. No new notifications."));
+document.getElementById("global-search-button").addEventListener("click", openGlobalSearch);
 document.querySelector("[data-api-health]")?.addEventListener("click", async (event) => {
   const button = event.currentTarget;
   button.disabled = true;
@@ -1039,11 +1471,27 @@ let pickerPlacesLayer = null;
 let cachedLocations = [];
 let locationsLoaded = false;
 let cachedTours = [];
+let romaniaOutline = null;
+var romaniaMask = null;
+var romaniaBorder = null;
+let romaniaOutlineState = "idle";
+let romaniaOutlineRequest = null;
+let pickerLastPoint = null;
+let mapSearchRequestId = 0;
+let locationGeoRequestId = 0;
+let locationModalRequestId = 0;
+
+/* The picker is an editor for Romanian places, so the country is the whole
+   map: the view cannot leave its bounding box and the land outside the border
+   is muted. The outline is the small public-domain GeoJSON in assets/. */
+const ROMANIA_BOUNDS = [[43.55, 20.05], [48.4, 30.0]];
+const ROMANIA_CENTER = [45.9432, 24.9668];
 
 /* The API ships placeholder rows (latitude -90, longitude -180). They are not
    real places, so they must never reach the map: a fit that includes them
    spans the whole world and drops the picker to zoom 0. */
 function usableCoordinate(latitude, longitude) {
+  if ([latitude, longitude].some((value) => value === null || value === undefined || String(value).trim() === "")) return false;
   const lat = Number(latitude);
   const lng = Number(longitude);
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
@@ -1052,15 +1500,27 @@ function usableCoordinate(latitude, longitude) {
   return true;
 }
 
-function pickerHomeBounds() {
-  const bounds = [];
-  for (const location of cachedLocations) {
-    const latitude = Number(location.latitude);
-    const longitude = Number(location.longitude);
-    if (usableCoordinate(latitude, longitude)) bounds.push([latitude, longitude]);
-  }
-  return bounds;
+function coordinateLabel(location) {
+  return usableCoordinate(location?.latitude, location?.longitude)
+    ? `${location.latitude}, ${location.longitude}`
+    : t("No coordinates");
 }
+
+function prefersReducedMotion() {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
+}
+
+function syncMapMotionPreference() {
+  const reduce = prefersReducedMotion();
+  for (const map of [pickerMap, tourViewMap]) {
+    if (!map) continue;
+    map.options.zoomAnimation = !reduce;
+    map.options.fadeAnimation = !reduce;
+    map.options.markerZoomAnimation = !reduce;
+  }
+}
+
+window.matchMedia?.("(prefers-reduced-motion: reduce)")?.addEventListener?.("change", syncMapMotionPreference);
 
 function renderPickerPlaces(exceptId) {
   if (!pickerMap || typeof window.L === "undefined") return;
@@ -1073,23 +1533,135 @@ function renderPickerPlaces(exceptId) {
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) continue;
     const tooltip = document.createElement("span");
     tooltip.textContent = String(location.name || `#${location.id}`);
-    window.L.circleMarker([latitude, longitude], { radius: 5, weight: 2, fillOpacity: 0.7 })
+    window.L.circleMarker([latitude, longitude], { radius: 5, weight: 2, color: romaniaColor(), fillColor: romaniaColor(), fillOpacity: 0.28 })
       .bindTooltip(tooltip)
       .addTo(pickerPlacesLayer);
   }
 }
 
 function ensurePickerMap() {
-  if (pickerMap || typeof window.L === "undefined") return pickerMap;
+  if (pickerMap) {
+    if (!romaniaOutline && romaniaOutlineState !== "loading") loadRomaniaOutline(pickerMap);
+    return pickerMap;
+  }
+  if (typeof window.L === "undefined") return pickerMap;
   const element = document.getElementById("location-picker-map");
   if (!element) return null;
-  pickerMap = window.L.map(element);
+  pickerMap = window.L.map(element, {
+    center: ROMANIA_CENTER,
+    zoom: 7,
+    minZoom: 6,
+    maxBounds: ROMANIA_BOUNDS,
+    maxBoundsViscosity: 1,
+    zoomControl: true,
+    zoomAnimation: !prefersReducedMotion(),
+    fadeAnimation: !prefersReducedMotion(),
+    markerZoomAnimation: !prefersReducedMotion(),
+  });
   window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
+    noWrap: true,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(pickerMap);
-  pickerMap.on("click", (event) => setPickerPoint(event.latlng.lat, event.latlng.lng));
+  pickerMap.on("click", (event) => {
+    clearMapSearch();
+    if (!isInsideRomania(event.latlng.lat, event.latlng.lng)) {
+      setMapStatus(t("Choose a point inside Romania."));
+      return;
+    }
+    setMapStatus("");
+    setPickerPoint(event.latlng.lat, event.latlng.lng);
+  });
+  loadRomaniaOutline(pickerMap);
   return pickerMap;
+}
+
+function pointInRing(lat, lng, ring) {
+  let inside = false;
+  for (let index = 0, previous = ring.length - 1; index < ring.length; previous = index++) {
+    const [lat1, lng1] = ring[index];
+    const [lat2, lng2] = ring[previous];
+    const crosses = (lng1 > lng) !== (lng2 > lng);
+    if (crosses && lat < ((lat2 - lat1) * (lng - lng1)) / (lng2 - lng1) + lat1) inside = !inside;
+  }
+  return inside;
+}
+
+function isWithinRomaniaBounds(lat, lng) {
+  const latitude = Number(lat);
+  const longitude = Number(lng);
+  return Number.isFinite(latitude) && Number.isFinite(longitude)
+    && latitude >= ROMANIA_BOUNDS[0][0] && latitude <= ROMANIA_BOUNDS[1][0]
+    && longitude >= ROMANIA_BOUNDS[0][1] && longitude <= ROMANIA_BOUNDS[1][1];
+}
+
+function isInsideRomania(lat, lng) {
+  if (!isWithinRomaniaBounds(lat, lng)) return false;
+  /* Fail closed while the country polygon is still loading or if it could
+     not be fetched: the bbox still contains slices of neighbouring states. */
+  if (!romaniaOutline?.length) return false;
+  return pointInRing(Number(lat), Number(lng), romaniaOutline);
+}
+
+function romaniaColor() {
+  return currentTheme === "night" ? "#e08a63" : "#a04a27";
+}
+
+function refreshRomaniaTheme() {
+  if (romaniaBorder) romaniaBorder.setStyle({ color: romaniaColor() });
+  if (romaniaMask) {
+    romaniaMask.setStyle({
+      fillColor: currentTheme === "night" ? "#101010" : "#f9f6ef",
+      color: "transparent",
+    });
+  }
+}
+
+function loadRomaniaOutline(map) {
+  if (!map || romaniaOutline) return Promise.resolve();
+  if (romaniaOutlineRequest) return romaniaOutlineRequest;
+  romaniaOutlineState = "loading";
+  setMapStatus(t("Loading Romania outline…"));
+  romaniaOutlineRequest = (async () => {
+    try {
+      const response = await fetch("/assets/romania.geojson", { credentials: "same-origin" });
+      if (!response.ok) throw new Error("Romania outline request failed.");
+      const payload = await response.json();
+      const feature = payload?.features?.[0];
+      const coordinates = feature?.geometry?.coordinates?.[0];
+      if (!Array.isArray(coordinates) || coordinates.length < 3) throw new Error("Romania outline is invalid.");
+      romaniaOutline = coordinates.map(([lng, lat]) => [lat, lng]);
+      if (!map.getPane("romaniaPane")) {
+        const pane = map.createPane("romaniaPane");
+        pane.style.zIndex = "350";
+        pane.style.pointerEvents = "none";
+      }
+      const outer = [[41.5, 17.5], [41.5, 32.5], [50.5, 32.5], [50.5, 17.5]];
+      romaniaMask = window.L.polygon([outer, romaniaOutline], {
+        stroke: false,
+        fillColor: currentTheme === "night" ? "#101010" : "#f9f6ef",
+        fillOpacity: 0.82,
+        interactive: false,
+        className: "romania-mask",
+        pane: "romaniaPane",
+      }).addTo(map);
+      romaniaBorder = window.L.polyline([...romaniaOutline, romaniaOutline[0]], {
+        color: romaniaColor(),
+        weight: 1.4,
+        opacity: 0.85,
+        interactive: false,
+        pane: "romaniaPane",
+      }).addTo(map);
+      romaniaOutlineState = "ready";
+      setMapStatus("");
+    } catch {
+      romaniaOutlineState = "failed";
+      setMapStatus(t("The Romania outline could not be loaded. Reload the dialog and try again."));
+    } finally {
+      romaniaOutlineRequest = null;
+    }
+  })();
+  return romaniaOutlineRequest;
 }
 
 /* The picker lives inside a modal that is still laying out when the map is
@@ -1106,9 +1678,7 @@ function focusPickerMap(latitude, longitude, zoom) {
       pickerMap.setView([Number(latitude), Number(longitude)], zoom || 15, { animate: false });
       return;
     }
-    const home = pickerHomeBounds();
-    if (home.length) pickerMap.fitBounds(home, { padding: [40, 40], animate: false });
-    else pickerMap.setView([46.166, 21.316], 13, { animate: false });
+    pickerMap.fitBounds(ROMANIA_BOUNDS, { padding: [8, 8], animate: false });
   };
   apply();
   window.requestAnimationFrame(apply);
@@ -1121,17 +1691,186 @@ function setPickerPoint(lat, lng) {
   const longitude = String(Math.round(Number(lng) * 1e6) / 1e6);
   form.elements.latitude.value = latitude;
   form.elements.longitude.value = longitude;
+  pickerLastPoint = [latitude, longitude];
   const label = document.getElementById("location-coords-label");
   if (label) label.textContent = t("Selected: {lat}, {lng} — click elsewhere or drag the pin to move it.", { lat: latitude, lng: longitude });
   if (pickerMarker) pickerMarker.setLatLng([latitude, longitude]);
   else {
-    pickerMarker = window.L.marker([latitude, longitude], { draggable: true }).addTo(pickerMap);
+    pickerMarker = window.L.marker([latitude, longitude], {
+      draggable: true,
+      icon: window.L.divIcon({
+        className: "picker-pin-wrap",
+        html: '<span class="picker-pin"></span>',
+        iconSize: [28, 28],
+        iconAnchor: [14, 26],
+      }),
+    }).addTo(pickerMap);
     pickerMarker.on("dragend", () => {
       const point = pickerMarker.getLatLng();
+      if (!isInsideRomania(point.lat, point.lng)) {
+        if (pickerLastPoint) pickerMarker.setLatLng(pickerLastPoint);
+        setMapStatus(t("Choose a point inside Romania."));
+        return;
+      }
+      setMapStatus("");
       setPickerPoint(point.lat, point.lng);
     });
   }
   suggestOsmName(Number(latitude), Number(longitude));
+}
+
+function setMapStatus(text) {
+  const status = document.getElementById("location-map-status");
+  if (status) status.textContent = text || "";
+}
+
+function clearMapSearch() {
+  mapSearchRequestId++;
+  const input = document.getElementById("location-map-search");
+  const results = document.getElementById("location-map-results");
+  if (input) input.value = "";
+  if (results) {
+    results.replaceChildren();
+    results.hidden = true;
+  }
+  setMapStatus("");
+}
+
+function renderMapResults(results) {
+  const box = document.getElementById("location-map-results");
+  if (!box) return;
+  box.replaceChildren();
+  if (!Array.isArray(results) || !results.length) {
+    box.hidden = true;
+    setMapStatus(t("No places found in Romania. Try a different name."));
+    return;
+  }
+  const resultSeen = new Set();
+  for (const result of results) {
+    const latitude = Number(result.lat);
+    const longitude = Number(result.lon);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) continue;
+    const key = result.display_name || `${latitude},${longitude}`;
+    if (resultSeen.has(key)) continue;
+    resultSeen.add(key);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "map-result";
+    const title = document.createElement("strong");
+    const name = result.name || String(result.display_name || "").split(",")[0] || t("Unnamed place");
+    title.textContent = name;
+    const detail = document.createElement("small");
+    detail.textContent = result.display_name || "";
+    button.append(title, detail);
+    button.addEventListener("click", () => {
+      if (!isInsideRomania(latitude, longitude)) {
+        setMapStatus(t("Choose a point inside Romania."));
+        return;
+      }
+      const nameInput = document.querySelector("#location-form [name=name]");
+      if (nameInput && !nameInput.value.trim()) nameInput.value = name;
+      const searchInput = document.getElementById("location-map-search");
+      if (searchInput) searchInput.value = name;
+      box.hidden = true;
+      setMapStatus("");
+      setPickerPoint(latitude, longitude);
+      focusPickerMap(latitude, longitude, 16);
+      searchInput?.focus();
+    });
+    box.append(button);
+  }
+  if (!box.children.length) {
+    box.hidden = true;
+    setMapStatus(t("No places found in Romania. Try a different name."));
+    return;
+  }
+  const count = box.children.length;
+  box.hidden = false;
+  setMapStatus(count === 1
+    ? t("1 place found in Romania.")
+    : t("{n} places found in Romania.", { n: count }));
+}
+
+async function searchMapPlaces() {
+  const input = document.getElementById("location-map-search");
+  const query = input?.value.trim() || "";
+  if (query.length < 2) {
+    setMapStatus(t("Type at least two characters to search for a place in Romania."));
+    return;
+  }
+  const requestId = ++mapSearchRequestId;
+  setMapStatus(t("Searching places in Romania…"));
+  try {
+    const results = await apiRequest(`/api/geocode/search?q=${encodeURIComponent(query)}`);
+    if (requestId !== mapSearchRequestId) return;
+    renderMapResults(results);
+  } catch (error) {
+    if (requestId !== mapSearchRequestId) return;
+    const message = uiTranslations[error.message]
+      ? t(error.message)
+      : t("Place search is unavailable. Click the map instead.");
+    setMapStatus(message);
+  }
+}
+
+function resetGeoControls() {
+  const locateButton = document.getElementById("location-map-locate");
+  if (locateButton) {
+    locateButton.disabled = false;
+    locateButton.textContent = t("Use my location");
+  }
+  const recordButton = document.getElementById("location-record");
+  if (recordButton) {
+    recordButton.disabled = false;
+    const recordLabel = recordButton.querySelector("span");
+    if (recordLabel) recordLabel.textContent = t("Record location");
+  }
+}
+
+function recordPickerLocation(button) {
+  const errorMessage = document.getElementById("location-form-error");
+  const form = document.getElementById("location-form");
+  const recordId = form?.elements.id.value || "";
+  const requestId = ++locationGeoRequestId;
+  const label = button.querySelector("span")?.textContent || button.textContent;
+  const setLabel = (text) => {
+    const span = button.querySelector("span");
+    if (span) span.textContent = text;
+    else button.textContent = text;
+  };
+  clearMapSearch();
+  if (!navigator.geolocation) {
+    if (errorMessage) errorMessage.textContent = t("Location is not available on this device.");
+    return;
+  }
+  const finish = () => {
+    button.disabled = false;
+    setLabel(label);
+  };
+  const isCurrent = () => requestId === locationGeoRequestId
+    && !document.getElementById("location-modal")?.classList.contains("is-hidden")
+    && document.getElementById("location-form")?.elements.id.value === recordId;
+  if (errorMessage) errorMessage.textContent = "";
+  resetGeoControls();
+  button.disabled = true;
+  setLabel(t("Recording…"));
+  navigator.geolocation.getCurrentPosition((position) => {
+    if (!isCurrent()) return;
+    finish();
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    if (!isInsideRomania(latitude, longitude)) {
+      setMapStatus(t("Choose a point inside Romania."));
+      return;
+    }
+    focusPickerMap(latitude, longitude, 16);
+    setPickerPoint(latitude, longitude);
+    showToast(t("Position recorded."));
+  }, () => {
+    if (!isCurrent()) return;
+    finish();
+    if (errorMessage) errorMessage.textContent = t("Could not record your position. Allow location access and try again.");
+  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
 }
 
 let osmRequestId = 0;
@@ -1188,11 +1927,17 @@ function suggestOsmName(lat, lng) {
 
 function clearPickerPoint() {
   osmRequestId++;
+  locationGeoRequestId++;
+  resetGeoControls();
   hideOsmSuggestion();
   if (pickerMarker && pickerMap) pickerMap.removeLayer(pickerMarker);
   pickerMarker = null;
+  pickerLastPoint = null;
+  const form = document.getElementById("location-form");
+  if (form?.elements?.latitude) form.elements.latitude.value = "";
+  if (form?.elements?.longitude) form.elements.longitude.value = "";
   const label = document.getElementById("location-coords-label");
-  if (label) label.textContent = t("No point selected — click the map to place it.");
+  if (label) label.textContent = t("No point selected - click the map to place it.");
 }
 
 function filterLiveCards() {
@@ -1228,13 +1973,27 @@ document.getElementById("points-search")?.addEventListener("input", filterLiveCa
 filterRows("users-search", "#users-admins-list .user-row", [".user-cell", ".user-email", ".status-tag"]);
 filterRows("activity-search", "#page-activity .activity-row", [".activity-change", ".user-cell"]);
 
-if (sessionStorage.getItem("aradlens-admin-auth") === "true") {
+if (!errorVariantFromHash() && sessionStorage.getItem("aradlens-admin-auth") === "true") {
   /* One request, not two in a chain. The accounts list is a background
      refresh that setAuthenticated starts anyway, so the only thing worth
-     waiting for is the answer to "who am I". */
+     waiting for is the answer to "who am I". When that answer cannot
+     arrive because the network or the API is down, show the recovery
+     surface instead of dropping the administrator on the sign-in form. */
+  const retrySession = async () => {
+    const admin = await apiRequest("/api/auth/me");
+    setAuthenticated(true, admin);
+  };
   apiRequest("/api/auth/me")
     .then((admin) => setAuthenticated(true, admin))
-    .catch(() => setAuthenticated(false));
+    .catch((error) => {
+      if (error?.offline || !navigator.onLine) {
+        showErrorScreen({ variant: "offline", demo: false, retry: retrySession });
+      } else if (Number(error?.status) >= 500) {
+        showErrorScreen({ variant: "500", demo: false, retry: retrySession });
+      } else {
+        setAuthenticated(false);
+      }
+    });
 }
 
 let adminsRequestId = 0;
@@ -1750,7 +2509,7 @@ function renderLocationCard(location) {
   card.innerHTML =
     `<div class="point-image">${photo}<svg class="point-drawing" viewBox="0 0 120 80" aria-hidden="true"><use href="#draw-${kind.drawing}"></use></svg><span class="point-badge">P</span>${categoryChip}</div>` +
     `<div class="point-body"><div><h3>${escapeHtml(location.name)}</h3><p>${escapeHtml(location.description || "—")}</p></div><span class="status-tag status-live" data-value="Published">${escapeHtml(t("Live"))}</span></div>` +
-    `<div class="point-meta"><span>#${location.id} · ${escapeHtml(`${location.latitude}, ${location.longitude}`)}</span></div>`;
+    `<div class="point-meta"><span>#${location.id} · ${escapeHtml(coordinateLabel(location))}</span></div>`;
   const open = document.createElement("button");
   open.className = "card-open";
   open.type = "button";
@@ -2084,9 +2843,12 @@ document.getElementById("location-category")?.addEventListener("change", () => {
   if (hint) hint.textContent = "";
 });
 function openLocationModal(id) {
+  locationGeoRequestId++;
   const modal = document.getElementById("location-modal");
   const form = document.getElementById("location-form");
   if (!modal || !form) return;
+  resetGeoControls();
+  const requestId = ++locationModalRequestId;
   locationModalOpener = document.activeElement;
   const errorMessage = document.getElementById("location-form-error");
   errorMessage.textContent = "";
@@ -2095,6 +2857,7 @@ function openLocationModal(id) {
   const deleteButton = document.getElementById("location-delete");
   const showPicker = (latitude, longitude, zoom) => {
     modal.classList.remove("is-hidden");
+    clearMapSearch();
     document.getElementById("location-name")?.focus();
     window.requestAnimationFrame(() => {
       if (!ensurePickerMap()) {
@@ -2102,7 +2865,7 @@ function openLocationModal(id) {
         return;
       }
       renderPickerPlaces(form.elements.id.value);
-      const hasPoint = [latitude, longitude].every((value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)));
+      const hasPoint = usableCoordinate(latitude, longitude) && isWithinRomaniaBounds(latitude, longitude);
       focusPickerMap(hasPoint ? latitude : null, hasPoint ? longitude : null, zoom || 15);
       if (hasPoint) setPickerPoint(latitude, longitude);
       else clearPickerPoint();
@@ -2128,6 +2891,7 @@ function openLocationModal(id) {
   }
   const message = document.getElementById("locations-message");
   Promise.all([apiRequest(`/api/locations/${id}`), loadCategories().catch(() => [])]).then(([record]) => {
+    if (requestId !== locationModalRequestId) return;
     form.elements.id.value = record.id;
     form.elements.name.value = record.name || "";
     form.elements.description.value = record.description || "";
@@ -2138,11 +2902,17 @@ function openLocationModal(id) {
     if (deleteButton) deleteButton.hidden = false;
     clearPickerPoint();
     showPicker(record.latitude, record.longitude);
-  }).catch((error) => { if (message) message.textContent = error.message; });
+  }).catch((error) => {
+    if (requestId !== locationModalRequestId) return;
+    if (message) message.textContent = error.message;
+  });
 }
 
 function closeLocationModal() {
   document.getElementById("location-modal")?.classList.add("is-hidden");
+  locationGeoRequestId++;
+  locationModalRequestId++;
+  clearMapSearch();
   if (locationModalOpener && document.contains(locationModalOpener)) locationModalOpener.focus();
   locationModalOpener = null;
 }
@@ -2344,29 +3114,38 @@ async function uploadPendingLocationPhoto(locationId) {
   setLocationPhotoStatus("");
 }
 document.getElementById("location-record")?.addEventListener("click", (event) => {
-  const button = event.currentTarget;
-  const errorMessage = document.getElementById("location-form-error");
-  const label = button.textContent;
-  if (!navigator.geolocation) {
-    errorMessage.textContent = t("Location is not available on this device.");
-    return;
+  recordPickerLocation(event.currentTarget);
+});
+document.getElementById("location-map-locate")?.addEventListener("click", (event) => {
+  recordPickerLocation(event.currentTarget);
+});
+document.getElementById("location-map-fit")?.addEventListener("click", () => {
+  clearMapSearch();
+  focusPickerMap(null, null, 0);
+});
+document.getElementById("location-map-clear")?.addEventListener("click", () => {
+  clearMapSearch();
+  clearPickerPoint();
+  setMapStatus("");
+  document.getElementById("location-picker-map")?.focus();
+});
+document.getElementById("location-map-search-button")?.addEventListener("click", searchMapPlaces);
+document.getElementById("location-map-search")?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    searchMapPlaces();
+  } else if (event.key === "Escape") {
+    clearMapSearch();
   }
-  errorMessage.textContent = "";
-  button.disabled = true;
-  button.textContent = t("Recording…");
-  navigator.geolocation.getCurrentPosition((position) => {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-    if (pickerMap) pickerMap.setView([latitude, longitude], 16);
-    setPickerPoint(latitude, longitude);
-    showToast("Position recorded.");
-    button.disabled = false;
-    button.textContent = label;
-  }, () => {
-    errorMessage.textContent = t("Could not record your position. Allow location access and try again.");
-    button.disabled = false;
-    button.textContent = label;
-  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+});
+document.getElementById("location-map-search")?.addEventListener("input", () => {
+  mapSearchRequestId++;
+  const box = document.getElementById("location-map-results");
+  if (box) {
+    box.replaceChildren();
+    box.hidden = true;
+  }
+  setMapStatus("");
 });
 document.getElementById("location-photo")?.addEventListener("change", (event) => {
   const input = event.currentTarget;
@@ -2604,11 +3383,22 @@ async function saveLocation() {
     form.elements.name.focus();
     return;
   }
-  if (form.elements.latitude.value === "" || form.elements.longitude.value === "") {
+  const latitudeValue = String(form.elements.latitude.value ?? "").trim();
+  const longitudeValue = String(form.elements.longitude.value ?? "").trim();
+  const hasCoordinates = latitudeValue !== "" && longitudeValue !== "";
+  if ((latitudeValue === "") !== (longitudeValue === "")) {
+    errorMessage.textContent = t("Pick both coordinates or clear the point.");
+    return;
+  }
+  if (!id && !hasCoordinates) {
     errorMessage.textContent = t("Pick a point on the map first.");
     return;
   }
-  const payload = { name, latitude: Number(form.elements.latitude.value), longitude: Number(form.elements.longitude.value) };
+  const payload = {
+    name,
+    latitude: hasCoordinates ? Number(latitudeValue) : null,
+    longitude: hasCoordinates ? Number(longitudeValue) : null,
+  };
   /* Always send the description, even when it is empty. Leaving it out of
      the payload made the API keep the old text, so a description could
      never be cleared. */
@@ -2661,6 +3451,18 @@ const tourTemplateLocations = [
 ];
 let tourModalOpener = null;
 let tourSelectedIds = [];
+let tourViewOpener = null;
+let tourViewTour = null;
+let tourViewMap = null;
+let tourViewLayer = null;
+let tourViewRouteLayer = null;
+let tourViewLatLngs = [];
+let tourViewRequestId = 0;
+let tourViewRouteId = 0;
+let tourViewMode = "direct";
+let tourViewStraightSegments = [];
+let tourViewStraightDistance = "";
+let tourViewMetaBase = "";
 
 function tourLocations() {
   return cachedLocations.length ? cachedLocations : tourTemplateLocations;
@@ -2814,6 +3616,326 @@ async function loadTours() {
   }
 }
 
+function tourStopRecords(tour) {
+  const ids = Array.isArray(tour.location_ids) && tour.location_ids.length
+    ? tour.location_ids
+    : (tour.locations || []).map((location) => location.id);
+  return ids.map((id) => {
+    const listed = (tour.locations || []).find((location) => String(location.id) === String(id)) || {};
+    const cached = cachedLocations.find((location) => String(location.id) === String(id)) || {};
+    const rawLatitude = cached.latitude ?? listed.latitude;
+    const rawLongitude = cached.longitude ?? listed.longitude;
+    const hasRawCoordinates = [rawLatitude, rawLongitude].every((value) => value !== null && value !== undefined && String(value).trim() !== "");
+    const latitude = hasRawCoordinates ? Number(rawLatitude) : NaN;
+    const longitude = hasRawCoordinates ? Number(rawLongitude) : NaN;
+    return {
+      id,
+      name: cached.name || listed.name || `Location #${id}`,
+      category: cached.category?.name || listed.category?.name || "",
+      description: cached.description || listed.description || "",
+      latitude,
+      longitude,
+      mapped: hasRawCoordinates && usableCoordinate(latitude, longitude) && isWithinRomaniaBounds(latitude, longitude),
+    };
+  });
+}
+
+function ensureTourViewMap() {
+  if (tourViewMap || typeof window.L === "undefined") return tourViewMap;
+  const element = document.getElementById("tour-view-map");
+  if (!element) return null;
+  tourViewMap = window.L.map(element, {
+    center: ROMANIA_CENTER,
+    zoom: 7,
+    minZoom: 6,
+    maxBounds: ROMANIA_BOUNDS,
+    maxBoundsViscosity: 1,
+    zoomControl: true,
+    zoomAnimation: !prefersReducedMotion(),
+    fadeAnimation: !prefersReducedMotion(),
+    markerZoomAnimation: !prefersReducedMotion(),
+  });
+  window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    noWrap: true,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(tourViewMap);
+  if (!tourViewMap.getPane("tourRoutePane")) {
+    const pane = tourViewMap.createPane("tourRoutePane");
+    pane.style.zIndex = "380";
+    pane.style.pointerEvents = "none";
+  }
+  tourViewLayer = window.L.layerGroup().addTo(tourViewMap);
+  tourViewRouteLayer = window.L.layerGroup().addTo(tourViewMap);
+  return tourViewMap;
+}
+
+function formatTourDistance(metres) {
+  return metres >= 1000 ? `${(metres / 1000).toFixed(1)} km` : `${Math.round(metres)} m`;
+}
+
+function tourDistanceLabel(stops) {
+  if (!window.L) return "";
+  let metres = 0;
+  let legs = 0;
+  for (let index = 1; index < stops.length; index += 1) {
+    const previous = stops[index - 1];
+    const current = stops[index];
+    if (!previous.mapped || !current.mapped) continue;
+    metres += window.L.latLng(previous.latitude, previous.longitude)
+      .distanceTo(window.L.latLng(current.latitude, current.longitude));
+    legs += 1;
+  }
+  return legs ? formatTourDistance(metres) : "";
+}
+
+function drawTourRoute(segments, fitCoords) {
+  if (!tourViewMap || !tourViewRouteLayer) return;
+  tourViewRouteLayer.clearLayers();
+  segments.forEach((leg) => {
+    if (leg.length < 2) return;
+    window.L.polyline(leg, {
+      color: currentTheme === "night" ? "#1a1a19" : "#fffefb",
+      weight: 7,
+      opacity: 0.9,
+      lineCap: "round",
+      lineJoin: "round",
+      interactive: false,
+      pane: "tourRoutePane",
+    }).addTo(tourViewRouteLayer);
+    window.L.polyline(leg, {
+      color: romaniaColor(),
+      weight: 3,
+      opacity: 0.9,
+      lineCap: "round",
+      lineJoin: "round",
+      interactive: false,
+      pane: "tourRoutePane",
+    }).addTo(tourViewRouteLayer);
+  });
+  if (!fitCoords.length) return;
+  if (fitCoords.length === 1) {
+    tourViewMap.setView(fitCoords[0], 15, { animate: false });
+  } else {
+    tourViewMap.fitBounds(fitCoords, { padding: [36, 36], maxZoom: 15, animate: false });
+  }
+}
+
+function syncTourModeButtons() {
+  document.querySelectorAll("#tour-view-modal [data-tour-mode]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.tourMode === tourViewMode));
+  });
+}
+
+function setTourLegend(text) {
+  const label = document.getElementById("tour-view-legend-label");
+  if (label) label.textContent = text;
+}
+
+function setTourMeta(text) {
+  const meta = document.getElementById("tour-view-meta");
+  if (meta) meta.textContent = text;
+}
+
+async function loadStreetTourRoute() {
+  const routeSegments = tourViewStraightSegments.filter((segment) => segment.length > 1);
+  if (!routeSegments.length) {
+    tourViewMode = "direct";
+    syncTourModeButtons();
+    setTourLegend(t("Walking order"));
+    setTourMeta(`${tourViewMetaBase}${tourViewStraightDistance ? ` · ${tourViewStraightDistance}` : ""}`);
+    return;
+  }
+  const requestId = ++tourViewRouteId;
+  try {
+    const responses = await Promise.all(routeSegments.map((segment) => apiRequest(
+      `/api/route/walk?points=${encodeURIComponent(segment.map(([lat, lng]) => `${lat},${lng}`).join(";"))}`
+    )));
+    if (requestId !== tourViewRouteId || tourViewMode !== "street" || document.getElementById("tour-view-modal")?.classList.contains("is-hidden")) return;
+    const lines = responses.map((response) => (Array.isArray(response?.coordinates) ? response.coordinates : [])).filter((line) => line.length >= 2);
+    if (!lines.length) throw new Error("Street route returned no line.");
+    const metres = responses.reduce((total, response) => total + (Number(response?.distance) || 0), 0);
+    drawTourRoute(lines, lines.flat());
+    setTourLegend(t("Street route"));
+    setTourMeta(`${tourViewMetaBase} · ${formatTourDistance(metres)} ${t("walking")}`);
+  } catch {
+    if (requestId !== tourViewRouteId) return;
+    tourViewMode = "direct";
+    syncTourModeButtons();
+    drawTourRoute(tourViewStraightSegments, tourViewLatLngs);
+    setTourLegend(t("Walking order"));
+    setTourMeta(`${tourViewMetaBase}${tourViewStraightDistance ? ` · ${tourViewStraightDistance}` : ""} · ${t("Street route unavailable.")}`);
+  }
+}
+
+function setTourMode(mode) {
+  if (!["direct", "street"].includes(mode) || mode === tourViewMode) return;
+  tourViewMode = mode;
+  tourViewRouteId++;
+  syncTourModeButtons();
+  if (tourViewTour) renderTourView(tourViewTour);
+}
+
+function renderTourView(tour) {
+  const list = document.getElementById("tour-view-stops");
+  const empty = document.getElementById("tour-view-empty");
+  const meta = document.getElementById("tour-view-meta");
+  const description = document.getElementById("tour-view-description");
+  if (!list || !meta || !description || !tourViewMap || !tourViewLayer) return;
+  list.replaceChildren();
+  tourViewRouteId++;
+  tourViewLayer.clearLayers();
+  tourViewRouteLayer?.clearLayers();
+  tourViewLatLngs = [];
+  const stops = tourStopRecords(tour);
+  const mapped = stops.filter((stop) => stop.mapped);
+  const distance = tourDistanceLabel(stops);
+  tourViewStraightDistance = distance;
+  tourViewStraightSegments = [];
+  tourViewMetaBase = `${t("{n} stop(s)", { n: stops.length })}${mapped.length ? ` · ${t("{n} on map", { n: mapped.length })}` : ""}`;
+  meta.textContent = `${tourViewMetaBase}${distance ? ` · ${distance}` : ""}`;
+  description.textContent = tour.description || t("The stops in this tour, in walking order.");
+  syncTourModeButtons();
+  if (!stops.length) {
+    if (empty) {
+      empty.textContent = t("This tour has no stops yet. Add points to the route first.");
+      empty.hidden = false;
+    }
+    setTourLegend(t("Walking order"));
+    tourViewMap.setView(ROMANIA_CENTER, 7, { animate: false });
+    return;
+  }
+  if (empty) empty.hidden = true;
+  const markers = [];
+  const segments = [];
+  let segment = [];
+  stops.forEach((stop, index) => {
+    const item = document.createElement("li");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "tour-stop-open";
+    const number = document.createElement("span");
+    number.className = "tour-stop-number";
+    number.textContent = String(index + 1);
+    const copy = document.createElement("span");
+    copy.className = "tour-stop-copy";
+    const name = document.createElement("strong");
+    name.textContent = stop.name;
+    const detail = document.createElement("small");
+    detail.textContent = [stop.category, stop.description].filter(Boolean).join(" · ") || t("Important point");
+    copy.append(name, detail);
+    if (!stop.mapped) {
+      const missing = document.createElement("span");
+      missing.className = "tour-stop-missing";
+      missing.textContent = t("No map position");
+      copy.append(missing);
+    }
+    button.append(number, copy);
+    item.append(button);
+    list.append(item);
+    if (!stop.mapped) {
+      if (segment.length) {
+        segments.push(segment);
+        segment = [];
+      }
+      return;
+    }
+
+    const marker = window.L.marker([stop.latitude, stop.longitude], {
+      icon: window.L.divIcon({
+        className: "tour-marker-wrap",
+        html: `<span class="tour-marker">${index + 1}</span>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+      }),
+    }).addTo(tourViewLayer);
+    const popup = document.createElement("div");
+    const popupName = document.createElement("strong");
+    popupName.textContent = stop.name;
+    const popupDetail = document.createElement("small");
+    popupDetail.textContent = [stop.category, stop.description].filter(Boolean).join(" · ");
+    popup.append(popupName);
+    if (popupDetail.textContent) popup.append(popupDetail);
+    marker.bindPopup(popup);
+    markers[index] = marker;
+    tourViewLatLngs.push([stop.latitude, stop.longitude]);
+    segment.push([stop.latitude, stop.longitude]);
+
+    const activate = () => {
+      list.querySelectorAll(".tour-stop-open").forEach((candidate, candidateIndex) => {
+        candidate.classList.toggle("is-active", candidateIndex === index);
+      });
+    };
+    button.addEventListener("click", () => {
+      activate();
+      tourViewMap.setView([stop.latitude, stop.longitude], 16, { animate: !prefersReducedMotion() });
+      marker.openPopup();
+    });
+    marker.on("click", activate);
+  });
+  if (segment.length) segments.push(segment);
+  tourViewStraightSegments = segments;
+
+  if (tourViewLatLngs.length) {
+    drawTourRoute(segments, tourViewLatLngs);
+    if (tourViewMode === "street") {
+      setTourLegend(t("Street route"));
+      setTourMeta(`${tourViewMetaBase} · ${t("Finding street route…")}`);
+      loadStreetTourRoute();
+    } else {
+      setTourLegend(t("Walking order"));
+      setTourMeta(`${tourViewMetaBase}${distance ? ` · ${distance}` : ""}`);
+    }
+  } else {
+    if (empty) {
+      empty.textContent = t("No mapped stops yet. Add coordinates to the points in this tour to see the route.");
+      empty.hidden = false;
+    }
+    setTourLegend(t("Walking order"));
+    setTourMeta(tourViewMetaBase);
+    tourViewMap.setView(ROMANIA_CENTER, 7, { animate: false });
+  }
+}
+
+async function openTourView(tour) {
+  const modal = document.getElementById("tour-view-modal");
+  if (!modal) return;
+  const requestId = ++tourViewRequestId;
+  tourViewOpener = document.activeElement;
+  tourViewTour = tour;
+  document.getElementById("tour-view-title").textContent = tour.name || t("Tour #{id}", { id: tour.id });
+  document.getElementById("tour-view-meta").textContent = t("Loading route…");
+  document.getElementById("tour-view-description").textContent = tour.description || "";
+  document.getElementById("tour-view-stops").replaceChildren();
+  const empty = document.getElementById("tour-view-empty");
+  if (empty) empty.hidden = true;
+  modal.classList.remove("is-hidden");
+  document.getElementById("tour-view-close")?.focus();
+  if (!cachedLocations.length) {
+    try {
+      await loadLocations();
+    } catch {}
+  }
+  if (requestId !== tourViewRequestId || modal.classList.contains("is-hidden")) return;
+  if (!ensureTourViewMap()) return;
+  renderTourView(tour);
+  window.requestAnimationFrame(() => {
+    if (requestId !== tourViewRequestId || !tourViewMap) return;
+    tourViewMap.invalidateSize({ animate: false, pan: false });
+    if (tourViewLatLngs.length > 1) tourViewMap.fitBounds(tourViewLatLngs, { padding: [36, 36], maxZoom: 15, animate: false });
+    else if (tourViewLatLngs.length === 1) tourViewMap.setView(tourViewLatLngs[0], 15, { animate: false });
+  });
+}
+
+function closeTourView() {
+  tourViewRequestId++;
+  tourViewRouteId++;
+  document.getElementById("tour-view-modal")?.classList.add("is-hidden");
+  if (tourViewOpener && document.contains(tourViewOpener)) tourViewOpener.focus();
+  tourViewOpener = null;
+}
+
+
 function renderTourRow(tour) {
   const row = document.createElement("div");
   row.className = "setting-row admin-row tour-row";
@@ -2837,7 +3959,17 @@ function renderTourRow(tour) {
   } else {
     details.append(title, route);
   }
-  row.append(details);
+  const hint = document.createElement("small");
+  hint.className = "tour-open-hint";
+  hint.textContent = `${t("View route on the map")} ↗`;
+  details.append(hint);
+  const detailsButton = document.createElement("button");
+  detailsButton.type = "button";
+  detailsButton.className = "tour-open";
+  detailsButton.setAttribute("aria-label", t("View {name} on the map", { name: title.textContent }));
+  detailsButton.append(details);
+  detailsButton.addEventListener("click", () => openTourView(tour));
+  row.append(detailsButton);
   const edit = document.createElement("button");
   edit.className = "button button-soft";
   edit.type = "button";
@@ -2864,6 +3996,17 @@ function renderTourRow(tour) {
 }
 
 document.getElementById("tours-refresh")?.addEventListener("click", loadTours);
+document.getElementById("tour-view-close")?.addEventListener("click", closeTourView);
+document.getElementById("tour-view-done")?.addEventListener("click", closeTourView);
+document.querySelector("#tour-view-modal [data-close-tour-view]")?.addEventListener("click", closeTourView);
+document.querySelectorAll("#tour-view-modal [data-tour-mode]").forEach((button) => {
+  button.addEventListener("click", () => setTourMode(button.dataset.tourMode));
+});
+document.getElementById("tour-view-edit")?.addEventListener("click", () => {
+  const tour = tourViewTour;
+  closeTourView();
+  if (tour) openTourModal(tour);
+});
 document.getElementById("tour-add-button")?.addEventListener("click", () => {
   showPage("tours");
   openTourModal();
@@ -3137,7 +4280,7 @@ function renderOverviewLatest(places) {
     title.textContent = place.name;
     name.append(title);
     const coords = document.createElement("span");
-    coords.textContent = `${place.latitude}, ${place.longitude}`;
+    coords.textContent = coordinateLabel(place);
     const id = document.createElement("span");
     id.textContent = `#${place.id}`;
     const go = document.createElement("button");
@@ -3465,8 +4608,495 @@ window.addEventListener("resize", () => {
   }
 });
 
-const initialPage = window.location.hash.slice(1);
-if (pageNames[initialPage]) showPage(initialPage, false);
 bindPageActions();
+handleHashRoute();
 applyLanguage();
-window.addEventListener("popstate", () => showPage(window.location.hash.slice(1) || "overview", false));
+window.addEventListener("popstate", handleHashRoute);
+
+/* ============================================================
+   GLOBAL SEARCH
+   The index is built from the pages and actions that always
+   exist plus whatever live records are already cached (or can
+   be fetched once). Results stay hidden until the first
+   keystroke, so opening search is a quiet, empty field.
+   ============================================================ */
+const SEARCH_ICONS = {
+  page: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h10M4 19h16" /></svg>',
+  action: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>',
+  place: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 10-7 10S5 15 5 10a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>',
+  tour: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.5" /><circle cx="18" cy="18" r="2.5" /><path d="M8.5 6H14a4 4 0 0 1 0 8H9a3 3 0 0 0 0 6h6.5" /></svg>',
+  admin: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3" /><path d="M5 20a7 7 0 0 1 14 0" /></svg>',
+  category: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13 11 22 2 13V2h11z" /><circle cx="7" cy="7" r="1.5" /></svg>',
+  recovery: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 2.6 17.4a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" /><path d="M12 9v4" /><path d="M12 16.6h.01" /></svg>',
+};
+const SEARCH_GROUP_ORDER = ["Pages", "Actions", "Places", "Tours", "Administrators", "Categories", "Recovery"];
+const SEARCH_GROUP_LIMIT = 6;
+
+function isSuperadminAccount() {
+  return String(authenticatedAdmin?.role || "").toLowerCase() === "superadmin";
+}
+
+function toggleGlobalSearchTheme() {
+  currentTheme = currentTheme === "day" ? "night" : "day";
+  writePreference("localStorage", "aradlens-theme", currentTheme);
+  applyTheme();
+}
+
+function buildGlobalSearchEntries() {
+  const entries = [];
+  const pages = [
+    ["overview", "Pulse of the guide today.", "dashboard home pulse start today"],
+    ["points", "Places in the live guide.", "locations places pins map important points"],
+    ["tours", "Walking routes through the city.", "routes walks stops tours"],
+    ["attention", "Everything that needs a look.", "issues problems review missing attention"],
+    ["users", "People with workspace access.", "administrators admins people accounts users"],
+    ["debug", "API and device health.", "health crashes api device monitor error debug"],
+    ["admins", "Roles, invites and permissions.", "access control permissions roles superadmin invites"],
+    ["settings", "Account, security and appearance.", "profile password theme language preferences settings"],
+  ];
+  for (const [page, subtitleKey, keywords] of pages) {
+    if (page === "admins" && !isSuperadminAccount()) continue;
+    const title = t(pageNames[page]);
+    const subtitle = t(subtitleKey);
+    entries.push({
+      group: "Pages",
+      title,
+      subtitle,
+      keywords: `${pageNames[page]} ${subtitleKey} ${keywords} ${title} ${subtitle}`,
+      icon: "page",
+      run: () => showPage(page),
+    });
+  }
+
+  const actions = [
+    { titleKey: "Add important point", subtitleKey: "Create a new place.", keywords: "new create add location place point", icon: "action", run: () => { showPage("points"); openLocationModal(null); } },
+    { titleKey: "Manage categories", subtitleKey: "Rename or remove the guide's categories.", keywords: "categories tags rename remove manage", icon: "category", run: () => openCategoryModal() },
+    { titleKey: "Generate link", subtitleKey: "Record a place from a phone.", keywords: "capture link phone record share generate", icon: "action", run: () => { showPage("points"); document.getElementById("capture-link-button")?.click(); } },
+    { titleKey: "Invite codes", subtitleKey: "Review and create administrator invites.", keywords: "invites access admin create review", icon: "admin", superadminOnly: true, run: () => { showPage("admins"); openInvitesModal(); } },
+    { titleKey: "Create invite code", subtitleKey: "Review and create administrator invites.", keywords: "invite create access admin code", icon: "action", superadminOnly: true, run: () => { showPage("admins"); openInviteModal(); } },
+    { titleKey: "Change password", subtitleKey: "Update the password for this account.", keywords: "password security account change", icon: "action", run: () => { showPage("settings"); openPasswordModal(); } },
+    { titleKey: currentTheme === "day" ? "Switch to night theme" : "Switch to day theme", subtitleKey: "Change how the workspace looks.", keywords: "theme dark light appearance night day switch", icon: "action", run: toggleGlobalSearchTheme },
+    { titleKey: "Sign out", subtitleKey: "End this session.", keywords: "logout sign out exit leave session", icon: "action", run: () => signOutCurrent() },
+  ];
+  for (const action of actions) {
+    if (action.superadminOnly && !isSuperadminAccount()) continue;
+    const title = t(action.titleKey);
+    const subtitle = t(action.subtitleKey);
+    entries.push({
+      group: "Actions",
+      title,
+      subtitle,
+      keywords: `${action.titleKey} ${action.subtitleKey} ${action.keywords} ${title} ${subtitle}`,
+      icon: action.icon,
+      run: action.run,
+    });
+  }
+
+  const recovery = [
+    { variant: "404", titleKey: "Preview page-not-found error", keywords: "404 error not found missing page recovery" },
+    { variant: "500", titleKey: "Preview server-error screen", keywords: "500 error server crash recovery" },
+    { variant: "offline", titleKey: "Preview offline error", keywords: "offline network connection error recovery" },
+  ];
+  for (const item of recovery) {
+    const title = t(item.titleKey);
+    entries.push({
+      group: "Recovery",
+      title,
+      subtitle: t("Review the recovery surface."),
+      keywords: `${item.keywords} ${title}`,
+      icon: "recovery",
+      run: () => showErrorScreen({ variant: item.variant, demo: true, updateUrl: true }),
+    });
+  }
+
+  for (const location of cachedLocations) {
+    if (!location) continue;
+    const name = location.name || t("Unnamed place");
+    const category = location.category?.name || "";
+    const hasCoords = location.latitude !== null && location.latitude !== undefined && location.latitude !== ""
+      && location.longitude !== null && location.longitude !== undefined && location.longitude !== ""
+      && Number.isFinite(Number(location.latitude)) && Number.isFinite(Number(location.longitude));
+    const coordinates = hasCoords
+      ? `${Number(location.latitude).toFixed(4)}, ${Number(location.longitude).toFixed(4)}`
+      : t("No map position");
+    entries.push({
+      group: "Places",
+      title: name,
+      subtitle: [category, coordinates].filter(Boolean).join(" · "),
+      keywords: `location place pin map ${name} ${location.description || ""} ${category} ${location.id} ${coordinates}`,
+      icon: "place",
+      run: () => openLocationModal(location.id),
+    });
+  }
+
+  for (const tour of cachedTours) {
+    if (!tour) continue;
+    const stopCount = Array.isArray(tour.location_ids)
+      ? tour.location_ids.length
+      : Array.isArray(tour.locations) ? tour.locations.length : 0;
+    const stopNames = tourStopRecords(tour).map((stop) => stop.name).join(" ");
+    const title = tour.name || t("Tour #{id}", { id: tour.id });
+    entries.push({
+      group: "Tours",
+      title,
+      subtitle: counted(stopCount, "stop", "stops"),
+      keywords: `tour route walk ${title} ${tour.description || ""} ${stopNames}`,
+      icon: "tour",
+      run: () => openTourView(tour),
+    });
+  }
+
+  for (const admin of cachedAdmins) {
+    if (!admin) continue;
+    entries.push({
+      group: "Administrators",
+      title: admin.username,
+      subtitle: [roleLabel(admin.role), admin.email].filter(Boolean).join(" · "),
+      keywords: `administrator admin user account ${admin.username} ${admin.email || ""} ${admin.role || ""}`,
+      icon: "admin",
+      run: () => {
+        showPage("users");
+        loadAdmins().then(() => {
+          const input = document.getElementById("users-search");
+          if (!input) return;
+          input.value = admin.username;
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.focus();
+        }).catch(() => {});
+      },
+    });
+  }
+
+  for (const category of cachedCategories) {
+    if (!category) continue;
+    entries.push({
+      group: "Categories",
+      title: category.name,
+      subtitle: t("Category"),
+      keywords: `category ${category.name}`,
+      icon: "category",
+      run: () => openCategoryModal(),
+    });
+  }
+
+  return entries;
+}
+
+function scoreGlobalSearchEntry(entry, normalizedQuery, tokens) {
+  const title = normalizeCategoryName(entry.title);
+  const subtitle = normalizeCategoryName(entry.subtitle);
+  const keywords = normalizeCategoryName(entry.keywords || "");
+  const haystack = `${title} ${subtitle} ${keywords}`;
+  if (!tokens.every((token) => haystack.includes(token))) return 0;
+  let score = 0;
+  if (title === normalizedQuery) score += 120;
+  else if (title.startsWith(normalizedQuery)) score += 80;
+  else if (title.split(" ").some((word) => word.startsWith(normalizedQuery))) score += 60;
+  else if (title.includes(normalizedQuery)) score += 40;
+  if (subtitle.includes(normalizedQuery)) score += 14;
+  if (keywords.includes(normalizedQuery)) score += 8;
+  for (const token of tokens) {
+    if (title.includes(token)) score += 9;
+    if (subtitle.includes(token)) score += 3;
+  }
+  return score;
+}
+
+function setGlobalSearchActive(index) {
+  if (!globalSearchItems.length) {
+    globalSearchActiveIndex = -1;
+    return;
+  }
+  const bounded = Math.max(0, Math.min(index, globalSearchItems.length - 1));
+  globalSearchItems.forEach((item, itemIndex) => {
+    const active = itemIndex === bounded;
+    item.element.classList.toggle("is-active", active);
+    item.element.setAttribute("aria-selected", String(active));
+  });
+  globalSearchActiveIndex = bounded;
+  const input = document.getElementById("global-search-input");
+  const activeItem = globalSearchItems[bounded];
+  input?.setAttribute("aria-activedescendant", activeItem.element.id);
+  activeItem.element.scrollIntoView({ block: "nearest" });
+}
+
+function moveGlobalSearchActive(direction) {
+  if (!globalSearchItems.length) return;
+  const next = globalSearchActiveIndex < 0
+    ? 0
+    : (globalSearchActiveIndex + direction + globalSearchItems.length) % globalSearchItems.length;
+  setGlobalSearchActive(next);
+}
+
+function activateGlobalSearchEntry(entry) {
+  if (!entry) return;
+  closeGlobalSearch();
+  Promise.resolve().then(() => entry.run()).catch((error) => {
+    showToast(error?.message || t("We couldn't complete that request. Check your connection and try again."), "error");
+  });
+}
+
+function activateGlobalSearchActive() {
+  const item = globalSearchItems[globalSearchActiveIndex];
+  if (item) activateGlobalSearchEntry(item.entry);
+}
+
+function renderGlobalSearchResults() {
+  const results = document.getElementById("global-search-results");
+  const input = document.getElementById("global-search-input");
+  const status = document.getElementById("global-search-status");
+  if (!results || !input) return;
+  const query = globalSearchQuery.trim();
+  if (!query) {
+    results.hidden = true;
+    results.replaceChildren();
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
+    if (status) status.textContent = "";
+    globalSearchItems = [];
+    globalSearchActiveIndex = -1;
+    return;
+  }
+
+  const normalizedQuery = normalizeCategoryName(query);
+  const tokens = normalizedQuery.split(" ").filter(Boolean);
+  const matches = buildGlobalSearchEntries()
+    .map((entry) => ({ entry, score: scoreGlobalSearchEntry(entry, normalizedQuery, tokens) }))
+    .filter((item) => item.score > 0);
+  const groups = new Map();
+  for (const item of matches) {
+    if (!groups.has(item.entry.group)) groups.set(item.entry.group, []);
+    groups.get(item.entry.group).push(item);
+  }
+
+  const fragment = document.createDocumentFragment();
+  globalSearchItems = [];
+  let groupIndex = 0;
+  const orderedGroups = [...groups.keys()].sort((a, b) => {
+    const bestA = Math.max(...groups.get(a).map((item) => item.score));
+    const bestB = Math.max(...groups.get(b).map((item) => item.score));
+    if (bestA !== bestB) return bestB - bestA;
+    return SEARCH_GROUP_ORDER.indexOf(a) - SEARCH_GROUP_ORDER.indexOf(b);
+  });
+  for (const groupKey of orderedGroups) {
+    const groupMatches = (groups.get(groupKey) || [])
+      .sort((a, b) => b.score - a.score || a.entry.title.localeCompare(b.entry.title))
+      .slice(0, SEARCH_GROUP_LIMIT);
+    if (!groupMatches.length) continue;
+    const group = document.createElement("div");
+    group.className = "global-search-group";
+    group.setAttribute("role", "group");
+    const labelId = `global-search-group-${groupIndex}`;
+    group.setAttribute("aria-labelledby", labelId);
+    const label = document.createElement("p");
+    label.className = "global-search-group-label";
+    label.id = labelId;
+    label.textContent = t(groupKey);
+    group.append(label);
+    for (const { entry } of groupMatches) {
+      const index = globalSearchItems.length;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "global-search-result";
+      button.id = `global-search-option-${index}`;
+      button.setAttribute("role", "option");
+      button.setAttribute("aria-selected", "false");
+      const icon = document.createElement("span");
+      icon.className = "global-search-result-icon";
+      icon.innerHTML = SEARCH_ICONS[entry.icon] || SEARCH_ICONS.page;
+      const copy = document.createElement("span");
+      copy.className = "global-search-copy";
+      const title = document.createElement("strong");
+      title.textContent = entry.title;
+      const subtitle = document.createElement("small");
+      subtitle.textContent = entry.subtitle;
+      copy.append(title, subtitle);
+      button.append(icon, copy);
+      button.addEventListener("click", () => activateGlobalSearchEntry(entry));
+      button.addEventListener("pointerenter", () => setGlobalSearchActive(index));
+      group.append(button);
+      globalSearchItems.push({ element: button, entry });
+    }
+    fragment.append(group);
+    groupIndex += 1;
+  }
+
+  if (!globalSearchItems.length) {
+    const empty = document.createElement("div");
+    empty.className = "global-search-empty";
+    const title = document.createElement("strong");
+    title.textContent = t("No matches for “{query}”.", { query });
+    const hint = document.createElement("span");
+    hint.textContent = t("Try a place, tour, administrator, page or action.");
+    empty.append(title, hint);
+    fragment.append(empty);
+    results.replaceChildren(fragment);
+    results.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+    input.removeAttribute("aria-activedescendant");
+    if (status) status.textContent = title.textContent;
+    globalSearchActiveIndex = -1;
+    return;
+  }
+
+  results.replaceChildren(fragment);
+  results.hidden = false;
+  input.setAttribute("aria-expanded", "true");
+  results.scrollTop = 0;
+  globalSearchActiveIndex = -1;
+  setGlobalSearchActive(0);
+  if (status) {
+    status.textContent = globalSearchItems.length === 1
+      ? t("1 result")
+      : t("{n} results", { n: globalSearchItems.length });
+  }
+}
+
+function closeGlobalSearch({ restoreFocus = true } = {}) {
+  if (!globalSearchOpen) return;
+  globalSearchOpen = false;
+  const overlay = document.getElementById("global-search-overlay");
+  overlay?.classList.add("is-hidden");
+  overlay?.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("search-open");
+  document.body.style.paddingRight = globalSearchPreviousPaddingRight;
+  globalSearchPreviousPaddingRight = "";
+  globalSearchBackground.forEach((element) => { element.inert = false; });
+  globalSearchBackground = [];
+  document.getElementById("global-search-button")?.setAttribute("aria-expanded", "false");
+  const input = document.getElementById("global-search-input");
+  const results = document.getElementById("global-search-results");
+  const status = document.getElementById("global-search-status");
+  if (input) {
+    input.value = "";
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
+  }
+  if (results) {
+    results.hidden = true;
+    results.replaceChildren();
+  }
+  if (status) status.textContent = "";
+  globalSearchQuery = "";
+  globalSearchActiveIndex = -1;
+  globalSearchItems = [];
+  if (restoreFocus) {
+    const target = globalSearchReturnFocus && document.contains(globalSearchReturnFocus) && globalSearchReturnFocus.offsetParent !== null
+      ? globalSearchReturnFocus
+      : document.getElementById("global-search-button");
+    target?.focus({ preventScroll: true });
+  }
+  globalSearchReturnFocus = null;
+}
+
+async function loadGlobalSearchData() {
+  if (globalSearchDataTask) return globalSearchDataTask;
+  const tasks = [];
+  if (!cachedLocations.length) {
+    tasks.push(apiRequest("/api/locations").then((locations) => {
+      if (Array.isArray(locations)) {
+        cachedLocations = locations;
+        locationsLoaded = true;
+      }
+    }).catch(() => {}));
+  }
+  if (!cachedTours.length) {
+    tasks.push(apiRequest("/api/tours").then((payload) => {
+      cachedTours = Array.isArray(payload) ? payload : Array.isArray(payload?.tours) ? payload.tours : [];
+    }).catch(() => {}));
+  }
+  if (!cachedCategories.length) {
+    tasks.push(loadCategories().catch(() => {}));
+  }
+  if (isSuperadminAccount() && !cachedAdmins.length) {
+    tasks.push(apiRequest("/api/admins").then((admins) => {
+      if (Array.isArray(admins)) cachedAdmins = admins;
+    }).catch(() => {}));
+  }
+  globalSearchDataTask = Promise.all(tasks).then(() => {
+    if (globalSearchOpen && globalSearchQuery.trim()) renderGlobalSearchResults();
+  }).finally(() => {
+    globalSearchDataTask = null;
+  });
+  return globalSearchDataTask;
+}
+
+function openGlobalSearch() {
+  if (globalSearchOpen) return;
+  if (!authenticatedAdmin || isErrorViewOpen()) return;
+  if (document.querySelector(".modal:not(.is-hidden)")) return;
+  const overlay = document.getElementById("global-search-overlay");
+  const input = document.getElementById("global-search-input");
+  const results = document.getElementById("global-search-results");
+  const status = document.getElementById("global-search-status");
+  if (!overlay || !input) return;
+  closeMenus();
+  closeMobileNavigation();
+  globalSearchOpen = true;
+  globalSearchReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  globalSearchQuery = "";
+  globalSearchActiveIndex = -1;
+  globalSearchItems = [];
+  input.value = "";
+  input.setAttribute("aria-expanded", "false");
+  input.removeAttribute("aria-activedescendant");
+  if (results) {
+    results.hidden = true;
+    results.replaceChildren();
+  }
+  if (status) status.textContent = "";
+  overlay.classList.remove("is-hidden");
+  overlay.setAttribute("aria-hidden", "false");
+  const scrollbarGap = window.innerWidth - document.documentElement.clientWidth;
+  globalSearchPreviousPaddingRight = document.body.style.paddingRight;
+  document.body.classList.add("search-open");
+  if (scrollbarGap > 0) document.body.style.paddingRight = `${scrollbarGap}px`;
+  globalSearchBackground = [...document.body.children].filter((element) => element !== overlay && !element.matches("script, style"));
+  globalSearchBackground.forEach((element) => { element.inert = true; });
+  document.getElementById("global-search-button")?.setAttribute("aria-expanded", "true");
+  window.requestAnimationFrame(() => input.focus({ preventScroll: true }));
+  loadGlobalSearchData();
+}
+
+document.getElementById("global-search-input")?.addEventListener("input", (event) => {
+  globalSearchQuery = event.currentTarget.value.trim();
+  renderGlobalSearchResults();
+});
+
+document.getElementById("global-search-input")?.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    moveGlobalSearchActive(1);
+  } else if (event.key === "ArrowUp") {
+    event.preventDefault();
+    moveGlobalSearchActive(-1);
+  } else if (event.key === "Enter") {
+    event.preventDefault();
+    activateGlobalSearchActive();
+  } else if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    closeGlobalSearch();
+  }
+});
+
+document.getElementById("global-search-close")?.addEventListener("click", () => closeGlobalSearch());
+document.getElementById("global-search-overlay")?.addEventListener("click", (event) => {
+  if (event.target === event.currentTarget) closeGlobalSearch();
+});
+document.getElementById("global-search-overlay")?.addEventListener("keydown", (event) => {
+  if (event.key !== "Tab") return;
+  const overlay = event.currentTarget;
+  const focusables = [...overlay.querySelectorAll("input, button:not([disabled])")]
+    .filter((element) => element.offsetParent !== null);
+  if (!focusables.length) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+});

@@ -18,6 +18,12 @@ The theme is applied two ways:
   more. Every night rule now hangs off `html[data-theme="night"]`, so the two
   views and the standalone capture page all follow the same scope.
 
+The legal documents (`terms.html`, `privacy.html`, `cookies.html`,
+`content-policy.html`, `accessibility.html`) read the same `aradlens-theme`
+key. `legal-theme.js` applies the saved theme before paint, exposes a day/night
+toggle in the legal header, and listens for storage changes, so a theme switch
+in a legal tab follows back to the workspace and vice versa.
+
 ## Capture page theme
 
 The capture page (`capture.html`) has no toggle of its own. When an admin creates
@@ -72,7 +78,8 @@ The system is called **Clay**. `styles.css` is organised in layers, in this orde
    `--surface-2`), the rail (`--anchor`, `--rail-fg`, `--rail-muted`,
    `--rail-border`), lines (`--border`, `--border-strong`), the text ramp
    (`--ink`, `--text-2`, `--text-3`), the clay accent (`--accent`,
-   `--accent-hi`, `--accent-text`, `--accent-fg`, `--accent-soft`,
+   `--accent-hi`, `--accent-text`, `--accent-fg`, `--accent-fill`,
+   `--accent-fill-fg`, `--accent-fill-hi`, `--accent-soft`,
    `--accent-on-rail`), the state pair (`--ok-*`, `--warn-*`, `--bad-*`,
    `--signal-mint`), `--focus`, `--schematic`, the three depth tokens
    (`--shadow-1/2/3`), the radius ladder (`--r-xs` … `--r-pill`) and the motion

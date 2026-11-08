@@ -41,8 +41,12 @@ same-origin to the admin server; `server.js` is authoritative.
 | `PUT` | `/api/tours/:id` | Yes | Update a tour |
 | `DELETE` | `/api/tours/:id` | Yes | Delete a tour |
 | `GET` | `/api/geocode/reverse?lat=&lon=` | No | Server-side Nominatim reverse geocode proxy (cached, rate-limited) |
+| `GET` | `/api/geocode/search?q=` | No | Romania-only Nominatim place search proxy (cached, rate-limited) |
+| `GET` | `/api/route/walk?points=lat,lng;…` | No | Romania-only walking route proxy (OpenStreetMap routed-foot; cached, rate-limited) |
 
 `:id` matches digits only. Any other `/api/*` path is not proxied.
+
+`POST /api/locations` requires numeric `latitude` and `longitude`. `PATCH`/`PUT` accepts `null` for either coordinate to clear the point; the workspace's Clear point control uses that to keep an edited record unlocated.
 
 Administrator create is not proxied: accounts are created through invites. A
 superadmin can change another admin's role and active status with
@@ -133,7 +137,11 @@ Active only when `DEV_MODE=true`. The routes below are answered locally; all oth
 - `POST /api/auth/login` accepts username `admin` with password `admin` or
   `administrare`, then sets `aradlens_token=dev-token`.
 - `GET /api/auth/me` and `POST /api/auth/change-password` return stub responses for
-  the `dev-token` session.
+  the `dev-token` session. The stub administrator is `admin` with id `1`, email
+  `admin@aradlens.local` and role `Administrator`.
+- `GET /api/admins` returns that same local administrator. The live API cannot
+  validate `dev-token`, so without this stub the first background roster request
+  returns `401` and the workspace signs the developer back out.
 - `GET /api/health` returns a stub for any caller in dev mode.
 
 ## Errors

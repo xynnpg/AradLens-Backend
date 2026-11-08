@@ -29,7 +29,10 @@ The server proxies the upstream API at `https://api.aradlens.binarysquad.club` b
 
 ## Run in dev mode
 
-Dev mode answers auth and health with local stubs and needs no upstream API.
+Dev mode answers auth, the administrator roster and health with local stubs, so
+it needs no upstream API. Other data still proxies when the upstream is
+reachable. Use normal mode (without `DEV_MODE`) to sign in through the live API
+and see the real administrators.
 
 1. Start the server with `DEV_MODE` on:
 

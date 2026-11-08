@@ -123,6 +123,67 @@
     </style>
   </head>
   <body>
+    <div id="error-view" class="error-view is-hidden" data-tone="bad" role="region" aria-labelledby="error-title" aria-describedby="error-message">
+      <div class="error-visual" aria-hidden="true">
+        <svg class="error-map" viewBox="0 0 640 960" preserveAspectRatio="xMidYMid slice" focusable="false">
+          <g class="error-map-contours">
+            <ellipse cx="330" cy="470" rx="248" ry="248" />
+            <ellipse cx="330" cy="470" rx="326" ry="326" />
+            <path d="M-60 760C60 720 120 640 220 620s150 40 240 8 150-110 250-90" />
+            <path d="M-80 840C50 800 130 720 230 700s150 40 240 8 140-110 250-90" />
+            <path d="M-40 680C80 640 140 560 240 540s150 40 240 8 150-110 250-90" />
+            <path d="M330 60v820M-40 470h720" class="error-map-axis" />
+          </g>
+          <path class="error-map-route" d="M70 880C130 800 90 700 180 660s130 30 170-30 20-90 50-130" />
+          <path class="error-map-route-ghost" d="M430 486c40-52 78-74 144-84 42-7 84-5 136 8" />
+          <g class="error-map-marker" transform="translate(400 500)">
+            <circle class="error-map-pulse" r="58" />
+            <circle class="error-map-ring" r="78" />
+            <rect class="error-map-marker-plate" x="-29" y="-29" width="58" height="58" rx="11" transform="rotate(45)" />
+            <text class="error-map-marker-mark" id="error-marker-mark" x="0" y="2" text-anchor="middle" dominant-baseline="central">!</text>
+          </g>
+        </svg>
+        <p class="error-map-caption"><span>Arad</span><span>46.17° N / 21.32° E</span></p>
+      </div>
+      <div class="error-panel">
+        <header class="error-topbar">
+          <div class="brand-mark"><svg class="brand-logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M11 4.5H7A2.5 2.5 0 0 0 4.5 7v4M21 4.5h4A2.5 2.5 0 0 1 27.5 7v4M27.5 21v4a2.5 2.5 0 0 1-2.5 2.5h-4M11 27.5H7A2.5 2.5 0 0 1 4.5 25v-4" /><circle cx="16" cy="16" r="5.6" /><circle class="brand-logo-dot" cx="16" cy="16" r="1.8" /></svg><span>Arad<span>Lens</span></span></div>
+          <div class="error-tools">
+            <label class="language-picker" for="error-language-select"><span data-i18n="Language">Language</span><select id="error-language-select" aria-label="Language" data-no-translate><option value="en">English</option><option value="ro">Română</option></select></label>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to night theme"><span class="theme-icon theme-icon-sun" aria-hidden="true">☼</span><span class="theme-icon theme-icon-moon" aria-hidden="true">◐</span><span data-theme-label>Night</span></button>
+          </div>
+        </header>
+        <main class="error-main">
+          <p class="error-status" role="alert">
+            <span class="error-status-dot" aria-hidden="true"></span>
+            <span id="error-status-label">Offline</span>
+            <span class="error-status-code" id="error-status-code" data-no-translate>NO SIGNAL</span>
+          </p>
+          <h1 id="error-title" tabindex="-1"><span id="error-title-lead">The guide lost</span><br /><em id="error-title-tail">its signal.</em></h1>
+          <p class="error-message" id="error-message">Your browser can’t reach AradLens right now. Check your connection, then try again. Nothing you saved has been lost.</p>
+          <div class="error-actions">
+            <button class="button button-primary" id="error-primary" type="button">Try again</button>
+            <button class="button button-soft" id="error-secondary" type="button">Back to workspace</button>
+          </div>
+          <p class="error-preview-note" id="error-preview-note" hidden><strong>Preview</strong><span>This is a demonstration error, not a live incident.</span></p>
+          <dl class="error-meta">
+            <div class="error-meta-row">
+              <dt data-i18n="Reference">Reference</dt>
+              <dd><code id="error-reference" data-no-translate>AL-NET-0000-00</code><button class="text-button error-copy" id="error-copy-reference" type="button" aria-label="Copy reference">Copy</button></dd>
+            </div>
+            <div class="error-meta-row">
+              <dt data-i18n="Reported">Reported</dt>
+              <dd id="error-reported">—</dd>
+            </div>
+          </dl>
+        </main>
+        <footer class="error-footer">
+          <p data-i18n="If this keeps happening, send the reference to your workspace operator.">If this keeps happening, send the reference to your workspace operator.</p>
+          <nav class="legal-links" aria-label="Legal and privacy"><a href="/terms.html">Terms of Use</a><a href="/privacy.html">Privacy Notice</a><a href="/cookies.html">Cookies</a><a href="/content-policy.html">Content Policy</a><a href="/accessibility.html">Accessibility</a></nav>
+        </footer>
+      </div>
+    </div>
+
     <div id="login-view" class="login-view">
       <div class="login-illustration" aria-hidden="true">
         <div class="login-grid-orb login-grid-orb-one"></div><div class="login-grid-orb login-grid-orb-two"></div>
@@ -219,13 +280,6 @@
             </button>
             <div id="account-menu" class="account-menu is-hidden" role="menu" aria-label="Account options"></div>
           </div>
-          <nav class="sidebar-legal" aria-label="Legal and privacy">
-            <a href="/terms.html">Terms</a>
-            <a href="/privacy.html">Privacy</a>
-            <a href="/cookies.html">Cookies</a>
-            <a href="/content-policy.html">Content</a>
-            <a href="/accessibility.html">Accessibility</a>
-          </nav>
         </div>
       </aside>
 
@@ -233,12 +287,11 @@
         <header class="topbar">
           <button class="mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><button id="sidebar-collapse" class="icon-button desktop-collapse" type="button" aria-label="Collapse sidebar" aria-expanded="true">«</button>
           <nav class="breadcrumbs" aria-label="Breadcrumb"><span>Arad city guide</span><b aria-hidden="true">/</b><strong id="breadcrumb-current">Overview</strong></nav>
-          <div class="topbar-actions"><button id="global-search-button" class="icon-button" type="button" aria-label="Search points"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2" /><path d="m16 16 4 4" /></svg></button><button id="notifications-button" class="icon-button notification-button" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17h12l-1.5-2v-4a4.5 4.5 0 0 0-9 0v4zM10 19h4" /></svg><span aria-hidden="true"></span></button><span class="topbar-divider"></span><span class="topbar-date">Tue, 14 May 2024</span><button class="theme-toggle topbar-theme-toggle" type="button" data-theme-toggle aria-label="Switch to night theme"><span class="theme-icon theme-icon-sun" aria-hidden="true">☼</span><span class="theme-icon theme-icon-moon" aria-hidden="true">◐</span><span data-theme-label>Night</span></button><label class="language-picker topbar-language" for="top-language-select"><span class="sr-only">Language</span><select id="top-language-select" data-no-translate><option value="en">English</option><option value="ro">Română</option></select></label></div>
+          <div class="topbar-actions"><button id="global-search-button" class="icon-button search-button" type="button" aria-label="Search AradLens" aria-haspopup="dialog" aria-expanded="false" aria-controls="global-search-overlay" aria-keyshortcuts="Control+K Meta+K" title="Search (Ctrl+K)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2" /><path d="m16 16 4 4" /></svg></button><span class="topbar-divider"></span><span class="topbar-date">Tue, 14 May 2024</span><button class="theme-toggle topbar-theme-toggle" type="button" data-theme-toggle aria-label="Switch to night theme"><span class="theme-icon theme-icon-sun" aria-hidden="true">☼</span><span class="theme-icon theme-icon-moon" aria-hidden="true">◐</span><span data-theme-label>Night</span></button><label class="language-picker topbar-language" for="top-language-select"><span class="sr-only">Language</span><select id="top-language-select" data-no-translate><option value="en">English</option><option value="ro">Română</option></select></label></div>
         </header>
         <p class="boot-note" role="status">Restoring your workspace…</p>
 
         <div id="page-overview" class="page active-page">
-          <div class="prototype-notice" role="note"><strong>Prototype</strong><span>Sample queue shown until the API loads — live values replace it automatically.</span></div>
           <div class="page-heading"><div><h2><span id="greeting-text">Good morning</span> <span aria-hidden="true">✦</span></h2><p class="heading-copy">Here’s the pulse of your Arad guide today.</p></div><button id="overview-add-point" class="button button-dark" type="button">+ Add important point</button></div>
           <section class="metric-grid" aria-label="Workspace summary">
             <article class="metric-card metric-card-dark"><div class="metric-top"><span>Published points</span><span class="metric-icon">⌖</span></div><strong id="stat-points-published">—</strong><div class="metric-foot"><span>Live count · locations</span></div></article>
@@ -259,7 +312,7 @@
         
         <div id="page-users" class="page"><div class="page-heading"><div><h2>Administrators</h2><p class="heading-copy">Administrator accounts with live API data.</p></div><div class="page-heading-actions"><button id="users-manage-access" class="button button-dark superadmin-only" type="button" data-page="admins" hidden>Manage access</button><button id="users-export-csv" class="button button-soft" type="button">Export CSV ↘</button><button id="users-refresh" class="button button-soft" type="button">Refresh</button></div></div><div class="user-stat-row"><div><span>Total admins</span><strong id="stat-admins-total">—</strong></div><div><span>Active</span><strong id="stat-admins-active">—</strong></div><div><span>Inactive</span><strong id="stat-admins-inactive">—</strong></div><div><span>Superadmins</span><strong id="stat-admins-super">—</strong></div></div><div class="panel table-panel"><div class="filter-row"><label class="search-field" for="users-search"><span aria-hidden="true">⌕</span><input id="users-search" name="users-search" autocomplete="off" placeholder="Search by name or email…" data-i18n="Search by name or email…" /></label><label class="sr-only" for="users-status">Filter admins by status</label><select id="users-status" class="filter-button"><option value="all">All admins</option><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div><div class="users-table"><div class="user-row user-head"><span>User</span><span>Email</span><span>Role</span><span>Status</span></div><p id="users-admins-message" role="status" aria-live="polite"></p><div id="users-admins-list"></div></div></div></div>
 
-        <div id="page-debug" class="page"><div class="page-heading"><div><h2>Debug &amp; device health</h2><p class="heading-copy">Stay ahead of the small things before they become a bad experience.</p></div><button class="button button-dark" type="button" data-api-health>Run health check ↻</button></div><div class="debug-banner"><span class="debug-icon" id="debug-banner-icon">✓</span><div><strong id="debug-banner-title">No active incidents</strong><p id="debug-banner-text">All core services are responding normally. Last check completed 4 minutes ago.</p></div><span class="banner-time">Auto-refreshing</span></div></div>
+        <div id="page-debug" class="page"><div class="page-heading"><div><h2>Debug &amp; device health</h2><p class="heading-copy">Stay ahead of the small things before they become a bad experience.</p></div><button class="button button-dark" type="button" data-api-health>Run health check ↻</button></div><div class="debug-banner"><span class="debug-icon" id="debug-banner-icon">✓</span><div><strong id="debug-banner-title">No active incidents</strong><p id="debug-banner-text">All core services are responding normally. Last check completed 4 minutes ago.</p></div><span class="banner-time">Auto-refreshing</span></div><section class="panel debug-states-panel"><div class="panel-heading"><div><h3>Recovery screens</h3><p>Preview the error states an administrator may see. These are simulations and do not affect live data.</p></div></div><div class="debug-state-actions"><button class="button button-soft" type="button" data-error-preview="404">Page not found</button><button class="button button-soft" type="button" data-error-preview="500">Server error</button><button class="button button-soft" type="button" data-error-preview="offline">Offline</button></div></section></div>
 
         
         <div id="page-admins" class="page superadmin-only" hidden>
@@ -386,11 +439,80 @@
           </div>
         </div>
 
+        <footer class="site-footer">
+          <nav aria-label="Legal and privacy">
+            <a href="/terms.html">Terms</a>
+            <a href="/privacy.html">Privacy</a>
+            <a href="/cookies.html">Cookies</a>
+            <a href="/content-policy.html">Content</a>
+            <a href="/accessibility.html">Accessibility</a>
+          </nav>
+          <p><strong>AradLens</strong> · <span data-i18n="Admin workspace">Admin workspace</span></p>
+        </footer>
       </main>
     </div>
-<div id="location-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="location-modal-title"><div class="modal-backdrop" data-close-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="location-modal-title">Add location</h3><p>Live API data · /locations</p></div><button id="location-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><form id="location-form" class="settings-form" novalidate onsubmit="return false"><input name="id" type="hidden" /><div class="setting-field"><label for="location-name">Name</label><input id="location-name" name="name" maxlength="255" required autocomplete="off" /></div><div class="setting-field"><label for="location-category">Category</label><div class="category-field"><select id="location-category" name="category_id"><option value="">No category</option></select><button id="location-category-manage" class="text-button" type="button">Manage categories</button></div><p class="field-help" id="location-category-hint" role="status" aria-live="polite"></p></div><div class="setting-field"><label>Position on map</label><div id="location-picker-map" role="application" aria-label="Pick the location on the map"></div><p class="field-help" id="location-coords-label">No point selected — click the map to place it.</p><p class="field-help" id="osm-suggest" hidden><span id="osm-suggest-text"></span> <button type="button" class="text-button" id="osm-suggest-apply">Use this name</button></p><input name="latitude" type="hidden" /><input name="longitude" type="hidden" /><div class="phone-only capture-mobile"><p class="capture-mobile-label">On this phone</p><div class="capture-mobile-actions"><button id="location-record" class="button button-dark button-wide" type="button"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.6v3.5m0 11.8v3.5M2.6 12h3.5m11.8 0h3.5" /></svg><span>Record location</span></button><label class="button button-soft button-wide" for="location-photo"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.6h3.4l1.5-2.3h8.2l1.5 2.3H21V19H3z" /><circle cx="12" cy="13.4" r="3.3" /></svg><span>Take photo</span></label></div><input id="location-photo" type="file" accept="image/*" capture="environment" hidden /><p class="field-help" id="location-photo-status" role="status" aria-live="polite"></p></div></div><div class="setting-field"><label for="location-description">Description</label><textarea id="location-description" name="description" rows="3"></textarea></div><div class="setting-field"><label>Photos</label><div id="location-image-preview" class="image-preview" hidden><img id="location-image-img" alt="Location image preview" /></div><div class="modal-actions"><button id="location-image-button" class="button button-soft" type="button">Add photo</button></div><p class="field-help" id="location-image-count">No photos yet.</p></div><p id="location-form-error" class="form-error" role="alert"></p><div class="modal-actions"><button id="location-save" class="button button-dark" type="button">Save location</button><button id="location-delete" class="button button-soft" type="button">Delete</button><button id="location-cancel" class="button button-soft" type="button">Cancel</button></div></form></div></div>
+<div id="location-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="location-modal-title">
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-panel panel location-modal-panel" role="document">
+    <div class="panel-heading">
+      <div><h3 id="location-modal-title">Add location</h3><p>Live API data · /locations</p></div>
+      <button id="location-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button>
+    </div>
+    <form id="location-form" class="settings-form" novalidate onsubmit="return false">
+      <input name="id" type="hidden" />
+      <div class="location-fields">
+        <div class="setting-field">
+          <label for="location-name">Name</label>
+          <input id="location-name" name="name" maxlength="150" required autocomplete="off" />
+        </div>
+        <div class="setting-field">
+          <label for="location-category">Category</label>
+          <div class="category-field"><select id="location-category" name="category_id"><option value="">No category</option></select><button id="location-category-manage" class="text-button" type="button">Manage categories</button></div>
+          <p class="field-help" id="location-category-hint" role="status" aria-live="polite"></p>
+        </div>
+        <div class="setting-field">
+          <label for="location-description">Description</label>
+          <textarea id="location-description" name="description" rows="3"></textarea>
+        </div>
+      <div class="setting-field location-photos-field">
+        <label>Photos</label>
+        <div id="location-image-preview" class="image-preview" hidden><img id="location-image-img" alt="Location image preview" /></div>
+        <div class="modal-actions"><button id="location-image-button" class="button button-soft" type="button">Add photo</button></div>
+        <p class="field-help" id="location-image-count">No photos yet.</p>
+      </div>
+      </div>
+      <div class="setting-field location-map-field">
+        <label>Position on map</label>
+        <div class="map-toolbar">
+          <div class="map-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2" /><path d="m16 16 4 4" /></svg><input id="location-map-search" type="search" autocomplete="off" placeholder="Search a place in Romania" aria-label="Search a place in Romania" /><button id="location-map-search-button" class="map-search-button" type="button" aria-label="Search">Search</button></div>
+          <div class="map-toolbar-actions"><span class="map-scope">Romania only</span><button id="location-map-clear" class="button button-soft" type="button">Clear point</button><button id="location-map-fit" class="button button-soft" type="button">Fit Romania</button><button id="location-map-locate" class="button button-soft" type="button">Use my location</button></div>
+        </div>
+        <div id="location-map-results" class="map-results" role="group" aria-label="Place search results" hidden></div>
+        <div id="location-map-status" class="map-status" role="status" aria-live="polite"></div>
+        <div id="location-picker-map" role="application" aria-label="Pick the location on the map"></div>
+        <p class="field-help" id="location-coords-label" role="status" aria-live="polite">No point selected — click the map to place it.</p>
+        <p class="field-help" id="osm-suggest" hidden><span id="osm-suggest-text"></span> <button type="button" class="text-button" id="osm-suggest-apply">Use this name</button></p>
+        <input name="latitude" type="hidden" />
+        <input name="longitude" type="hidden" />
+        <div class="phone-only capture-mobile">
+          <p class="capture-mobile-label">On this phone</p>
+          <div class="capture-mobile-actions">
+            <button id="location-record" class="button button-dark button-wide" type="button"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.6v3.5m0 11.8v3.5M2.6 12h3.5m11.8 0h3.5" /></svg><span>Record location</span></button>
+            <label class="button button-soft button-wide" for="location-photo"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.6h3.4l1.5-2.3h8.2l1.5 2.3H21V19H3z" /><circle cx="12" cy="13.4" r="3.3" /></svg><span>Take photo</span></label>
+          </div>
+          <input id="location-photo" name="location-photo" type="file" accept="image/*" capture="environment" hidden />
+          <p class="field-help" id="location-photo-status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <p id="location-form-error" class="form-error" role="alert"></p>
+      <div class="modal-actions"><button id="location-save" class="button button-dark" type="button">Save location</button><button id="location-delete" class="button button-soft" type="button" hidden>Delete</button><button id="location-cancel" class="button button-soft" type="button">Cancel</button></div>
+    </form>
+  </div>
+</div>
 <div id="category-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="category-modal-title"><div class="modal-backdrop" data-close-category-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="category-modal-title">Categories</h3><p>Live API data · /categories</p></div><button id="category-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><div class="settings-form"><div class="setting-field"><label for="category-name-input">New category</label><div class="category-create"><input id="category-name-input" name="category-name" maxlength="100" autocomplete="off" placeholder="Category name" /><button id="category-create" class="button button-dark" type="button">Add category</button></div></div><div class="setting-field"><label>Existing categories</label><ul id="category-list" class="category-list"></ul></div><p id="category-modal-error" class="form-error" role="alert"></p><div class="modal-actions"><button id="category-modal-done" class="button button-soft" type="button">Done</button></div></div></div></div>
 <div id="tour-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="tour-modal-title"><div class="modal-backdrop" data-close-tour-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="tour-modal-title">Add tour</h3><p>Chain important points in the order visitors should walk them.</p></div><button id="tour-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><form id="tour-form" class="settings-form"><input name="id" type="hidden" /><div class="setting-field"><label for="tour-name">Name</label><input id="tour-name" name="name" maxlength="150" required autocomplete="off" /></div><div class="setting-field"><label for="tour-description">Description</label><textarea id="tour-description" name="description" rows="3"></textarea></div><div class="setting-field"><label>Stops in order</label><div class="tour-picker"><div class="tour-picker-column"><p class="tour-picker-title">Available points</p><div id="tour-location-pool" class="tour-location-pool"></div></div><div class="tour-picker-column"><p class="tour-picker-title">Route <span id="tour-stop-count">0 stops</span></p><ol id="tour-location-order" class="tour-location-order"></ol></div></div><p class="field-help">Click a point to add it, then use the arrows to set the walking order.</p></div><p id="tour-form-error" class="form-error" role="alert"></p><div class="modal-actions"><button class="button button-dark" type="submit">Save tour</button><button id="tour-delete" class="button button-soft" type="button" hidden>Delete tour</button><button id="tour-cancel" class="button button-soft" type="button">Cancel</button></div></form></div></div>
+<div id="tour-view-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="tour-view-title"><div class="modal-backdrop" data-close-tour-view></div><div class="modal-panel panel tour-view-panel" role="document"><div class="panel-heading"><div><h3 id="tour-view-title">Tour route</h3><p id="tour-view-meta">—</p></div><button id="tour-view-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><div class="tour-view-layout"><div class="tour-view-map-wrap"><div id="tour-view-map" role="application" aria-label="Tour route map"></div><div class="tour-view-mode" role="group" aria-label="Route view"><button type="button" data-tour-mode="direct" aria-pressed="true">Direct</button><button type="button" data-tour-mode="street" aria-pressed="false">Streets</button></div><div class="tour-view-map-legend"><span class="tour-view-legend-line" aria-hidden="true"></span><span id="tour-view-legend-label">Walking order</span></div></div><div class="tour-view-side"><p id="tour-view-description" class="tour-view-description"></p><ol id="tour-view-stops" class="tour-view-stops"></ol><p id="tour-view-empty" class="tour-empty" hidden>No mapped stops yet. Add coordinates to the points in this tour to see the route.</p></div></div><div class="modal-actions"><button id="tour-view-edit" class="button button-soft" type="button">Edit tour</button><button id="tour-view-done" class="button button-dark" type="button">Done</button></div></div></div>
 <div id="image-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="image-modal-title"><div class="modal-backdrop" data-close-image-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="image-modal-title">Location images</h3><p>Drag images in or browse your files — uploads save right away.</p></div><button id="image-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><div class="settings-form"><div id="image-strip" class="image-strip" role="group" aria-label="Location photos"></div><label id="image-dropzone" class="image-dropzone" for="image-file"><svg class="image-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><circle cx="8.8" cy="8.8" r="1.7"/><path d="M21 15.4 16.2 10.6 6.8 21"/></svg><span class="image-dropzone-title">Drag an image here, or click to browse</span><span class="image-dropzone-sub">PNG, JPG or WebP</span><input id="image-file" name="image-file" class="image-file-input" type="file" accept="image/*" multiple /></label><div id="image-gallery-preview" class="image-preview" hidden><img id="image-gallery-img" alt="Image preview" /></div><p id="image-modal-error" class="form-error" role="alert"></p><div class="modal-actions"><button id="image-download" class="button button-soft" type="button">Download photo</button><button id="image-modal-cancel" class="button button-soft" type="button">Done</button></div></div></div></div>
      <div id="capture-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="capture-modal-title"><div class="modal-backdrop" data-close-capture-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="capture-modal-title">Capture link</h3><p>Open this on a phone to record a location without signing in.</p></div><button id="capture-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><div class="settings-form"><div class="setting-field"><label for="capture-link-input">Link</label><textarea id="capture-link-input" class="capture-link-input" rows="3" readonly spellcheck="false" autocapitalize="off" aria-label="Capture link"></textarea></div><p class="field-help capture-link-meta"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4" /><path d="M12 7.4V12l3.1 2" /></svg><span id="capture-link-expiry"></span></p><p id="capture-link-note" class="capture-link-note" hidden></p><p id="capture-link-error" class="form-error" role="alert"></p><div class="modal-actions"><button id="capture-link-copy" class="button button-dark" type="button">Copy link</button><button id="capture-link-share" class="button button-soft" type="button" hidden>Share</button><button id="capture-modal-done" class="button button-soft" type="button">Done</button></div></div></div></div>
      <div id="admin-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title"><div class="modal-backdrop" data-close-admin-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="admin-modal-title">Edit access</h3><p id="admin-modal-subtitle">—</p></div><button id="admin-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><form id="admin-form" class="settings-form"><input name="id" type="hidden" /><div class="setting-field"><label for="admin-role">Role</label><select id="admin-role" name="role"><option value="admin">Admin</option><option value="superadmin">Superadmin</option></select><small class="field-help">A superadmin can manage other administrators and invite codes.</small></div><label class="switch" for="admin-active"><input id="admin-active" name="is_active" type="checkbox" class="toggle-input" checked /><span class="toggle" aria-hidden="true"></span><span class="switch-label">Account is active</span></label><small class="field-help">An inactive account keeps its role but cannot sign in.</small><p id="admin-form-error" class="form-error" role="alert"></p><div class="modal-actions"><button class="button button-dark" type="submit">Save access</button><button id="admin-cancel" class="button button-soft" type="button">Cancel</button></div></form></div></div>
@@ -398,6 +520,21 @@
      <div id="invites-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="invites-modal-title"><div class="modal-backdrop" data-close-invites-modal></div><div class="modal-panel panel invites-modal-panel" role="document"><div class="panel-heading"><div><h3 id="invites-modal-title">Invite codes</h3><p>Copy a code to hand it over. Revoke one you no longer need.</p></div><button id="invites-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><p id="invites-message" class="panel-message" role="status" aria-live="polite"></p><div id="invites-list" class="admin-list"></div><div class="modal-actions"><button id="invites-refresh" class="button button-soft" type="button">Refresh</button><button id="invites-modal-done" class="button button-dark" type="button">Done</button></div></div></div>
      <div id="password-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="password-modal-title"><div class="modal-backdrop" data-close-password-modal></div><div class="modal-panel panel" role="document"><div class="panel-heading"><div><h3 id="password-modal-title">Change password</h3><p>You stay signed in after the change.</p></div><button id="password-modal-close" class="icon-button" type="button" aria-label="Close dialog">×</button></div><form id="change-password-form" class="settings-form" aria-describedby="change-password-error"><div class="setting-field"><label for="old-password">Current password</label><input id="old-password" name="old_password" type="password" autocomplete="current-password" required /></div><div class="setting-field"><label for="new-password">New password</label><input id="new-password" name="new_password" type="password" autocomplete="new-password" minlength="8" required /><small class="field-help">Use at least 8 characters.</small></div><div class="setting-field"><label for="confirm-password">Confirm new password</label><input id="confirm-password" name="confirm_password" type="password" autocomplete="new-password" minlength="8" required /><small class="field-help">Type it once more so we know it landed.</small></div><p id="change-password-error" class="form-error" role="alert"></p><div class="modal-actions"><button class="button button-dark" type="submit">Change password</button><button id="password-modal-cancel" class="button button-soft" type="button">Cancel</button></div></form></div></div>
      <div id="confirm-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-text"><div class="modal-backdrop" data-close-confirm-modal></div><div class="modal-panel panel confirm-panel" role="document"><div class="confirm-mark" aria-hidden="true">!</div><div><h3 id="confirm-modal-title">Remove administrator</h3><p id="confirm-modal-text">This cannot be undone.</p></div><p id="confirm-modal-detail" class="confirm-detail"></p><div class="modal-actions"><button id="confirm-modal-cancel" class="button button-soft" type="button">Cancel</button><button id="confirm-modal-confirm" class="button button-danger" type="button">Remove</button></div></div></div>
+     <div id="global-search-overlay" class="global-search is-hidden" role="dialog" aria-modal="true" aria-labelledby="global-search-title" aria-hidden="true">
+       <div class="global-search-shell">
+         <h2 id="global-search-title" class="sr-only" data-i18n="Search AradLens">Search AradLens</h2>
+         <div class="global-search-field">
+           <svg class="global-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2" /><path d="m16 16 4 4" /></svg>
+           <input id="global-search-input" class="global-search-input" type="search" autocomplete="off" spellcheck="false" placeholder="Search anything…" data-i18n="Search anything…" aria-label="Search AradLens" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="global-search-results" aria-describedby="global-search-help" aria-haspopup="listbox" />
+           <kbd class="global-search-esc" aria-hidden="true">Esc</kbd>
+           <button id="global-search-close" class="global-search-close" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg><span class="sr-only" data-i18n="Close search">Close search</span></button>
+         </div>
+         <p id="global-search-help" class="sr-only" data-i18n="Type to search places, tours, administrators, pages and actions.">Type to search places, tours, administrators, pages and actions.</p>
+         <p id="global-search-results-label" class="sr-only" data-i18n="Search results">Search results</p>
+         <div id="global-search-results" class="global-search-results" role="listbox" aria-labelledby="global-search-results-label" hidden></div>
+         <p id="global-search-status" class="sr-only" role="status" aria-live="polite"></p>
+       </div>
+     </div>
      <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><span class="toast-mark" aria-hidden="true"></span><span class="toast-message"></span><button type="button" class="toast-dismiss" aria-label="Dismiss notification">×</button></div>
     <script src="assets/vendor/leaflet/leaflet.js" defer></script>
      <script src="app.js?v=20261021" defer></script>
