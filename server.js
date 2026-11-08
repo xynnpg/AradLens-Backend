@@ -50,7 +50,7 @@ const PUBLIC_STATIC_FILES = new Map([
   ["/fonts.css", "fonts.css"],
   ["/legal.css", "legal.css"],
 ]);
-const PUBLIC_ASSET_EXTENSIONS = new Set([".css", ".js", ".geojson", ".woff2", ".png", ".svg", ".ico", ".txt"]);
+const PUBLIC_ASSET_EXTENSIONS = new Set([".css", ".js", ".json", ".geojson", ".woff2", ".png", ".svg", ".ico", ".txt"]);
 const rootRealPath = (() => {
   try {
     return fs.realpathSync(root);
@@ -355,13 +355,28 @@ function clearAccountCookies(secure = false) {
 const geocodeCache = new Map();
 const routeCache = new Map();
 
+/* Nominatim asks for at most one request per second. Reverse geocoding now
+   runs for location cards as well as the map picker, so every upstream
+   lookup shares one polite queue instead of arriving in bursts. */
+let nominatimGate = Promise.resolve();
+let nominatimLastRequest = 0;
+function waitForNominatim() {
+  const slot = nominatimGate.then(async () => {
+    const wait = Math.max(0, 1100 - (Date.now() - nominatimLastRequest));
+    if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
+    nominatimLastRequest = Date.now();
+  });
+  nominatimGate = slot.catch(() => {});
+  return slot;
+}
+
 async function proxyApi(req, res, pathname) {
   if (!sameOriginRequest(req)) {
     sendJson(res, 403, { detail: "Cross-site request blocked." });
     return true;
   }
   if (pathname === "/api/geocode/reverse" && req.method === "GET") {
-    if (!rateLimit(req, "geocode", 10, 60_000)) {
+    if (!rateLimit(req, "geocode", 60, 60_000)) {
       sendJson(res, 429, { detail: "Too many geocoding requests. Try again shortly." }, { "Retry-After": "60" });
       return true;
     }
@@ -386,6 +401,7 @@ async function proxyApi(req, res, pathname) {
       return true;
     }
     try {
+      await waitForNominatim();
       const upstream = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=18&addressdetails=1`, {
         headers: {
           Accept: "application/json",
@@ -438,6 +454,7 @@ async function proxyApi(req, res, pathname) {
       upstreamUrl.searchParams.set("countrycodes", "ro");
       upstreamUrl.searchParams.set("limit", "6");
       upstreamUrl.searchParams.set("addressdetails", "1");
+      await waitForNominatim();
       const upstream = await fetch(upstreamUrl, {
         headers: {
           Accept: "application/json",

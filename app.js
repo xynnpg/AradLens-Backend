@@ -372,6 +372,8 @@ const uiTranslations = {
   "View points ↗": "Vezi punctele ↗",
   "Place": "Loc",
   "Coordinates": "Coordonate",
+  "Address": "Adresă",
+  "{address}. Coordinates: {coords}": "{address}. Coordonate: {coords}",
   "ID": "ID",
   "Loading…": "Se încarcă…",
   "Filter points by completeness": "Filtrează punctele după completitudine",
@@ -650,6 +652,112 @@ const uiTranslations = {
   "Place search results": "Rezultatele căutării de locuri",
   "Tour route map": "Harta traseului turului",
   "No coordinates": "Fără coordonate",
+
+  /* Workspace tour */
+  "Workspace guide": "Ghidul spațiului de lucru",
+  "Replay the quick tour of the rail, search, overview and account menu.": "Reia turul rapid al barei, căutării, prezentării generale și meniului contului.",
+  "Replay guide": "Reia ghidul",
+  "What it means": "Ce înseamnă",
+  "What it does": "Ce face",
+  "Skip guide": "Sari peste ghid",
+  "Back": "Înapoi",
+  "Continue": "Continuă",
+  "Finish": "Termină",
+  "Stop {n} of {total}. {title}": "Pasul {n} din {total}. {title}",
+  "Workspace guide finished. Replay it any time from Settings.": "Ghidul spațiului de lucru s-a încheiat. Îl poți relua oricând din Setări.",
+  "A quick map of your workspace.": "O hartă rapidă a spațiului tău de lucru.",
+  "AradLens is one workspace with a few dependable landmarks. This short guide points at each one, says what it means, and shows what it does. It takes about a minute.": "AradLens este un singur spațiu de lucru, cu câteva repere sigure. Acest ghid scurt arată fiecare reper, explică ce înseamnă și ce face. Durează aproximativ un minut.",
+  "Rectangle": "Dreptunghiul",
+  "marks the part of the workspace this stop is about.": "marchează partea din spațiul de lucru despre care vorbește acest pas.",
+  "Arrow": "Săgeata",
+  "ties the note to it.": "leagă nota de acea parte.",
+  "You can leave at any stop. The workspace stays exactly as it is.": "Poți ieși la orice pas. Spațiul de lucru rămâne exact așa cum este.",
+  "The left rail is the map.": "Bara din stânga este harta.",
+  "It holds every part of the guide, in the order you will use it. The filled clay tile is where you are now.": "Conține fiecare parte a ghidului, în ordinea în care o vei folosi. Elementul evidențiat cu lut este locul în care ești acum.",
+  "Each stop opens a page. Nothing on the rail is destructive; it only takes you somewhere.": "Fiecare oprire deschide o pagină. Nimic din bară nu distruge date; te duce doar undeva.",
+  "The menu holds the map.": "Meniul conține harta.",
+  "On a small screen the rail folds into this button. Open it to move between the guide's pages.": "Pe un ecran mic, bara se pliază în acest buton. Deschide-l pentru a trece între paginile ghidului.",
+  "It slides the navigation over the page. Choosing a page closes the menu and takes you there.": "Glisează navigarea peste pagină. Alegerea unei pagini închide meniul și te duce acolo.",
+  "Every stop in the full rail is still here, one tap away.": "Fiecare oprire din bara completă este încă aici, la un singur tap.",
+  "Your account is inside the menu.": "Contul tău este în meniu.",
+  "On a small screen the rail folds away, so your account lives inside this button.": "Pe un ecran mic, bara se retrage, așa că contul tău se află în acest buton.",
+  "Open it to switch accounts, change settings or sign out without losing the page you are on.": "Deschide-l pentru a schimba contul, a modifica setările sau a te deconecta fără să pierzi pagina pe care ești.",
+  "The day's pulse: what is live, what needs attention, and what changed.": "Pulsul zilei: ce este publicat, ce necesită atenție și ce s-a schimbat.",
+  "The city roster. Add, edit or retire a place.": "Lista orașului. Adaugă, editează sau retrage un loc.",
+  "Walking routes that stitch important points into a story.": "Trasee pe jos care leagă punctele importante într-o poveste.",
+  "The people who can sign in to this guide.": "Persoanele care se pot autentifica în acest ghid.",
+  "Every missing photo, description or map pin in one queue.": "Fiecare fotografie, descriere sau poziție pe hartă lipsă, într-o singură coadă.",
+  "Superadmins also see Access control, Password resets and Debug under Monitor.": "Superadminii văd în plus Control acces, Resetări de parolă și Diagnosticare la Monitorizare.",
+  "The top bar is the control strip.": "Bara de sus este banda de control.",
+  "It keeps the tools you reach for while working on a page. The crumb on the left always tells you where you are.": "Ține la îndemână instrumentele pe care le folosești în timp ce lucrezi pe o pagină. Indicația din stânga îți spune mereu unde ești.",
+  "Search, date, theme and language stay within reach without leaving the page.": "Căutarea, data, tema și limba rămân la îndemână fără să părăsești pagina.",
+  "Find a page, place, tour or administrator. Press / or Ctrl K.": "Găsește o pagină, un loc, un tur sau un administrator. Apasă / sau Ctrl K.",
+  "Date": "Dată",
+  "Today, so a screenshot or report has a timestamp.": "Data de astăzi, ca o captură sau un raport să aibă un moment clar.",
+  "Day or night, remembered on this device.": "Zi sau noapte, reținută pe acest dispozitiv.",
+  "English or Romanian, remembered on this device.": "Engleză sau română, reținută pe acest dispozitiv.",
+  "Three numbers, one glance.": "Trei numere, o singură privire.",
+  "These cards answer the questions you ask every morning: what is published, who can help, and what is waiting for a fix.": "Aceste cartonașe răspund întrebărilor de dimineață: ce este publicat, cine poate ajuta și ce așteaptă o remediere.",
+  "Each card is a live count. It updates as points are added, edited or archived.": "Fiecare cartonaș este un total live. Se actualizează când punctele sunt adăugate, editate sau arhivate.",
+  "Places currently live in the guide.": "Locurile publicate acum în ghid.",
+  "People with access to this workspace.": "Persoanele cu acces la acest spațiu de lucru.",
+  "Points missing a photo, description or map position.": "Puncte fără fotografie, descriere sau poziție pe hartă.",
+  "The counts are a summary. The editorial queue below turns them into actions.": "Totalurile sunt doar un rezumat. Sarcinile editoriale de mai jos le transformă în acțiuni.",
+  "Health tells you what visitors get.": "Starea ghidului îți arată ce primesc vizitatorii.",
+  "The ring is the share of points that are complete. The rows beside it show API response time and the gaps still left.": "Inelul este proporția punctelor complete. Rândurile din dreapta arată timpul de răspuns al API-ului și lipsurile rămase.",
+  "It checks the API on load and counts missing photos or descriptions, so a broken service or a thin record is visible before a visitor finds it.": "Verifică API-ul la încărcare și numără fotografiile sau descrierile lipsă, astfel încât un serviciu căzut sau o fișă incompletă să fie vizibile înainte ca vizitatorul să le găsească.",
+  "A signal keeps its label, so colour is never the only cue.": "Un semnal își păstrează eticheta, așa că culoarea nu este niciodată singurul indiciu.",
+  "The queue turns gaps into actions.": "Sarcinile editoriale transformă lipsurile în acțiuni.",
+  "Each row is one small editorial job, ordered so the most visible gaps come first.": "Fiecare rând este o mică sarcină editorială, ordonată după cât de vizibile sunt lipsurile.",
+  "Open a row to jump to the place that needs the fix. The badge tells you how many items are waiting.": "Deschide un rând pentru a sări la locul care trebuie reparat. Insigna arată câte elemente așteaptă.",
+  "View all opens the full Attention list for the whole guide.": "Vezi tot deschide lista completă Atenție pentru întregul ghid.",
+  "The newest places, ready to open.": "Cele mai noi locuri, gata de deschis.",
+  "This is the freshest content in the guide. Coordinates and the record number sit beside each name so you can recognise a place before opening it.": "Acesta este cel mai proaspăt conținut din ghid. Coordonatele și numărul înregistrării stau lângă fiecare nume, ca să recunoști locul înainte de a-l deschide.",
+  "Use the arrow at the end of a row to open that point in the editor. Editing here changes what visitors see.": "Folosește săgeata de la capătul rândului pentru a deschide punctul în editor. Editarea aici schimbă ce văd vizitatorii.",
+  "Place and coordinates": "Loc și coordonate",
+  "Name, map position and record ID.": "Nume, poziție pe hartă și ID-ul înregistrării.",
+  "Open arrow": "Săgeata de deschidere",
+  "Jumps to the point in Important points, with the editor already open.": "Sare la punct în Puncte de interes, cu editorul deja deschis.",
+  "Only the four newest places appear here; the full roster is under Important points.": "Aici apar doar cele mai noi patru locuri; lista completă este la Puncte de interes.",
+  "Your account lives at the foot of the rail.": "Contul tău stă în partea de jos a barei.",
+  "The monogram, name and role tell you which account is active. The menu holds the other signed-in accounts, Settings and Sign out.": "Monograma, numele și rolul arată ce cont este activ. Meniul conține celelalte conturi autentificate, Setări și Deconectare.",
+  "Switch accounts without signing in again, or open Settings to change your password, theme and language.": "Schimbă contul fără să te autentifici din nou sau deschide Setări pentru parolă, temă și limbă.",
+  "Active account": "Cont activ",
+  "The identity every change in the workspace is signed with.": "Identitatea cu care este semnată fiecare modificare din spațiul de lucru.",
+  "Switch or add": "Comută sau adaugă",
+  "Move between accounts on this device, or sign another one in.": "Treci între conturile de pe acest dispozitiv sau autentifică altul.",
+  "Settings and sign out": "Setări și deconectare",
+  "Your profile, password and appearance; or end the session.": "Profilul, parola și aspectul tău; sau încheie sesiunea.",
+  "That is the whole workspace. You are ready to use it.": "Acesta este tot spațiul de lucru. Ești gata să îl folosești.",
+  "Follow the frame around each part. It takes about a minute.": "Urmează cadrul din jurul fiecărei părți. Durează aproximativ un minut.",
+  "On a small screen, this button opens the rail.": "Pe un ecran mic, acest buton deschide bara.",
+  "Choose a page to open it.": "Alege o pagină pentru a o deschide.",
+  "Every page lives here. The clay tile is where you are now.": "Fiecare pagină este aici. Elementul de lut arată unde ești acum.",
+  "The day's pulse.": "Pulsul zilei.",
+  "The city roster.": "Lista orașului.",
+  "Walking routes.": "Trasee pe jos.",
+  "People with access.": "Persoane cu acces.",
+  "Everything that needs a fix.": "Tot ce trebuie reparat.",
+  "Search, theme and language live here.": "Căutarea, tema și limba sunt aici.",
+  "The page name sits beside the menu.": "Numele paginii stă lângă meniu.",
+  "Search, date, theme and language live here.": "Căutarea, data, tema și limba sunt aici.",
+  "The crumb on the left shows where you are.": "Indicația din stânga arată unde ești.",
+  "Find any page, place or person. Press / or Ctrl K.": "Găsește orice pagină, loc sau persoană. Apasă / sau Ctrl K.",
+  "Day or night, saved on this device.": "Zi sau noapte, salvat pe acest dispozitiv.",
+  "English or Romanian, saved on this device.": "Engleză sau română, salvat pe acest dispozitiv.",
+  "Published points, administrators, and what needs a fix.": "Puncte publicate, administratori și ce necesită o remediere.",
+  "Each card updates as the guide changes.": "Fiecare cartonaș se actualizează când se schimbă ghidul.",
+  "The ring is completeness. The rows show API speed and missing content.": "Inelul arată cât este complet. Rândurile arată viteza API-ului și conținutul lipsă.",
+  "Problems appear here before a visitor finds them.": "Problemele apar aici înainte ca vizitatorul să le găsească.",
+  "Each row is one small editorial job.": "Fiecare rând este o mică sarcină editorială.",
+  "Open a row to fix the place.": "Deschide un rând pentru a repara locul.",
+  "The street address sits beside each name. Hover it for coordinates.": "Adresa apare lângă fiecare nume. Ține cursorul pe ea pentru coordonate.",
+  "Use the arrow to open the place in the editor.": "Folosește săgeata pentru a deschide locul în editor.",
+  "The menu holds other accounts, Settings and Sign out.": "Meniul conține alte conturi, Setări și Deconectare.",
+  "Switch accounts or change your password, theme and language.": "Schimbă contul sau modifică parola, tema și limba.",
+  "That's the whole workspace.": "Acesta este tot spațiul de lucru.",
+  "On a small screen, open the menu for accounts and settings.": "Pe un ecran mic, deschide meniul pentru conturi și setări.",
+  "Switch accounts, change settings or sign out.": "Schimbă contul, modifică setările sau deconectează-te.",
 };
 
 function readPreference(storageName, key, allowed, fallback) {
@@ -804,6 +912,7 @@ function applyLanguage() {
   applyTheme();
   updateTopbarDate();
   if (authenticatedAdmin) updateAccountChrome();
+  if (document.body.classList.contains("nav-collapsed")) updateCollapsedNavTitles(true);
   if (isErrorViewOpen()) renderErrorCopy();
   /* Lists that were built from cached data still hold the old words.
      Re-render them rather than leaving a half-translated page. */
@@ -811,6 +920,7 @@ function applyLanguage() {
   if (!document.getElementById("category-modal")?.classList.contains("is-hidden")) renderCategoryList();
   if (cachedCategories.length) renderCategoryOptions(document.getElementById("location-category")?.value || "");
   if (currentPage === "attention") renderAttention();
+  if (workspaceTourOpen) renderWorkspaceTourStop({ focus: false });
   if (!isErrorViewOpen()) showPage(currentPage, false, true);
 }
 
@@ -926,6 +1036,8 @@ function renderErrorCopy() {
 }
 
 function showErrorScreen(options = {}) {
+  if (workspaceTourOpen) closeWorkspaceTour({ markSeen: false, restoreFocus: false });
+  closeMobileNavigation({ restoreFocus: false });
   if (globalSearchOpen) closeGlobalSearch({ restoreFocus: false });
   const variantKey = ERROR_VARIANTS[options.variant] ? String(options.variant) : "offline";
   const variant = ERROR_VARIANTS[variantKey];
@@ -1087,6 +1199,8 @@ function setAuthenticated(isAuthenticated, admin = null) {
     element.classList.toggle("is-hidden", !isSuperadmin);
   });
   if (!isAuthenticated) {
+    closeWorkspaceTour({ markSeen: false, restoreFocus: false });
+    closeMobileNavigation({ restoreFocus: false });
     if (globalSearchOpen) closeGlobalSearch({ restoreFocus: false });
     document.getElementById("admins-list").replaceChildren();
     document.getElementById("location-modal")?.classList.add("is-hidden");
@@ -1127,6 +1241,7 @@ function setAuthenticated(isAuthenticated, admin = null) {
     if (pageNames[hashPage]) showPage(hashPage, false, true);
     else showPage(currentPage, false, true);
   }
+  if (isAuthenticated && !isErrorViewOpen()) maybeOfferWorkspaceTour(authenticatedAdmin);
 }
 
 function showPage(page, updateUrl = true, force = false) {
@@ -1143,9 +1258,7 @@ function showPage(page, updateUrl = true, force = false) {
     if (active) item.setAttribute("aria-current", "page"); else item.removeAttribute("aria-current");
   });
   document.getElementById("breadcrumb-current").textContent = t(pageNames[page] || "Overview");
-  document.querySelector(".sidebar")?.classList.remove("is-open");
-  document.querySelector(".sidebar-scrim")?.classList.remove("is-visible");
-  document.querySelector(".mobile-menu")?.setAttribute("aria-expanded", "false");
+  closeMobileNavigation();
   if ((page === "admins" || page === "users") && authenticatedAdmin) loadAdmins();
   if (page === "resets" && authenticatedAdmin && isSuperadminAccount()) loadPasswordResetRequests();
   if (page === "points" && (previousPage !== "points" || force)) loadLocations();
@@ -1425,19 +1538,52 @@ async function signOutCurrent() {
 const sidebar = document.querySelector(".sidebar");
 const sidebarScrim = document.querySelector(".sidebar-scrim");
 const mobileMenu = document.querySelector(".mobile-menu");
+const mainContent = document.querySelector(".main-content");
+let mobileNavReturnFocus = null;
 
-function closeMobileNavigation() {
+function isMobileNavigationOpen() {
+  return sidebar.classList.contains("is-open");
+}
+
+function mobileNavigationFocusables() {
+  return [...sidebar.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+    .filter((element) => !element.disabled && !element.hidden && element.offsetParent !== null);
+}
+
+function openMobileNavigation() {
+  if (isMobileNavigationOpen() || window.innerWidth > 760) return;
+  mobileNavReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : mobileMenu;
+  sidebar.classList.add("is-open");
+  sidebarScrim.classList.add("is-visible");
+  mobileMenu.setAttribute("aria-expanded", "true");
+  document.body.classList.add("nav-open");
+  if (mainContent) mainContent.inert = true;
+  window.requestAnimationFrame(() => {
+    document.getElementById("mobile-nav-close")?.focus({ preventScroll: true });
+  });
+}
+
+function closeMobileNavigation({ restoreFocus = true } = {}) {
+  const wasOpen = isMobileNavigationOpen();
   sidebar.classList.remove("is-open");
   sidebarScrim.classList.remove("is-visible");
   mobileMenu.setAttribute("aria-expanded", "false");
+  document.body.classList.remove("nav-open");
+  if (mainContent) mainContent.inert = false;
+  if (!wasOpen) return;
+  const returnFocus = mobileNavReturnFocus;
+  mobileNavReturnFocus = null;
+  if (restoreFocus && window.innerWidth <= 760 && returnFocus && document.contains(returnFocus)) {
+    window.requestAnimationFrame(() => returnFocus.focus({ preventScroll: true }));
+  }
 }
 
 mobileMenu.addEventListener("click", () => {
-  const isOpen = sidebar.classList.toggle("is-open");
-  sidebarScrim.classList.toggle("is-visible", isOpen);
-  mobileMenu.setAttribute("aria-expanded", String(isOpen));
+  if (isMobileNavigationOpen()) closeMobileNavigation();
+  else openMobileNavigation();
 });
-sidebarScrim.addEventListener("click", closeMobileNavigation);
+document.getElementById("mobile-nav-close")?.addEventListener("click", () => closeMobileNavigation());
+sidebarScrim.addEventListener("click", () => closeMobileNavigation());
 function isTypingTarget(target) {
   return Boolean(target && (target.matches?.("input, textarea, select") || target.isContentEditable));
 }
@@ -1449,6 +1595,32 @@ document.addEventListener("keydown", (event) => {
       closeGlobalSearch();
     }
     return;
+  }
+  if (isMobileNavigationOpen()) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeMobileNavigation();
+      return;
+    }
+    if (event.key === "Tab") {
+      const focusables = mobileNavigationFocusables();
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !sidebar.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+      return;
+    }
+    if (event.key === "/" || event.key === "?" || ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k")) {
+      event.preventDefault();
+      return;
+    }
   }
   if (event.key === "Escape") {
     closeMobileNavigation();
@@ -1652,6 +1824,126 @@ function coordinateLabel(location) {
   return usableCoordinate(location?.latitude, location?.longitude)
     ? `${location.latitude}, ${location.longitude}`
     : t("No coordinates");
+}
+
+/* Street addresses are derived from the point coordinates. The bundled seed
+   covers the places already in the guide, so cards paint with an address on
+   the first frame; any newer point joins a polite one-request-per-second
+   queue and its address is remembered on this device. */
+const STREET_ADDRESS_STORAGE_KEY = "aradlens-street-addresses-v1";
+const streetAddressCache = new Map();
+const streetAddressPending = new Map();
+let streetAddressSeedTask = null;
+let streetAddressQueue = Promise.resolve();
+let streetAddressLastRequest = 0;
+let streetAddressStore = {};
+
+function readStreetAddressStore() {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(STREET_ADDRESS_STORAGE_KEY) || "{}");
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed;
+  } catch { /* Storage blocked: the memory cache still works this session. */ }
+  return {};
+}
+streetAddressStore = readStreetAddressStore();
+for (const [key, value] of Object.entries(streetAddressStore)) {
+  if (typeof value === "string" && value) streetAddressCache.set(key, value);
+}
+
+function streetAddressKey(location) {
+  if (!usableCoordinate(location?.latitude, location?.longitude)) return "";
+  return `${Number(location.latitude).toFixed(5)},${Number(location.longitude).toFixed(5)}`;
+}
+
+function cleanStreetAddress(address) {
+  if (!address || typeof address !== "object") return "";
+  const road = address.road || address.pedestrian || address.footway || address.square || address.path || address.residential || "";
+  const house = String(address.house_number || "").trim();
+  const number = /^[0-9]+[A-Za-z]?(?:[-/][0-9]+[A-Za-z]?)?$/.test(house) ? house : "";
+  return [road, number].filter(Boolean).join(" ").trim();
+}
+
+function streetAddressFromRecord(location) {
+  if (typeof location?.address === "string") return location.address.trim();
+  if (location?.address && typeof location.address === "object") {
+    const cleaned = cleanStreetAddress(location.address);
+    if (cleaned) return cleaned;
+  }
+  return [location?.street, location?.house_number].filter(Boolean).join(" ").trim();
+}
+
+function streetAddressFor(location) {
+  const direct = streetAddressFromRecord(location);
+  if (direct) return direct;
+  const key = streetAddressKey(location);
+  return key ? (streetAddressCache.get(key) || "") : "";
+}
+
+function rememberStreetAddress(key, address) {
+  if (!key) return;
+  streetAddressCache.set(key, address);
+  if (!address) return;
+  streetAddressStore[key] = address;
+  const keys = Object.keys(streetAddressStore);
+  if (keys.length > 200) {
+    for (const stale of keys.slice(0, keys.length - 200)) delete streetAddressStore[stale];
+  }
+  try { window.localStorage.setItem(STREET_ADDRESS_STORAGE_KEY, JSON.stringify(streetAddressStore)); } catch { /* Storage blocked. */ }
+}
+
+function loadStreetAddressSeed() {
+  if (!streetAddressSeedTask) {
+    streetAddressSeedTask = window.fetch("/assets/location-addresses.json?v=20261107", { headers: { Accept: "application/json" } })
+      .then((response) => (response.ok ? response.json() : {}))
+      .then((seed) => {
+        if (seed && typeof seed === "object" && !Array.isArray(seed)) {
+          for (const [key, value] of Object.entries(seed)) {
+            if (typeof value === "string" && value && !streetAddressCache.has(key)) streetAddressCache.set(key, value);
+          }
+        }
+        return streetAddressCache;
+      })
+      .catch(() => streetAddressCache);
+  }
+  return streetAddressSeedTask;
+}
+
+function fetchStreetAddress(location) {
+  const key = streetAddressKey(location);
+  if (!key) return Promise.resolve("");
+  if (streetAddressCache.has(key)) return Promise.resolve(streetAddressCache.get(key));
+  if (streetAddressPending.has(key)) return streetAddressPending.get(key);
+  const task = streetAddressQueue.then(async () => {
+    if (streetAddressCache.has(key)) return streetAddressCache.get(key);
+    const wait = Math.max(0, 1200 - (Date.now() - streetAddressLastRequest));
+    if (wait) await new Promise((resolve) => window.setTimeout(resolve, wait));
+    streetAddressLastRequest = Date.now();
+    let address = "";
+    try {
+      const response = await window.fetch(`/api/geocode/reverse?lat=${encodeURIComponent(location.latitude)}&lon=${encodeURIComponent(location.longitude)}`, { headers: { Accept: "application/json" } });
+      if (response.ok) {
+        const payload = await response.json();
+        address = cleanStreetAddress(payload.address);
+      }
+    } catch { /* Keep the coordinates as the fallback. */ }
+    rememberStreetAddress(key, address);
+    return address;
+  }).catch(() => "");
+  streetAddressPending.set(key, task);
+  task.finally(() => streetAddressPending.delete(key));
+  streetAddressQueue = task.catch(() => {});
+  return task;
+}
+
+function locationMetaLabel(location) {
+  const coordinates = coordinateLabel(location);
+  const address = streetAddressFor(location);
+  return {
+    coordinates,
+    address,
+    text: address || coordinates,
+    aria: t("{address}. Coordinates: {coords}", { address: address || coordinates, coords: coordinates }),
+  };
 }
 
 function prefersReducedMotion() {
@@ -2788,17 +3080,28 @@ function renderLocationCard(location) {
   const categoryChip = categoryName ? `<span class="point-category" data-value="${escapeHtml(categoryName)}">${escapeHtml(categoryName)}</span>` : "";
   const photo = imageIds.length ? `<img class="point-photo" src="${imageFileUrl(imageIds[0])}" alt="" loading="lazy" />` : "";
   if (photo) card.classList.add("has-photo");
+  const meta = locationMetaLabel(location);
   card.innerHTML =
     `<div class="point-image">${photo}<svg class="point-drawing" viewBox="0 0 120 80" aria-hidden="true"><use href="#draw-${kind.drawing}"></use></svg><span class="point-badge">P</span>${categoryChip}</div>` +
     `<div class="point-body"><div><h3>${escapeHtml(location.name)}</h3><p>${escapeHtml(location.description || "—")}</p></div><span class="status-tag status-live" data-value="Published">${escapeHtml(t("Live"))}</span></div>` +
-    `<div class="point-meta"><span>#${location.id} · ${escapeHtml(coordinateLabel(location))}</span></div>`;
+    `<div class="point-meta"><span class="point-location${meta.address ? " has-address" : ""}" title="${escapeHtml(meta.coordinates)}" aria-label="${escapeHtml(meta.aria)}">#${location.id} · ${escapeHtml(meta.text)}</span></div>`;
   const open = document.createElement("button");
   open.className = "card-open";
   open.type = "button";
   open.textContent = "↗";
   open.setAttribute("aria-label", t("Edit {name}", { name: location.name }));
   open.addEventListener("click", () => openLocationModal(location.id));
+  const metaElement = card.querySelector(".point-location");
   card.querySelector(".point-meta").append(open);
+  if (!meta.address && metaElement) {
+    fetchStreetAddress(location).then((address) => {
+      if (!address || !metaElement.isConnected) return;
+      metaElement.textContent = `#${location.id} · ${address}`;
+      metaElement.title = meta.coordinates;
+      metaElement.setAttribute("aria-label", t("{address}. Coordinates: {coords}", { address, coords: meta.coordinates }));
+      metaElement.classList.add("has-address");
+    });
+  }
   card.addEventListener("click", (event) => {
     if (event.target.closest("button, a")) return;
     openLocationModal(location.id);
@@ -2816,9 +3119,11 @@ async function loadLocations() {
   message.setAttribute("role", "status");
   grid.replaceChildren();
   try {
+    const addressSeedTask = loadStreetAddressSeed();
     const locations = await apiRequest("/api/locations");
     if (requestId !== locationsRequestId) return;
     if (!Array.isArray(locations)) throw new Error("The API returned an invalid location list.");
+    await addressSeedTask.catch(() => {});
     cachedLocations = locations;
     locationsLoaded = true;
     for (const location of locations) {
@@ -3774,8 +4079,10 @@ document.getElementById("register-form")?.addEventListener("submit", async (even
   button.disabled = true;
   try {
     const payload = { code: form.elements.code.value, username: form.elements.username.value, email: form.elements.email.value, password: form.elements.password.value, legal_accepted: true, terms_version: termsVersion };
+    const enteredUsername = String(form.elements.username.value || "").trim();
     const account = await apiRequest("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-    const createdUsername = account.username || "";
+    const createdUsername = account.username || enteredUsername;
+    markNewAccount(createdUsername);
     form.reset();
     showAuthTab("login");
     if (createdUsername) document.getElementById("username").value = createdUsername;
@@ -4855,8 +5162,12 @@ function renderOverviewLatest(places) {
     const title = document.createElement("strong");
     title.textContent = place.name;
     name.append(title);
-    const coords = document.createElement("span");
-    coords.textContent = coordinateLabel(place);
+    const meta = locationMetaLabel(place);
+    const address = document.createElement("span");
+    address.className = `activity-address${meta.address ? " has-address" : ""}`;
+    address.title = meta.coordinates;
+    address.setAttribute("aria-label", meta.aria);
+    address.textContent = meta.text;
     const id = document.createElement("span");
     id.textContent = `#${place.id}`;
     const go = document.createElement("button");
@@ -4868,8 +5179,17 @@ function renderOverviewLatest(places) {
       showPage("points");
       openLocationModal(place.id);
     });
-    row.append(name, coords, id, go);
+    row.append(name, address, id, go);
     list.append(row);
+    if (!meta.address) {
+      fetchStreetAddress(place).then((resolved) => {
+        if (!resolved || !address.isConnected) return;
+        address.textContent = resolved;
+        address.title = meta.coordinates;
+        address.setAttribute("aria-label", t("{address}. Coordinates: {coords}", { address: resolved, coords: meta.coordinates }));
+        address.classList.add("has-address");
+      });
+    }
   }
 }
 
@@ -4939,6 +5259,708 @@ async function loadOverview() {
   renderHealthPanel(places, healthState, latency);
   renderOverviewQueue(places);
   renderOverviewLatest(places);
+}
+
+/* ============================================================
+   WORKSPACE TOUR
+   New accounts get one short field guide: a dimmed workspace,
+   a bright rectangle around the part being explained, a clay
+   route arrow and a card that says what it means and does.
+   The guide is shown once per account, then lives in Settings.
+   ============================================================ */
+const WORKSPACE_TOUR_SEEN_PREFIX = "aradlens-workspace-tour-seen:";
+const WORKSPACE_TOUR_NEW_ACCOUNT_PREFIX = "aradlens-new-account:";
+const WORKSPACE_TOUR_STOPS = [
+  {
+    id: "welcome",
+    titleKey: "A quick map of your workspace.",
+    ledeKey: "Follow the frame around each part. It takes about a minute.",
+  },
+  {
+    id: "rail",
+    titleKey: "The left rail is the map.",
+    target: ".main-nav",
+    mobileTarget: ".mobile-menu",
+    mobileTitleKey: "The menu holds the map.",
+    mobileMeaningKey: "On a small screen, this button opens the rail.",
+    mobileDoesKey: "Choose a page to open it.",
+    placement: "right",
+    meaningKey: "Every page lives here. The clay tile is where you are now.",
+    doesKey: "Choose a page to open it.",
+    items: [
+      { labelKey: "Overview", textKey: "The day's pulse." },
+      { labelKey: "Important points", textKey: "The city roster." },
+      { labelKey: "Tours", textKey: "Walking routes." },
+      { labelKey: "Administrators", textKey: "People with access." },
+      { labelKey: "Attention", textKey: "Everything that needs a fix." },
+    ],
+  },
+  {
+    id: "topbar",
+    titleKey: "The top bar is the control strip.",
+    target: ".topbar",
+    placement: "bottom",
+    mobileMeaningKey: "Search, theme and language live here.",
+    mobileDoesKey: "The page name sits beside the menu.",
+    meaningKey: "Search, date, theme and language live here.",
+    doesKey: "The crumb on the left shows where you are.",
+    items: [
+      { labelKey: "Search", textKey: "Find any page, place or person. Press / or Ctrl K." },
+      { labelKey: "Theme", textKey: "Day or night, saved on this device." },
+      { labelKey: "Language", textKey: "English or Romanian, saved on this device." },
+    ],
+  },
+  {
+    id: "metrics",
+    titleKey: "Three numbers, one glance.",
+    target: ".metric-grid",
+    page: "overview",
+    placement: "bottom",
+    meaningKey: "Published points, administrators, and what needs a fix.",
+    doesKey: "Each card updates as the guide changes.",
+  },
+  {
+    id: "health",
+    titleKey: "Health tells you what visitors get.",
+    target: ".health-panel",
+    page: "overview",
+    placement: "right",
+    meaningKey: "The ring is completeness. The rows show API speed and missing content.",
+    doesKey: "Problems appear here before a visitor finds them.",
+  },
+  {
+    id: "queue",
+    titleKey: "The queue turns gaps into actions.",
+    target: ".queue-panel",
+    page: "overview",
+    placement: "left",
+    meaningKey: "Each row is one small editorial job.",
+    doesKey: "Open a row to fix the place.",
+  },
+  {
+    id: "latest",
+    titleKey: "The newest places, ready to open.",
+    target: ".activity-panel",
+    page: "overview",
+    placement: "top",
+    scroll: "end",
+    mobilePlacement: "top",
+    meaningKey: "The street address sits beside each name. Hover it for coordinates.",
+    doesKey: "Use the arrow to open the place in the editor.",
+  },
+  {
+    id: "account",
+    titleKey: "Your account lives at the foot of the rail.",
+    target: ".sidebar-footer",
+    mobileTarget: ".mobile-menu",
+    mobileTitleKey: "Your account is inside the menu.",
+    mobileMeaningKey: "On a small screen, open the menu for accounts and settings.",
+    mobileDoesKey: "Switch accounts, change settings or sign out.",
+    mobileHintKey: "That's the whole workspace.",
+    placement: "right",
+    meaningKey: "The menu holds other accounts, Settings and Sign out.",
+    doesKey: "Switch accounts or change your password, theme and language.",
+    hintKey: "That's the whole workspace.",
+  },
+];
+let workspaceTourOpen = false;
+let workspaceTourIndex = 0;
+let workspaceTourReturnFocus = null;
+let workspaceTourRestoreSidebar = null;
+let workspaceTourAutoTimer = 0;
+let workspaceTourSettleTimer = 0;
+let workspaceTourLayoutFrame = 0;
+let workspaceTourFrame = null;
+let workspaceTourWasNarrow = false;
+const workspaceTourSeenMemory = new Set();
+const workspaceTourNewAccountMemory = new Set();
+
+function padTourNumber(value) {
+  return String(value).padStart(2, "0");
+}
+
+function workspaceTourIdentity(admin) {
+  if (!admin) return "";
+  const id = Number(admin.id);
+  if (Number.isFinite(id) && id > 0) return `id-${id}`;
+  return String(admin.username || "").trim().toLowerCase();
+}
+
+function workspaceTourSeenKey(admin) {
+  const identity = workspaceTourIdentity(admin);
+  return identity ? `${WORKSPACE_TOUR_SEEN_PREFIX}${identity}` : "";
+}
+
+function hasSeenWorkspaceTour(admin) {
+  const identity = workspaceTourIdentity(admin);
+  const key = workspaceTourSeenKey(admin);
+  if (!key) return true;
+  if (workspaceTourSeenMemory.has(identity)) return true;
+  try { return window.localStorage.getItem(key) === "1"; } catch { return false; }
+}
+
+function markWorkspaceTourSeen(admin) {
+  const identity = workspaceTourIdentity(admin);
+  const key = workspaceTourSeenKey(admin);
+  if (!key) return;
+  workspaceTourSeenMemory.add(identity);
+  try { window.localStorage.setItem(key, "1"); } catch { /* Storage blocked: the in-memory mark keeps this session quiet. */ }
+}
+
+function markNewAccount(username) {
+  const name = String(username || "").trim().toLowerCase();
+  if (!name) return;
+  workspaceTourNewAccountMemory.add(name);
+  try { window.localStorage.setItem(`${WORKSPACE_TOUR_NEW_ACCOUNT_PREFIX}${name}`, "1"); } catch { /* Storage blocked: keep the marker in memory. */ }
+}
+
+function clearNewAccountMarker(admin) {
+  const name = String(admin?.username || "").trim().toLowerCase();
+  if (!name) return;
+  workspaceTourNewAccountMemory.delete(name);
+  try { window.localStorage.removeItem(`${WORKSPACE_TOUR_NEW_ACCOUNT_PREFIX}${name}`); } catch { /* Storage blocked. */ }
+}
+
+/* A new account is one this browser saw being registered, or one the API
+   says was created recently. Existing accounts never get the guide
+   uninvited; they can still open it from Settings. */
+function isNewAccount(admin) {
+  const name = String(admin?.username || "").trim().toLowerCase();
+  if (!name) return false;
+  if (workspaceTourNewAccountMemory.has(name)) return true;
+  try {
+    if (window.localStorage.getItem(`${WORKSPACE_TOUR_NEW_ACCOUNT_PREFIX}${name}`) === "1") return true;
+  } catch { /* Fall through to the API signals. */ }
+  const createdAt = admin?.created_at || admin?.createdAt || admin?.date_joined;
+  if (createdAt) {
+    const created = new Date(createdAt);
+    if (!Number.isNaN(created.getTime())) {
+      return Date.now() - created.getTime() < 14 * 24 * 60 * 60 * 1000;
+    }
+  }
+  return false;
+}
+
+function maybeOfferWorkspaceTour(admin) {
+  window.clearTimeout(workspaceTourAutoTimer);
+  workspaceTourAutoTimer = 0;
+  if (!admin || workspaceTourOpen || isErrorViewOpen()) return;
+  if (hasSeenWorkspaceTour(admin) || !isNewAccount(admin)) return;
+  workspaceTourAutoTimer = window.setTimeout(() => {
+    workspaceTourAutoTimer = 0;
+    if (!authenticatedAdmin || workspaceTourOpen || isErrorViewOpen()) return;
+    if (hasSeenWorkspaceTour(authenticatedAdmin) || !isNewAccount(authenticatedAdmin)) return;
+    startWorkspaceTour();
+  }, 700);
+}
+
+function workspaceTourUsesNarrowLayout() {
+  return window.innerWidth <= 760;
+}
+
+function workspaceTourStopView(stop) {
+  if (!stop || !workspaceTourUsesNarrowLayout()) return stop;
+  const has = (key) => Object.prototype.hasOwnProperty.call(stop, key);
+  return {
+    ...stop,
+    target: has("mobileTarget") ? stop.mobileTarget : stop.target,
+    titleKey: has("mobileTitleKey") ? stop.mobileTitleKey : stop.titleKey,
+    meaningKey: has("mobileMeaningKey") ? stop.mobileMeaningKey : stop.meaningKey,
+    doesKey: has("mobileDoesKey") ? stop.mobileDoesKey : stop.doesKey,
+    hintKey: has("mobileHintKey") ? stop.mobileHintKey : stop.hintKey,
+    items: has("mobileItems") ? stop.mobileItems : stop.items,
+  };
+}
+
+function workspaceTourTargetFor(stop) {
+  const view = workspaceTourStopView(stop);
+  if (!view?.target) return null;
+  const target = appView.querySelector(view.target);
+  if (!target) return null;
+  const rect = target.getBoundingClientRect();
+  if (rect.width < 12 || rect.height < 12) return null;
+  if (rect.right < 8 || rect.bottom < 8 || rect.left > window.innerWidth - 8 || rect.top > window.innerHeight - 8) return null;
+  return target;
+}
+
+function renderWorkspaceTourRoute() {
+  const route = document.getElementById("workspace-tour-route");
+  if (!route) return;
+  route.replaceChildren();
+  const total = WORKSPACE_TOUR_STOPS.length;
+  route.style.setProperty("--tour-progress", `${total > 1 ? (workspaceTourIndex / (total - 1)) * 100 : 0}%`);
+  WORKSPACE_TOUR_STOPS.forEach((stop, index) => {
+    const dot = document.createElement("span");
+    dot.className = "tour-route-stop";
+    if (index < workspaceTourIndex) dot.classList.add("is-past");
+    if (index === workspaceTourIndex) dot.classList.add("is-current");
+    dot.textContent = String(index + 1);
+    route.append(dot);
+  });
+}
+
+function renderWorkspaceTourContent(stop) {
+  const copy = document.getElementById("workspace-tour-copy");
+  if (!copy) return;
+  copy.replaceChildren();
+  if (stop.ledeKey) {
+    const lede = document.createElement("p");
+    lede.className = "tour-lede";
+    lede.textContent = t(stop.ledeKey);
+    copy.append(lede);
+  }
+  if (stop.meaningKey) {
+    const meaning = document.createElement("p");
+    meaning.className = "tour-definition";
+    const label = document.createElement("span");
+    label.className = "tour-field-label";
+    label.textContent = t("What it means");
+    meaning.append(label, document.createTextNode(t(stop.meaningKey)));
+    copy.append(meaning);
+  }
+  if (stop.doesKey) {
+    const does = document.createElement("p");
+    does.className = "tour-definition";
+    const label = document.createElement("span");
+    label.className = "tour-field-label";
+    label.textContent = t("What it does");
+    does.append(label, document.createTextNode(t(stop.doesKey)));
+    copy.append(does);
+  }
+  if (stop.keys?.length) {
+    const list = document.createElement("ul");
+    list.className = "tour-key";
+    for (const key of stop.keys) {
+      const item = document.createElement("li");
+      const mark = document.createElement("span");
+      mark.className = `tour-key-mark${key.mark === "frame" ? " tour-key-frame" : ""}`;
+      mark.setAttribute("aria-hidden", "true");
+      if (key.mark === "arrow") mark.textContent = "→";
+      const words = document.createElement("span");
+      const strong = document.createElement("strong");
+      strong.textContent = t(key.labelKey);
+      words.append(strong, document.createTextNode(` ${t(key.textKey)}`));
+      item.append(mark, words);
+      list.append(item);
+    }
+    copy.append(list);
+  }
+  if (stop.items?.length) {
+    const list = document.createElement("ul");
+    list.className = "tour-legend";
+    for (const item of stop.items) {
+      const row = document.createElement("li");
+      const strong = document.createElement("strong");
+      strong.textContent = t(item.labelKey);
+      const detail = document.createElement("span");
+      detail.textContent = ` ${t(item.textKey)}`;
+      row.append(strong, detail);
+      list.append(row);
+    }
+    copy.append(list);
+  }
+  if (stop.hintKey) {
+    const hint = document.createElement("p");
+    hint.className = "tour-hint";
+    hint.textContent = t(stop.hintKey);
+    copy.append(hint);
+  }
+}
+
+function renderWorkspaceTourStop(options = {}) {
+  const stop = workspaceTourStopView(WORKSPACE_TOUR_STOPS[workspaceTourIndex]);
+  if (!stop) return;
+  const total = WORKSPACE_TOUR_STOPS.length;
+  const title = document.getElementById("workspace-tour-title");
+  const count = document.getElementById("workspace-tour-count");
+  const stopTag = document.getElementById("workspace-tour-stop-tag");
+  const skip = document.getElementById("workspace-tour-skip");
+  const back = document.getElementById("workspace-tour-back");
+  const next = document.getElementById("workspace-tour-next");
+  const live = document.getElementById("workspace-tour-live");
+  const card = document.getElementById("workspace-tour-card");
+  if (title) title.textContent = t(stop.titleKey);
+  if (count) count.textContent = `${padTourNumber(workspaceTourIndex + 1)} / ${padTourNumber(total)}`;
+  if (stopTag) stopTag.textContent = padTourNumber(workspaceTourIndex + 1);
+  if (skip) skip.textContent = t("Skip guide");
+  if (back) {
+    back.textContent = t("Back");
+    back.hidden = workspaceTourIndex === 0;
+  }
+  if (next) next.textContent = t(workspaceTourIndex === total - 1 ? "Finish" : "Continue");
+  if (live) live.textContent = t("Stop {n} of {total}. {title}", { n: workspaceTourIndex + 1, total, title: t(stop.titleKey) });
+  renderWorkspaceTourRoute();
+  renderWorkspaceTourContent(stop);
+  if (card) {
+    card.classList.remove("is-entering");
+    void card.offsetWidth;
+    card.classList.add("is-entering");
+  }
+  if (options.focus !== false) {
+    window.requestAnimationFrame(() => {
+      if (workspaceTourOpen) title?.focus({ preventScroll: true });
+    });
+  }
+}
+
+function setWorkspaceTourShades(frame, viewportWidth, viewportHeight) {
+  const overlay = document.getElementById("workspace-tour");
+  if (!overlay) return;
+  const shades = {
+    top: overlay.querySelector('[data-tour-shade="top"]'),
+    left: overlay.querySelector('[data-tour-shade="left"]'),
+    right: overlay.querySelector('[data-tour-shade="right"]'),
+    bottom: overlay.querySelector('[data-tour-shade="bottom"]'),
+  };
+  const setRect = (element, top, left, width, height) => {
+    if (!element) return;
+    element.style.top = `${Math.max(0, Math.round(top))}px`;
+    element.style.left = `${Math.max(0, Math.round(left))}px`;
+    element.style.width = `${Math.max(0, Math.round(width))}px`;
+    element.style.height = `${Math.max(0, Math.round(height))}px`;
+  };
+  if (!frame) {
+    setRect(shades.top, 0, 0, viewportWidth, viewportHeight);
+    setRect(shades.left, 0, 0, 0, 0);
+    setRect(shades.right, 0, 0, 0, 0);
+    setRect(shades.bottom, 0, 0, 0, 0);
+    return;
+  }
+  setRect(shades.top, 0, 0, viewportWidth, frame.top);
+  setRect(shades.left, frame.top, 0, frame.left, frame.height);
+  setRect(shades.right, frame.top, frame.left + frame.width, viewportWidth - frame.left - frame.width, frame.height);
+  setRect(shades.bottom, frame.top + frame.height, 0, viewportWidth, viewportHeight - frame.top - frame.height);
+}
+
+function clampTourValue(value, minimum, maximum) {
+  if (maximum < minimum) return minimum;
+  return Math.min(Math.max(value, minimum), maximum);
+}
+
+function computeWorkspaceTourCard(frame, cardWidth, cardHeight, viewportWidth, viewportHeight, preferred) {
+  const margin = 16;
+  const gap = 36;
+  if (!frame) {
+    return {
+      left: Math.round((viewportWidth - cardWidth) / 2),
+      top: Math.round((viewportHeight - cardHeight) / 2),
+      side: null,
+    };
+  }
+  const spaces = {
+    right: viewportWidth - frame.left - frame.width - margin,
+    left: frame.left - margin,
+    bottom: viewportHeight - frame.top - frame.height - margin,
+    top: frame.top - margin,
+  };
+  const fits = {
+    right: spaces.right >= cardWidth + gap,
+    left: spaces.left >= cardWidth + gap,
+    bottom: spaces.bottom >= cardHeight + gap,
+    top: spaces.top >= cardHeight + gap,
+  };
+  const order = ["right", "left", "bottom", "top"];
+  const preferredFits = preferred && fits[preferred] ? preferred : null;
+  const chosen = preferredFits || order.find((side) => fits[side])
+    || order.slice().sort((a, b) => {
+      const needA = a === "right" || a === "left" ? cardWidth : cardHeight;
+      const needB = b === "right" || b === "left" ? cardWidth : cardHeight;
+      return (spaces[b] - needB) - (spaces[a] - needA);
+    })[0];
+  const tightGap = fits[chosen] ? gap : 14;
+  let left;
+  let top;
+  if (chosen === "right") {
+    left = fits.right ? frame.left + frame.width + gap : viewportWidth - cardWidth - margin;
+    top = clampTourValue(frame.top + frame.height / 2 - cardHeight / 2, margin, viewportHeight - cardHeight - margin);
+  } else if (chosen === "left") {
+    left = fits.left ? frame.left - gap - cardWidth : margin;
+    top = clampTourValue(frame.top + frame.height / 2 - cardHeight / 2, margin, viewportHeight - cardHeight - margin);
+  } else if (chosen === "bottom") {
+    top = fits.bottom ? frame.top + frame.height + tightGap : viewportHeight - cardHeight - margin;
+    left = clampTourValue(frame.left + frame.width / 2 - cardWidth / 2, margin, viewportWidth - cardWidth - margin);
+  } else {
+    top = fits.top ? frame.top - gap - cardHeight : margin;
+    left = clampTourValue(frame.left + frame.width / 2 - cardWidth / 2, margin, viewportWidth - cardWidth - margin);
+  }
+  return { left: Math.round(left), top: Math.round(top), side: chosen };
+}
+
+function drawWorkspaceTourArrow(cardRect, frame) {
+  const path = document.getElementById("workspace-tour-arrow");
+  const node = document.getElementById("workspace-tour-arrow-node");
+  if (!path || !node) return;
+  const hide = () => {
+    path.setAttribute("d", "");
+    node.setAttribute("cx", "-20");
+    node.setAttribute("cy", "-20");
+  };
+  if (!frame) { hide(); return; }
+  let startX;
+  let startY;
+  let endX;
+  let endY;
+  if (cardRect.left >= frame.left + frame.width) {
+    startX = cardRect.left - 3;
+    startY = clampTourValue(frame.top + frame.height / 2, cardRect.top + 26, cardRect.top + cardRect.height - 26);
+    endX = frame.left + frame.width + 3;
+    endY = startY;
+  } else if (cardRect.left + cardRect.width <= frame.left) {
+    startX = cardRect.left + cardRect.width + 3;
+    startY = clampTourValue(frame.top + frame.height / 2, cardRect.top + 26, cardRect.top + cardRect.height - 26);
+    endX = frame.left - 3;
+    endY = startY;
+  } else if (cardRect.top >= frame.top + frame.height) {
+    startY = cardRect.top - 3;
+    startX = clampTourValue(frame.left + frame.width / 2, cardRect.left + 26, cardRect.left + cardRect.width - 26);
+    endY = frame.top + frame.height + 3;
+    endX = startX;
+  } else if (cardRect.top + cardRect.height <= frame.top) {
+    startY = cardRect.top + cardRect.height + 3;
+    startX = clampTourValue(frame.left + frame.width / 2, cardRect.left + 26, cardRect.left + cardRect.width - 26);
+    endY = frame.top - 3;
+    endX = startX;
+  } else {
+    hide();
+    return;
+  }
+  path.setAttribute("d", `M${Math.round(startX)} ${Math.round(startY)} L${Math.round(endX)} ${Math.round(endY)}`);
+  node.setAttribute("cx", Math.round(startX));
+  node.setAttribute("cy", Math.round(startY));
+}
+
+function positionWorkspaceTour() {
+  if (!workspaceTourOpen) return;
+  const stop = workspaceTourStopView(WORKSPACE_TOUR_STOPS[workspaceTourIndex]);
+  const overlay = document.getElementById("workspace-tour");
+  const spotlight = document.getElementById("workspace-tour-spotlight");
+  const card = document.getElementById("workspace-tour-card");
+  if (!stop || !overlay || !spotlight || !card) return;
+  const viewportWidth = document.documentElement.clientWidth;
+  const viewportHeight = window.innerHeight;
+  const narrow = viewportWidth <= 760;
+  const target = workspaceTourTargetFor(stop);
+  let frame = null;
+  if (target) {
+    const rect = target.getBoundingClientRect();
+    const pad = stop.pad ?? 7;
+    const top = Math.max(0, rect.top - pad);
+    const left = Math.max(4, rect.left - pad);
+    const right = Math.min(viewportWidth - 4, rect.right + pad);
+    const bottom = Math.min(viewportHeight - 10, rect.bottom + pad);
+    if (right - left > 24 && bottom - top > 24) {
+      frame = { top, left, width: right - left, height: bottom - top };
+    }
+  }
+  workspaceTourFrame = frame;
+  spotlight.hidden = !frame;
+  spotlight.classList.toggle("is-flush-top", Boolean(frame && frame.top < 20));
+  if (frame) {
+    spotlight.style.top = `${Math.round(frame.top)}px`;
+    spotlight.style.left = `${Math.round(frame.left)}px`;
+    spotlight.style.width = `${Math.round(frame.width)}px`;
+    spotlight.style.height = `${Math.round(frame.height)}px`;
+    const tag = document.getElementById("workspace-tour-stop-tag");
+    if (tag) tag.textContent = padTourNumber(workspaceTourIndex + 1);
+  }
+  setWorkspaceTourShades(frame, viewportWidth, viewportHeight);
+  card.style.removeProperty("max-height");
+  if (narrow) {
+    card.style.removeProperty("left");
+    card.style.removeProperty("top");
+    card.style.removeProperty("right");
+    card.style.removeProperty("bottom");
+    card.style.removeProperty("width");
+    card.classList.toggle("is-mobile-top", stop.mobilePlacement === "top");
+    drawWorkspaceTourArrow({ left: 0, top: 0, width: 0, height: 0 }, null);
+    return;
+  }
+  card.classList.remove("is-mobile-top");
+  const cardWidth = card.offsetWidth;
+  let cardHeight = card.offsetHeight;
+  if (frame) {
+    const room = (stop.placement === "top" ? frame.top : viewportHeight - frame.top - frame.height) - 16 - 36;
+    if ((stop.placement === "top" || stop.placement === "bottom") && room >= 260 && cardHeight > room) {
+      card.style.maxHeight = `${room}px`;
+      cardHeight = card.offsetHeight;
+    }
+  }
+  const placement = computeWorkspaceTourCard(frame, cardWidth, cardHeight, viewportWidth, viewportHeight, stop.placement);
+  card.style.left = `${placement.left}px`;
+  card.style.top = `${placement.top}px`;
+  drawWorkspaceTourArrow({ left: placement.left, top: placement.top, width: cardWidth, height: cardHeight }, frame);
+}
+
+function scheduleWorkspaceTourLayout() {
+  if (!workspaceTourOpen || workspaceTourLayoutFrame) return;
+  const narrow = workspaceTourUsesNarrowLayout();
+  if (narrow !== workspaceTourWasNarrow) {
+    workspaceTourWasNarrow = narrow;
+    renderWorkspaceTourStop({ focus: false });
+  }
+  workspaceTourLayoutFrame = window.requestAnimationFrame(() => {
+    workspaceTourLayoutFrame = 0;
+    positionWorkspaceTour();
+  });
+}
+
+function revealWorkspaceTourTarget() {
+  if (!workspaceTourOpen) return;
+  const stop = workspaceTourStopView(WORKSPACE_TOUR_STOPS[workspaceTourIndex]);
+  const target = stop?.target ? appView.querySelector(stop.target) : null;
+  if (!target) return;
+  if (target.closest(".sidebar")) return;
+  if (target.closest(".topbar")) {
+    if (workspaceTourUsesNarrowLayout() && window.scrollY > 0) window.scrollTo({ top: 0, behavior: "auto" });
+    return;
+  }
+  const block = workspaceTourUsesNarrowLayout() ? "start" : (stop.scroll || "center");
+  target.scrollIntoView({ block, inline: "nearest", behavior: "auto" });
+}
+
+function goToWorkspaceTourStop(index, options = {}) {
+  if (!workspaceTourOpen) return;
+  workspaceTourIndex = clampTourValue(index, 0, WORKSPACE_TOUR_STOPS.length - 1);
+  const stop = WORKSPACE_TOUR_STOPS[workspaceTourIndex];
+  if (stop?.page && currentPage !== stop.page) showPage(stop.page, true, true);
+  renderWorkspaceTourStop(options);
+  window.requestAnimationFrame(() => {
+    if (!workspaceTourOpen) return;
+    revealWorkspaceTourTarget();
+    window.requestAnimationFrame(positionWorkspaceTour);
+  });
+  window.clearTimeout(workspaceTourSettleTimer);
+  workspaceTourSettleTimer = window.setTimeout(() => {
+    if (workspaceTourOpen) positionWorkspaceTour();
+  }, 340);
+}
+
+function nextWorkspaceTourStop() {
+  if (workspaceTourIndex >= WORKSPACE_TOUR_STOPS.length - 1) {
+    closeWorkspaceTour({ completed: true });
+    return;
+  }
+  goToWorkspaceTourStop(workspaceTourIndex + 1);
+}
+
+function previousWorkspaceTourStop() {
+  if (workspaceTourIndex > 0) goToWorkspaceTourStop(workspaceTourIndex - 1);
+}
+
+function startWorkspaceTour() {
+  if (!authenticatedAdmin || workspaceTourOpen || isErrorViewOpen()) return;
+  if (document.querySelector(".modal:not(.is-hidden)")) return;
+  if (globalSearchOpen) closeGlobalSearch({ restoreFocus: false });
+  closeMenus();
+  closeMobileNavigation();
+  workspaceTourOpen = true;
+  workspaceTourIndex = 0;
+  workspaceTourWasNarrow = workspaceTourUsesNarrowLayout();
+  workspaceTourReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  workspaceTourRestoreSidebar = null;
+  if (window.innerWidth > 760 && document.body.classList.contains("nav-collapsed")) {
+    workspaceTourRestoreSidebar = true;
+    setSidebarCollapsed(false);
+  }
+  const overlay = document.getElementById("workspace-tour");
+  overlay?.classList.remove("is-hidden");
+  appView.inert = true;
+  document.body.classList.add("tour-open");
+  document.addEventListener("keydown", handleWorkspaceTourKeydown, true);
+  window.addEventListener("resize", scheduleWorkspaceTourLayout);
+  window.addEventListener("scroll", scheduleWorkspaceTourLayout, true);
+  goToWorkspaceTourStop(0);
+  document.fonts?.ready.then(() => {
+    if (workspaceTourOpen) positionWorkspaceTour();
+  }).catch(() => {});
+}
+
+function closeWorkspaceTour({ completed = false, markSeen = true, restoreFocus = true } = {}) {
+  window.clearTimeout(workspaceTourAutoTimer);
+  window.clearTimeout(workspaceTourSettleTimer);
+  workspaceTourAutoTimer = 0;
+  workspaceTourSettleTimer = 0;
+  if (!workspaceTourOpen) return;
+  workspaceTourOpen = false;
+  if (workspaceTourLayoutFrame) {
+    window.cancelAnimationFrame(workspaceTourLayoutFrame);
+    workspaceTourLayoutFrame = 0;
+  }
+  const overlay = document.getElementById("workspace-tour");
+  overlay?.classList.add("is-hidden");
+  const card = document.getElementById("workspace-tour-card");
+  card?.classList.remove("is-mobile-top");
+  card?.style.removeProperty("max-height");
+  appView.inert = false;
+  document.body.classList.remove("tour-open");
+  document.removeEventListener("keydown", handleWorkspaceTourKeydown, true);
+  window.removeEventListener("resize", scheduleWorkspaceTourLayout);
+  window.removeEventListener("scroll", scheduleWorkspaceTourLayout, true);
+  if (markSeen && authenticatedAdmin) {
+    markWorkspaceTourSeen(authenticatedAdmin);
+    clearNewAccountMarker(authenticatedAdmin);
+  }
+  if (workspaceTourRestoreSidebar) {
+    setSidebarCollapsed(true);
+    workspaceTourRestoreSidebar = null;
+  }
+  workspaceTourFrame = null;
+  const arrow = document.getElementById("workspace-tour-arrow");
+  const node = document.getElementById("workspace-tour-arrow-node");
+  arrow?.setAttribute("d", "");
+  node?.setAttribute("cx", "-20");
+  node?.setAttribute("cy", "-20");
+  const returnFocus = workspaceTourReturnFocus;
+  workspaceTourReturnFocus = null;
+  if (restoreFocus && returnFocus && document.contains(returnFocus) && returnFocus.offsetParent !== null) {
+    window.requestAnimationFrame(() => returnFocus.focus({ preventScroll: true }));
+  }
+  if (completed) showToast(t("Workspace guide finished. Replay it any time from Settings."), "success");
+}
+
+function handleWorkspaceTourKeydown(event) {
+  if (!workspaceTourOpen) return;
+  if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    closeWorkspaceTour({ completed: false });
+    return;
+  }
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    event.stopPropagation();
+    nextWorkspaceTourStop();
+    return;
+  }
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    event.stopPropagation();
+    previousWorkspaceTourStop();
+    return;
+  }
+  if (event.key === "Tab") {
+    const focusables = ["workspace-tour-skip", "workspace-tour-back", "workspace-tour-next"]
+      .map((id) => document.getElementById(id))
+      .filter((element) => element && !element.hidden && !element.disabled);
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement;
+    if (event.shiftKey && (active === first || !focusables.includes(active) && active?.id === "workspace-tour-title")) {
+      event.preventDefault();
+      event.stopPropagation();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      event.stopPropagation();
+      first.focus();
+    }
+    return;
+  }
+  if (event.key === "/" || event.key === "?" || ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k")) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 }
 
 let myAccounts = [];
@@ -5139,6 +6161,12 @@ document.getElementById("account-menu")?.addEventListener("click", (event) => {
     signOutCurrent();
   }
 });
+document.getElementById("replay-workspace-tour")?.addEventListener("click", () => {
+  startWorkspaceTour();
+});
+document.getElementById("workspace-tour-next")?.addEventListener("click", nextWorkspaceTourStop);
+document.getElementById("workspace-tour-back")?.addEventListener("click", previousWorkspaceTourStop);
+document.getElementById("workspace-tour-skip")?.addEventListener("click", () => closeWorkspaceTour({ completed: false }));
 document.getElementById("login-back-button")?.addEventListener("click", async () => {
   addingAccount = false;
   document.getElementById("login-back-button")?.classList.add("is-hidden");
@@ -5198,6 +6226,22 @@ async function runDebugHealth() {
   }
 }
 
+function updateCollapsedNavTitles(collapsed) {
+  document.querySelectorAll(".nav-item[data-page]").forEach((item) => {
+    if (!collapsed) {
+      item.removeAttribute("title");
+      return;
+    }
+    const label = item.querySelector("span:not(.nav-count):not(.nav-status)")?.textContent?.trim();
+    if (label) item.title = label;
+  });
+  const account = document.getElementById("account-switcher");
+  if (account) {
+    if (collapsed) account.title = t("Account options");
+    else account.removeAttribute("title");
+  }
+}
+
 function setSidebarCollapsed(collapsed) {
   document.body.classList.toggle("nav-collapsed", collapsed);
   closeMenus();
@@ -5206,14 +6250,25 @@ function setSidebarCollapsed(collapsed) {
   } catch {}
   const button = document.getElementById("sidebar-collapse");
   if (button) {
-    button.textContent = collapsed ? "»" : "«";
     button.setAttribute("aria-expanded", String(!collapsed));
     button.setAttribute("aria-label", collapsed ? t("Expand sidebar") : t("Collapse sidebar"));
   }
+  updateCollapsedNavTitles(collapsed);
 }
 document.getElementById("sidebar-collapse")?.addEventListener("click", () => {
   setSidebarCollapsed(!document.body.classList.contains("nav-collapsed"));
 });
+const sidebarHead = document.querySelector(".sidebar-head");
+const sidebarBrandToggle = document.getElementById("sidebar-collapse");
+if (sidebarHead && sidebarBrandToggle) {
+  sidebarBrandToggle.addEventListener("mouseenter", () => sidebarHead.classList.add("is-brand-hover"));
+  sidebarBrandToggle.addEventListener("mouseleave", () => sidebarHead.classList.remove("is-brand-hover"));
+  sidebarBrandToggle.addEventListener("click", () => {
+    /* A mouse click leaves focus on the button but is not a hover. Only
+       keyboard focus should keep the action glyph visible. */
+    if (!sidebarBrandToggle.matches(":focus-visible")) sidebarHead.classList.remove("is-brand-hover");
+  });
+}
 if (readPreference("localStorage", "aradlens-nav", ["open", "collapsed"], "open") === "collapsed") {
   setSidebarCollapsed(true);
 }
@@ -5222,6 +6277,7 @@ window.addEventListener("resize", () => {
   const isDesktop = window.innerWidth > 760;
   const crossed = isDesktop !== wasDesktop;
   wasDesktop = isDesktop;
+  if (crossed && isDesktop) closeMobileNavigation({ restoreFocus: false });
   const menu = document.getElementById("account-menu");
   if (!menu || menu.classList.contains("is-hidden")) return;
   if (crossed) {

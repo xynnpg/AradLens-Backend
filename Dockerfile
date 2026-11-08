@@ -3,7 +3,7 @@ FROM node:22-alpine
 WORKDIR /app
 
 COPY package.json ./
-COPY app.js index.html capture.html server.js styles.css fonts.css legal.css ./
+COPY app.js index.html capture.html server.js styles.css fonts.css legal.css legal-theme.js ./
 COPY terms.html privacy.html cookies.html content-policy.html accessibility.html ./
 COPY assets ./assets
 
