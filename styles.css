@@ -498,6 +498,9 @@ button:focus-visible,input:focus-visible {
   font-size:12px;
   margin:2px 0 0;
 }
+.form-error[data-kind="success"] {
+  color:var(--ok-text);
+}
 .login-hint {
   font-size:11px;
   color:var(--muted);
@@ -6867,4 +6870,40 @@ body.search-open {
     transition:none !important;
     scroll-behavior:auto !important;
   }
+}
+
+/* ---- Password reset requests ---- */
+.resets-head,
+.resets-row {
+  grid-template-columns:minmax(0,1.3fr) minmax(0,1.6fr) minmax(0,1fr) auto minmax(0,1.7fr);
+  gap:14px;
+}
+.resets-empty {
+  grid-template-columns:1fr;
+  color:var(--muted);
+}
+.reset-actions {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+.reset-link-input {
+  width:min(340px, 40vw);
+  min-width:0;
+  height:36px;
+  padding:0 10px;
+  border:1px solid var(--border);
+  border-radius:var(--r-sm);
+  background:var(--surface-2);
+  color:var(--ink);
+  font:inherit;
+  font-size:11px;
+}
+@media (max-width:760px) {
+  .resets-head { display:none; }
+  .resets-row { grid-template-columns:1fr; gap:6px; padding:14px 0; }
+  .resets-empty { display:block; }
+  .reset-actions { flex-wrap:wrap; }
+  .reset-link-input { width:100%; }
 }

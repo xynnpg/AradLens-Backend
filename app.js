@@ -3,6 +3,11 @@ const appView = document.getElementById("app-view");
 const errorView = document.getElementById("error-view");
 const loginForm = document.getElementById("login-form");
 const loginError = document.getElementById("login-error");
+const forgotPasswordForm = document.getElementById("forgot-password-form");
+const resetPasswordForm = document.getElementById("reset-password-form");
+const passwordResetToken = /\/reset-password\/?$/.test(window.location.pathname)
+  ? new URLSearchParams(window.location.search).get("token") || ""
+  : "";
 let authenticatedAdmin = null;
 let globalSearchOpen = false;
 let globalSearchQuery = "";
@@ -21,7 +26,7 @@ document.addEventListener("click", (event) => {
   openLocationModal(null);
   showPage("points");
 }, true);
-const pageNames = { overview: "Overview", points: "Important points", tours: "Tours", attention: "Attention", users: "Administrators", debug: "Debug", admins: "Access control", settings: "Settings" };
+const pageNames = { overview: "Overview", points: "Important points", tours: "Tours", attention: "Attention", users: "Administrators", debug: "Debug", admins: "Access control", resets: "Password resets", settings: "Settings" };
 const translations = {
   en: { username: "Username", password: "Password", signIn: "Sign in", loginHint: "Use your AradLens administrator account.", forgotPassword: "Forgot password?", day: "Day", night: "Night", switchDay: "Switch to day theme", switchNight: "Switch to night theme" },
   ro: { username: "Nume de utilizator", password: "Parolă", signIn: "Autentificare", loginHint: "Folosește contul de administrator AradLens.", forgotPassword: "Ai uitat parola?", day: "Zi", night: "Noapte", switchDay: "Schimbă la tema de zi", switchNight: "Schimbă la tema de noapte" },
@@ -51,6 +56,43 @@ const uiTranslations = {
   "Curate the places people love, spot what needs attention, and keep the city guide trustworthy.": "Îngrijește locurile apreciate, identifică ce necesită atenție și menține ghidul orașului de încredere.",
   "Language": "Limbă",
   "Password recovery will be available when account recovery is connected.": "Resetarea parolei va fi disponibilă după conectarea serviciului de recuperare a contului.",
+  "Enter the email address of your administrator account and we'll send you a reset link.": "Introdu adresa de email a contului de administrator și îți trimitem un link de resetare.",
+  "Email": "Email",
+  "Send reset link": "Trimite linkul de resetare",
+  "Choose a new password for your administrator account.": "Alege o parolă nouă pentru contul de administrator.",
+  "New password": "Parolă nouă",
+  "Confirm new password": "Confirmă parola nouă",
+  "Reset password": "Resetează parola",
+  "Back to sign in": "Înapoi la autentificare",
+  "If that email exists, a reset link is on its way.": "Dacă emailul există, linkul de resetare este pe drum.",
+  "We couldn't send the reset link. Try again.": "Nu am putut trimite linkul de resetare. Încearcă din nou.",
+  "The two passwords do not match.": "Cele două parole nu coincid.",
+  "This reset link is invalid or has expired.": "Linkul de resetare este invalid sau a expirat.",
+  "Your password has been reset. You can sign in now.": "Parola a fost resetată. Te poți autentifica acum.",
+  "We couldn't reset your password. Try again.": "Nu am putut reseta parola. Încearcă din nou.",
+  "Password resets": "Resetări de parolă",
+  "Administrators who asked to reset their password. Generate a link and send it to them.": "Administratorii care au cerut resetarea parolei. Generează un link și trimite-l.",
+  "Pending requests": "Cereri în așteptare",
+  "No pending requests.": "Nicio cerere în așteptare.",
+  "Links are single-use and expire.": "Linkurile sunt de unică folosință și expiră.",
+  "Administrator": "Administrator",
+  "Requested": "Cerut la",
+  "Status": "Stare",
+  "Reset link": "Link de resetare",
+  "Generate link": "Generează link",
+  "Generating…": "Se generează…",
+  "Copy": "Copiază",
+  "Pending": "În așteptare",
+  "Expired": "Expirat",
+  "No pending password reset requests.": "Nicio cerere de resetare a parolei în așteptare.",
+  "No password reset requests yet.": "Nu există încă cereri de resetare a parolei.",
+  "Loading password reset requests…": "Se încarcă cererile de resetare a parolei…",
+  "Reset link copied.": "Linkul de resetare a fost copiat.",
+  "Could not copy the link.": "Nu am putut copia linkul.",
+  "Reset link generated.": "Linkul de resetare a fost generat.",
+  "Could not generate the reset link.": "Nu am putut genera linkul de resetare.",
+  "pending request": "cerere în așteptare",
+  "pending requests": "cereri în așteptare",
   "Close navigation": "Închide meniul de navigare",
   "Workspace switching will be available when multiple guides are connected.": "Schimbarea spațiului de lucru va fi disponibilă după conectarea mai multor ghiduri.",
   "Arad city guide": "Ghidul orașului Arad",
@@ -670,7 +712,7 @@ async function apiRequest(path, options = {}) {
     throw error;
   }
   const body = await response.json().catch(() => ({}));
-  if (response.status === 401 && path !== "/api/auth/login") {
+  if (response.status === 401 && !["/api/auth/login", "/api/auth/forgot-password", "/api/auth/reset-password"].includes(path)) {
     const message = t("Your session has expired. Sign in again to continue.");
     if (loginError) loginError.textContent = message;
     setAuthenticated(false);
@@ -1086,7 +1128,7 @@ function setAuthenticated(isAuthenticated, admin = null) {
 
 function showPage(page, updateUrl = true, force = false) {
   const previousPage = currentPage;
-  const superadminOnlyPage = page === "admins" || page === "debug";
+  const superadminOnlyPage = page === "admins" || page === "debug" || page === "resets";
   currentPage = pageNames[page] && (!superadminOnlyPage || isSuperadminAccount()) ? page : "overview";
   page = currentPage;
   document.querySelectorAll(".page").forEach((section) => section.classList.remove("active-page"));
@@ -1102,6 +1144,7 @@ function showPage(page, updateUrl = true, force = false) {
   document.querySelector(".sidebar-scrim")?.classList.remove("is-visible");
   document.querySelector(".mobile-menu")?.setAttribute("aria-expanded", "false");
   if ((page === "admins" || page === "users") && authenticatedAdmin) loadAdmins();
+  if (page === "resets" && authenticatedAdmin && isSuperadminAccount()) loadPasswordResetRequests();
   if (page === "points" && (previousPage !== "points" || force)) loadLocations();
   if (page === "tours" && (previousPage !== "tours" || force)) loadTours();
   if (page === "attention") { if (previousPage !== "attention" || force) loadLocations().catch(() => {}); renderAttention(); }
@@ -1217,15 +1260,38 @@ document.getElementById("toggle-login-password").addEventListener("click", (even
 });
 
 const registerForm = document.getElementById("register-form");
-function showAuthTab(tab) {
-  const isRegister = tab === "register";
-  loginForm.classList.toggle("is-hidden", isRegister);
-  registerForm?.classList.toggle("is-hidden", !isRegister);
-  document.getElementById("auth-tab-login")?.setAttribute("aria-selected", String(!isRegister));
-  document.getElementById("auth-tab-register")?.setAttribute("aria-selected", String(isRegister));
+
+function showAuthView(view) {
+  const views = [
+    ["login", loginForm],
+    ["register", registerForm],
+    ["forgot", forgotPasswordForm],
+    ["reset", resetPasswordForm],
+  ];
+  views.forEach(([name, form]) => form?.classList.toggle("is-hidden", name !== view));
+  const isRecovery = view === "forgot" || view === "reset";
+  document.querySelector(".auth-tabs")?.classList.toggle("is-hidden", isRecovery);
+  document.getElementById("login-hint-row")?.classList.toggle("is-hidden", isRecovery);
+  document.getElementById("auth-back-button")?.classList.toggle("is-hidden", !isRecovery);
+  document.getElementById("auth-tab-login")?.setAttribute("aria-selected", String(view === "login"));
+  document.getElementById("auth-tab-register")?.setAttribute("aria-selected", String(view === "register"));
+  if (view === "forgot") document.getElementById("forgot-email")?.focus();
+  if (view === "reset") document.getElementById("reset-password")?.focus();
 }
+
+function showAuthTab(tab) {
+  showAuthView(tab);
+}
+
 document.getElementById("auth-tab-login")?.addEventListener("click", () => showAuthTab("login"));
 document.getElementById("auth-tab-register")?.addEventListener("click", () => showAuthTab("register"));
+document.getElementById("forgot-password-link")?.addEventListener("click", (event) => {
+  event.preventDefault();
+  const message = document.getElementById("forgot-password-message");
+  if (message) message.textContent = "";
+  showAuthView("forgot");
+});
+document.getElementById("auth-back-button")?.addEventListener("click", () => showAuthView("login"));
 
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -1249,6 +1315,82 @@ loginForm.addEventListener("submit", async (event) => {
     submitButton.disabled = false;
     submitButton.classList.remove("is-loading");
     submitButton.firstChild.textContent = t("Sign in");
+  }
+});
+
+function setFormMessage(element, key, kind = "error") {
+  if (!element) return;
+  setMessage(element, key);
+  if (kind === "success") element.dataset.kind = "success";
+  else delete element.dataset.kind;
+}
+
+forgotPasswordForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const message = document.getElementById("forgot-password-message");
+  setFormMessage(message, "", "error");
+  const email = String(new FormData(forgotPasswordForm).get("email") || "").trim();
+  const submitButton = forgotPasswordForm.querySelector("button[type=submit]");
+  submitButton.disabled = true;
+  try {
+    const result = await apiRequest("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    setFormMessage(message, "If that email exists, a reset link is on its way.", "success");
+    if (result?.reset_link) {
+      window.location.href = result.reset_link;
+      return;
+    }
+    forgotPasswordForm.reset();
+  } catch (error) {
+    setFormMessage(message, error.message || "We couldn't send the reset link. Try again.", "error");
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+resetPasswordForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const message = document.getElementById("reset-password-message");
+  setFormMessage(message, "", "error");
+  const form = new FormData(resetPasswordForm);
+  const password = String(form.get("password") || "");
+  const confirm = String(form.get("confirm") || "");
+  if (password !== confirm) {
+    setFormMessage(message, "The two passwords do not match.", "error");
+    return;
+  }
+  if (!passwordResetToken) {
+    setFormMessage(message, "This reset link is invalid or has expired.", "error");
+    return;
+  }
+  const submitButton = resetPasswordForm.querySelector("button[type=submit]");
+  submitButton.disabled = true;
+  try {
+    await apiRequest("/api/auth/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: passwordResetToken, new_password: password }),
+    });
+    resetPasswordForm.reset();
+    window.history.replaceState({}, "", "/");
+    setFormMessage(message, "Your password has been reset. You can sign in now.", "success");
+    window.setTimeout(() => {
+      showAuthView("login");
+      showToast(t("Your password has been reset. You can sign in now."), "success");
+    }, 1400);
+  } catch (error) {
+    setFormMessage(
+      message,
+      error.status === 400
+        ? "This reset link is invalid or has expired."
+        : (error.message || "We couldn't reset your password. Try again."),
+      "error",
+    );
+  } finally {
+    submitButton.disabled = false;
   }
 });
 
@@ -1975,7 +2117,11 @@ document.getElementById("points-search")?.addEventListener("input", filterLiveCa
 filterRows("users-search", "#users-admins-list .user-row", [".user-cell", ".user-email", ".status-tag"]);
 filterRows("activity-search", "#page-activity .activity-row", [".activity-change", ".user-cell"]);
 
-if (!errorVariantFromHash() && sessionStorage.getItem("aradlens-admin-auth") === "true") {
+if (passwordResetToken) {
+  try { sessionStorage.removeItem("aradlens-admin-auth"); } catch {}
+  setAuthenticated(false);
+  showAuthView("reset");
+} else if (!errorVariantFromHash() && sessionStorage.getItem("aradlens-admin-auth") === "true") {
   /* One request, not two in a chain. The accounts list is a background
      refresh that setAuthenticated starts anyway, so the only thing worth
      waiting for is the answer to "who am I". When that answer cannot
@@ -2162,6 +2308,132 @@ function confirmRemoveAdmin(admin) {
 
 document.getElementById("admins-refresh").addEventListener("click", loadAdmins);
 document.getElementById("users-refresh")?.addEventListener("click", loadAdmins);
+
+/* ---- Password reset requests ---- */
+let resetRequestsRequestId = 0;
+
+async function copyText(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {}
+  try {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.append(area);
+    area.select();
+    const copied = document.execCommand("copy");
+    area.remove();
+    return copied;
+  } catch {
+    return false;
+  }
+}
+
+async function generateResetLink(request, actions) {
+  const button = actions.querySelector("button");
+  if (button) {
+    button.disabled = true;
+    button.textContent = t("Generating…");
+  }
+  try {
+    const result = await apiRequest(`/api/auth/password-reset-requests/${request.admin_id}`, { method: "POST" });
+    actions.replaceChildren();
+    const input = document.createElement("input");
+    input.type = "text";
+    input.readOnly = true;
+    input.className = "reset-link-input";
+    input.value = result.reset_link;
+    input.setAttribute("aria-label", t("Reset link"));
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "button button-dark";
+    copy.textContent = t("Copy");
+    copy.addEventListener("click", async () => {
+      const ok = await copyText(result.reset_link);
+      showToast(ok ? t("Reset link copied.") : t("Could not copy the link."), ok ? "success" : "error");
+    });
+    actions.append(input, copy);
+    showToast(t("Reset link generated."), "success");
+  } catch (error) {
+    if (button) {
+      button.disabled = false;
+      button.textContent = t("Generate link");
+    }
+    showToast(error.message || t("Could not generate the reset link."), "error");
+  }
+}
+
+function buildResetRow(request) {
+  const row = document.createElement("div");
+  row.className = "user-row resets-row";
+
+  const user = document.createElement("span");
+  user.className = "user-cell";
+  const name = document.createElement("strong");
+  name.textContent = request.username;
+  user.append(name);
+
+  const email = document.createElement("span");
+  email.className = "user-email";
+  email.textContent = request.email;
+
+  const requested = document.createElement("span");
+  requested.textContent = formatDateTime(request.requested_at);
+
+  const status = document.createElement("span");
+  status.className = `status-tag ${request.expired ? "status-muted" : "status-live"}`;
+  status.dataset.value = request.expired ? "Inactive" : "Active";
+  status.textContent = request.expired ? t("Expired") : t("Pending");
+
+  const actions = document.createElement("span");
+  actions.className = "reset-actions";
+  const generate = document.createElement("button");
+  generate.type = "button";
+  generate.className = "button button-soft";
+  generate.textContent = t("Generate link");
+  generate.addEventListener("click", () => generateResetLink(request, actions));
+  actions.append(generate);
+
+  row.append(user, email, requested, status, actions);
+  return row;
+}
+
+async function loadPasswordResetRequests() {
+  if (!authenticatedAdmin || !isSuperadminAccount()) return;
+  const requestId = ++resetRequestsRequestId;
+  const list = document.getElementById("resets-list");
+  const message = document.getElementById("resets-message");
+  const summary = document.getElementById("resets-summary");
+  if (message) setMessage(message, "Loading password reset requests…");
+  list?.replaceChildren();
+  try {
+    const requests = await apiRequest("/api/auth/password-reset-requests");
+    if (requestId !== resetRequestsRequestId) return;
+    if (!Array.isArray(requests)) throw new Error("The API returned an invalid password reset list.");
+    if (summary) summary.textContent = requests.length ? counted(requests.length, "pending request", "pending requests") : t("No pending password reset requests.");
+    if (message) setMessage(message, "");
+    if (!requests.length) {
+      if (list) {
+        const empty = document.createElement("div");
+        empty.className = "user-row resets-row resets-empty";
+        empty.textContent = t("No password reset requests yet.");
+        list.append(empty);
+      }
+      return;
+    }
+    requests.forEach((request) => list?.append(buildResetRow(request)));
+  } catch (error) {
+    if (message) message.textContent = t("{message} Click Refresh to try again.", { message: error.message });
+  }
+}
+
+document.getElementById("resets-refresh")?.addEventListener("click", loadPasswordResetRequests);
 
 /* ---- Edit access ---- */
 let adminModalOpener = null;
