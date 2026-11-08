@@ -77,6 +77,22 @@ saves, so the visitor never signs in.
 Phone (capture.html)  ->  /api/capture/:token  ->  server.js (stored bearer)  ->  API
 ```
 
+## Location speech
+
+The location dialog has one **Generate speech** action in its footer. It posts to
+the API with the location id; the API reads the saved description, translates and
+generates the ElevenLabs audio, and stores the file. The workspace shows only a
+success or error toast.
+
+```text
+Browser  ->  POST /api/voice/locations/:id  ->  server.js  ->  API  ->  translate + ElevenLabs -> stored file
+Browser  ->  GET  /api/voice/locations/:id  ->  server.js  ->  API  ->  audio/*
+```
+
+The GET route is public and streams the stored audio; the POST route requires an
+admin session. The upstream API owns the ElevenLabs model, format, timeout and
+per-language voice ids.
+
 ## Runtime facts
 
 - Default port: `4173` (`PORT`).

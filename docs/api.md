@@ -43,6 +43,8 @@ same-origin to the admin server; `server.js` is authoritative.
 | `GET` | `/api/geocode/reverse?lat=&lon=` | No | Server-side Nominatim reverse geocode proxy (cached, rate-limited) |
 | `GET` | `/api/geocode/search?q=` | No | Romania-only Nominatim place search proxy (cached, rate-limited) |
 | `GET` | `/api/route/walk?points=lat,lng;…` | No | Romania-only walking route proxy (OpenStreetMap routed-foot; cached, rate-limited) |
+| `POST` | `/api/voice/locations/:id` | Yes | Generate and store the location speech file (the API translates and generates it) |
+| `GET` | `/api/voice/locations/:id` | No | Download the stored location speech file (`audio/*`) |
 
 `:id` matches digits only. Any other `/api/*` path is not proxied.
 
@@ -77,6 +79,27 @@ There is no ZIP download any more: the old `GET /api/locations/:id/images` route
 answers `405` upstream. The gallery works from the location detail, which is the
 only response that lists every image of a location.
 
+## Location speech
+
+The location dialog has one **Generate speech** action in its footer, opposite
+Save/Delete/Cancel. It posts to `/api/voice/locations/:id`; the API reads the
+saved location description, translates it and generates the ElevenLabs audio,
+and stores the file. The workspace shows only a success or error toast — there is
+no player or script editor.
+
+The generated file is available from `GET /api/voice/locations/:id`, which
+streams the upstream `audio/*` response. Save the location first: the generation
+endpoint only receives the location id and reads the stored description.
+
+The upstream API owns the ElevenLabs settings:
+
+- `ELEVENLABS_MODEL_ID` (the deployment uses `eleven_v4_turbo`)
+- `ELEVENLABS_OUTPUT_FORMAT` (the deployment uses `mp3_44100_128`)
+- `ELEVENLABS_TIMEOUT_SECONDS` (the deployment uses `60`)
+- `ELEVENLABS_VOICE_ID_RO` and `ELEVENLABS_VOICE_ID_EN`
+
+Regenerate after changing the description so the stored audio matches the text.
+
 ## Capture links
 
 `server.js` answers these locally — they never reach the upstream API, and link
@@ -108,7 +131,7 @@ never signs in.
 The proxy rewrites paths before calling the API:
 
 - `/api/auth/*` → `/auth/*`
-- `/api/admins*`, `/api/invites*`, `/api/locations*`, `/api/categories*`, `/api/tours*` → the same path without the `/api` prefix
+- `/api/admins*`, `/api/invites*`, `/api/locations*`, `/api/categories*`, `/api/tours*`, `/api/voice*` → the same path without the `/api` prefix
 - everything else → `/health`
 
 ## Auth behavior

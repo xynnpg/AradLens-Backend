@@ -602,8 +602,11 @@ async function proxyApi(req, res, pathname) {
   const isCaptureCreate = Boolean(captureMatch) && req.method === "POST";
   const isCaptureImage = Boolean(captureImageMatch) && req.method === "POST";
   const isCaptureLinkCreate = pathname === "/api/capture-links" && req.method === "POST";
+  const isLocationVoiceGenerate = /^\/api\/voice\/locations\/\d+$/.test(pathname) && req.method === "POST";
+  const isLocationVoiceFile = /^\/api\/voice\/locations\/\d+$/.test(pathname) && req.method === "GET";
+  const isLocationVoiceEndpoint = isLocationVoiceGenerate || isLocationVoiceFile;
 
-  if (!isLogin && !isRegister && !isForgotPassword && !isResetPassword && !isResetRequestsList && !isResetRequestCreate && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isOwnAdminEndpoint && !isInviteEndpoint && !isTourEndpoint && !isPublicLocationRead && !isLocationWrite && !isLocationImageEndpoint && !isCategoryEndpoint && !isCaptureInfo && !isCaptureCreate && !isCaptureImage && !isCaptureLinkCreate) return false;
+  if (!isLogin && !isRegister && !isForgotPassword && !isResetPassword && !isResetRequestsList && !isResetRequestCreate && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isOwnAdminEndpoint && !isInviteEndpoint && !isTourEndpoint && !isPublicLocationRead && !isLocationWrite && !isLocationImageEndpoint && !isCategoryEndpoint && !isCaptureInfo && !isCaptureCreate && !isCaptureImage && !isCaptureLinkCreate && !isLocationVoiceEndpoint) return false;
   if ((isLogin || isRegister) && !rateLimit(req, "auth", 20, 15 * 60 * 1000)) {
     sendJson(res, 429, { detail: "Too many authentication attempts. Try again later." }, { "Retry-After": "900" });
     return true;
@@ -618,6 +621,10 @@ async function proxyApi(req, res, pathname) {
   }
   if (isCaptureLinkCreate && !rateLimit(req, "capture-link", 30, 60 * 60 * 1000)) {
     sendJson(res, 429, { detail: "Too many capture links created. Try again later." }, { "Retry-After": "3600" });
+    return true;
+  }
+  if (isLocationVoiceGenerate && !rateLimit(req, "location-voice", 20, 15 * 60 * 1000)) {
+    sendJson(res, 429, { detail: "Too many speech generations. Try again later." }, { "Retry-After": "900" });
     return true;
   }
   if (devMode && isMe && token === "dev-token") {
@@ -650,7 +657,7 @@ async function proxyApi(req, res, pathname) {
     return true;
   }
   const authorization = token ? `Bearer ${token}` : clientAuthorization;
-  if ((isMe || isPasswordChange || isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourWrite || isLocationWrite || isLocationImageWrite || isCategoryWrite || isCaptureLinkCreate || isResetRequestsList || isResetRequestCreate) && !authorization) {
+  if ((isMe || isPasswordChange || isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourWrite || isLocationWrite || isLocationImageWrite || isCategoryWrite || isCaptureLinkCreate || isResetRequestsList || isResetRequestCreate || isLocationVoiceGenerate) && !authorization) {
     sendJson(res, 401, { detail: "Not authenticated" });
     return true;
   }
@@ -820,7 +827,7 @@ async function proxyApi(req, res, pathname) {
         : isResetPassword ? "/auth/reset-password"
           : isMe ? "/auth/me"
             : isPasswordChange ? "/auth/change-password"
-              : (isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourEndpoint || isPublicLocationRead || isLocationWrite || isLocationImageEndpoint || isCategoryEndpoint || isResetRequestsList || isResetRequestCreate) ? pathname.replace(/^\/api/, "")
+              : (isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourEndpoint || isPublicLocationRead || isLocationWrite || isLocationImageEndpoint || isCategoryEndpoint || isResetRequestsList || isResetRequestCreate || isLocationVoiceEndpoint) ? pathname.replace(/^\/api/, "")
                 : "/health";
   const upstreamHeaders = { Accept: req.headers.accept || "*/*" };
   if (payload) upstreamHeaders["Content-Type"] = Buffer.isBuffer(payload) ? req.headers["content-type"] : "application/json";
@@ -831,6 +838,7 @@ async function proxyApi(req, res, pathname) {
       method: req.method,
       headers: upstreamHeaders,
       body: payload ? (Buffer.isBuffer(payload) ? payload : JSON.stringify(payload)) : undefined,
+      signal: isLocationVoiceGenerate ? AbortSignal.timeout(150_000) : undefined,
     });
     const upstreamType = upstream.headers.get("content-type") || "";
     if (upstream.status === 204) {
@@ -872,8 +880,12 @@ async function proxyApi(req, res, pathname) {
     }
     if (upstream.ok && consentType) recordConsent(req, consentType, consentUsername);
     sendJson(res, upstream.status, responsePayload, responseHeaders);
-  } catch {
-    sendJson(res, 502, { detail: "The AradLens API is unavailable. Try again shortly." });
+  } catch (error) {
+    if (isLocationVoiceGenerate && (error?.name === "TimeoutError" || error?.name === "AbortError")) {
+      sendJson(res, 504, { detail: "Speech generation took too long. Try again." });
+    } else {
+      sendJson(res, 502, { detail: "The AradLens API is unavailable. Try again shortly." });
+    }
   }
   return true;
 }

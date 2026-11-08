@@ -758,6 +758,9 @@ const uiTranslations = {
   "That's the whole workspace.": "Acesta este tot spațiul de lucru.",
   "On a small screen, open the menu for accounts and settings.": "Pe un ecran mic, deschide meniul pentru conturi și setări.",
   "Switch accounts, change settings or sign out.": "Schimbă contul, modifică setările sau deconectează-te.",
+  "Generate speech": "Generează vocea",
+  "Generating speech…": "Se generează vocea…",
+  "Speech generated.": "Vocea a fost generată.",
 };
 
 function readPreference(storageName, key, allowed, fallback) {
@@ -813,6 +816,15 @@ const toast = document.getElementById("toast");
 let toastTimer;
 const apiOptions = { credentials: "same-origin", headers: { Accept: "application/json" } };
 
+function sessionExpiredError() {
+  const message = t("Your session has expired. Sign in again to continue.");
+  if (loginError) loginError.textContent = message;
+  setAuthenticated(false);
+  const error = new Error(message);
+  error.status = 401;
+  return error;
+}
+
 async function apiRequest(path, options = {}) {
   let response;
   try {
@@ -824,12 +836,7 @@ async function apiRequest(path, options = {}) {
   }
   const body = await response.json().catch(() => ({}));
   if (response.status === 401 && !["/api/auth/login", "/api/auth/forgot-password", "/api/auth/reset-password"].includes(path)) {
-    const message = t("Your session has expired. Sign in again to continue.");
-    if (loginError) loginError.textContent = message;
-    setAuthenticated(false);
-    const error = new Error(message);
-    error.status = 401;
-    throw error;
+    throw sessionExpiredError();
   }
   if (!response.ok) {
     const detail = Array.isArray(body.detail) ? body.detail.map((item) => item.msg).join(" ") : body.detail;
@@ -4090,6 +4097,31 @@ document.getElementById("register-form")?.addEventListener("submit", async (even
   } catch (error) { message.textContent = error.message; }
   finally { button.disabled = false; }
 });
+async function generateLocationSpeech() {
+  const form = document.getElementById("location-form");
+  const button = document.getElementById("location-speech");
+  if (!form || !button) return;
+  const id = form.elements.id.value;
+  if (!id) {
+    showToast("Save the location first.", "error");
+    return;
+  }
+  if (button.disabled) return;
+  button.disabled = true;
+  const label = button.textContent;
+  button.textContent = t("Generating speech…");
+  try {
+    await apiRequest(`/api/voice/locations/${id}`, { method: "POST" });
+    showToast("Speech generated.", "success");
+  } catch (error) {
+    showToast(error.message, "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = label;
+  }
+}
+document.getElementById("location-speech")?.addEventListener("click", generateLocationSpeech);
+
 async function saveLocation() {
   const form = document.getElementById("location-form");
   const button = document.getElementById("location-save");

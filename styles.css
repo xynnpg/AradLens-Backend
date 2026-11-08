@@ -7636,3 +7636,18 @@ body.nav-collapsed .sidebar-brand-toggle:focus-visible svg {
     transform:none;
   }
 }
+
+/* The speech action sits opposite Save/Delete/Cancel in the location
+   dialog footer. */
+#location-modal #location-form > .modal-actions {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+}
+#location-modal #location-form > .modal-actions .button {
+  margin-top:0;
+}
+#location-speech {
+  margin-left:auto;
+}
