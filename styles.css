@@ -2671,6 +2671,28 @@ html[data-theme="night"]{
 .tour-pool-item:hover {
   border-color:var(--accent);
 }
+.tour-pool-item,
+.tour-stop {
+  cursor:grab;
+  user-select:none;
+}
+.tour-pool-item.is-dragging,
+.tour-stop.is-dragging {
+  opacity:.45;
+  cursor:grabbing;
+}
+.tour-location-pool.is-drop-target,
+.tour-location-order.is-drop-target {
+  background:color-mix(in srgb,var(--accent-soft) 58%,transparent);
+  box-shadow:inset 0 0 0 1px var(--accent);
+  border-radius:var(--r-sm);
+}
+.tour-stop.is-drop-before {
+  box-shadow:inset 0 2px 0 var(--accent);
+}
+.tour-stop.is-drop-after {
+  box-shadow:inset 0 -2px 0 var(--accent);
+}
 .category-field {
   display:flex;
   align-items:center;

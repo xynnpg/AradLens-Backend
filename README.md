@@ -9,7 +9,7 @@ AradLens API and keeps the session token out of the browser.
 - Sign in, register via invite, and change password through same-origin `/api/*` routes.
 - Browse, search, filter, create, edit, and delete locations, including images.
 - Tag locations with a category, and manage the category list (create, rename, delete).
-- Chain important points into ordered tours, with create, edit, and delete actions.
+- Chain important points into ordered tours: drag points into the route, reorder stops by dragging, and create, edit or delete tours.
 - Open a tour as a route map with numbered stops, walking order, distance, a stop list, and a Direct/Streets toggle for road-following walking routes.
 - Place locations on a Romania-only picker with place search, fit-to-country, and device location.
 - Record a location on a phone without signing in: generate a 24-hour capture link.

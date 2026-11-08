@@ -466,6 +466,9 @@ const uiTranslations = {
   "Move {name} up": "Mută {name} în sus",
   "Move {name} down": "Mută {name} în jos",
   "Remove {name} from the route": "Elimină {name} din traseu",
+  "Drag points into the route or click to add. Drag route stops to reorder; drag one back to remove, or use the arrows.": "Trage puncte în traseu sau apasă pentru a le adăuga. Trage opririle pentru a le reordona; trage una înapoi pentru a o elimina sau folosește săgețile.",
+  "Drag to add {name} to the route": "Trage pentru a adăuga {name} în traseu",
+  "Drag to reorder {name}": "Trage pentru a reordona {name}",
   "Open {name} in Important points": "Deschide {name} în Puncte de interes",
   "Location #{id}": "Locația #{id}",
   "Tour #{id}": "Turul #{id}",
@@ -3445,6 +3448,7 @@ const tourTemplateLocations = [
 ];
 let tourModalOpener = null;
 let tourSelectedIds = [];
+let tourDragState = null;
 let tourViewOpener = null;
 let tourViewTour = null;
 let tourViewMap = null;
@@ -3491,11 +3495,29 @@ function renderTourPicker() {
   } else {
     const sorted = [...available].sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
     for (const location of sorted) {
+      const name = location.name || `Location #${location.id}`;
       const button = document.createElement("button");
       button.type = "button";
       button.className = "tour-pool-item";
-      button.textContent = `+ ${location.name || `Location #${location.id}`}`;
+      button.textContent = `+ ${name}`;
+      button.draggable = true;
+      button.title = t("Drag to add {name} to the route", { name });
+      button.addEventListener("dragstart", (event) => {
+        tourDragState = { type: "pool", id: location.id };
+        if (event.dataTransfer) {
+          event.dataTransfer.effectAllowed = "copyMove";
+          event.dataTransfer.setData("text/plain", String(location.id));
+          event.dataTransfer.setData("application/x-aradlens-tour-stop", JSON.stringify(tourDragState));
+        }
+        button.classList.add("is-dragging");
+        document.getElementById("tour-location-order")?.classList.add("is-drop-target");
+      });
+      button.addEventListener("dragend", () => {
+        tourDragState = null;
+        clearTourDropIndicators();
+      });
       button.addEventListener("click", () => {
+        if (!button.isConnected) return;
         tourSelectedIds.push(location.id);
         renderTourPicker();
       });
@@ -3512,6 +3534,22 @@ function renderTourPicker() {
   tourSelectedIds.forEach((id, index) => {
     const item = document.createElement("li");
     item.className = "tour-stop";
+    item.draggable = true;
+    item.title = t("Drag to reorder {name}", { name: tourLocationName(id) });
+    item.addEventListener("dragstart", (event) => {
+      tourDragState = { type: "route", id, fromIndex: index };
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", String(id));
+        event.dataTransfer.setData("application/x-aradlens-tour-stop", JSON.stringify({ type: "route", id, fromIndex: index }));
+      }
+      item.classList.add("is-dragging");
+      document.getElementById("tour-location-pool")?.classList.add("is-drop-target");
+    });
+    item.addEventListener("dragend", () => {
+      tourDragState = null;
+      clearTourDropIndicators();
+    });
     const number = document.createElement("span");
     number.className = "tour-stop-number";
     number.textContent = String(index + 1);
@@ -3527,6 +3565,7 @@ function renderTourPicker() {
     up.setAttribute("aria-label", t("Move {name} up", { name: tourLocationName(id) }));
     up.disabled = index === 0;
     up.addEventListener("click", () => {
+      if (!item.isConnected) return;
       [tourSelectedIds[index - 1], tourSelectedIds[index]] = [tourSelectedIds[index], tourSelectedIds[index - 1]];
       renderTourPicker();
     });
@@ -3537,6 +3576,7 @@ function renderTourPicker() {
     down.setAttribute("aria-label", t("Move {name} down", { name: tourLocationName(id) }));
     down.disabled = index === tourSelectedIds.length - 1;
     down.addEventListener("click", () => {
+      if (!item.isConnected) return;
       [tourSelectedIds[index + 1], tourSelectedIds[index]] = [tourSelectedIds[index], tourSelectedIds[index + 1]];
       renderTourPicker();
     });
@@ -3546,6 +3586,7 @@ function renderTourPicker() {
     remove.textContent = "×";
     remove.setAttribute("aria-label", t("Remove {name} from the route", { name: tourLocationName(id) }));
     remove.addEventListener("click", () => {
+      if (!item.isConnected) return;
       tourSelectedIds.splice(index, 1);
       renderTourPicker();
     });
@@ -3553,8 +3594,134 @@ function renderTourPicker() {
     item.append(number, name, actions);
     order.append(item);
   });
-  if (count) count.textContent = tourSelectedIds.length ? t("{n} stop(s)", { n: tourSelectedIds.length }) : t("0 stops");
+  if (count) count.textContent = tourSelectedIds.length ? counted(tourSelectedIds.length, "stop", "stops") : t("0 stops");
 }
+
+function clearTourDropIndicators() {
+  document.getElementById("tour-location-pool")?.classList.remove("is-drop-target");
+  document.getElementById("tour-location-order")?.classList.remove("is-drop-target");
+  document.querySelectorAll(".tour-stop.is-drop-before, .tour-stop.is-drop-after").forEach((item) => {
+    item.classList.remove("is-drop-before", "is-drop-after");
+  });
+  document.querySelectorAll(".tour-pool-item.is-dragging, .tour-stop.is-dragging").forEach((item) => {
+    item.classList.remove("is-dragging");
+  });
+}
+
+function setTourDropIndicator(index) {
+  const order = document.getElementById("tour-location-order");
+  if (!order) return;
+  const items = [...order.querySelectorAll(".tour-stop")];
+  items.forEach((item) => item.classList.remove("is-drop-before", "is-drop-after"));
+  if (!items.length) return;
+  if (index >= items.length) items[items.length - 1].classList.add("is-drop-after");
+  else items[index].classList.add("is-drop-before");
+}
+
+function tourDropIndexFromPointer(order, clientY) {
+  const items = [...order.querySelectorAll(".tour-stop")];
+  for (let index = 0; index < items.length; index += 1) {
+    const rect = items[index].getBoundingClientRect();
+    if (clientY < rect.top + rect.height / 2) return index;
+  }
+  return items.length;
+}
+
+function autoScrollTourList(container, event) {
+  const rect = container.getBoundingClientRect();
+  const edge = 30;
+  if (event.clientY < rect.top + edge) container.scrollTop = Math.max(0, container.scrollTop - 14);
+  else if (event.clientY > rect.bottom - edge) container.scrollTop += 14;
+}
+
+function readTourDragState(event) {
+  if (tourDragState) return tourDragState;
+  try {
+    const raw = event.dataTransfer?.getData("application/x-aradlens-tour-stop");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function applyTourDrop(state, index) {
+  if (!state) return;
+  if (state.type === "pool") {
+    if (!tourSelectedIds.some((selected) => String(selected) === String(state.id))) {
+      const at = Math.max(0, Math.min(index, tourSelectedIds.length));
+      tourSelectedIds.splice(at, 0, state.id);
+    }
+  } else if (state.type === "route") {
+    const from = Number(state.fromIndex);
+    if (!Number.isInteger(from) || from < 0 || from >= tourSelectedIds.length) return;
+    let to = Math.max(0, Math.min(index, tourSelectedIds.length));
+    const [moved] = tourSelectedIds.splice(from, 1);
+    if (from < to) to -= 1;
+    tourSelectedIds.splice(to, 0, moved);
+  } else {
+    return;
+  }
+  tourDragState = null;
+  renderTourPicker();
+  clearTourDropIndicators();
+}
+
+function removeTourStopAt(index) {
+  const from = Number(index);
+  if (!Number.isInteger(from) || from < 0 || from >= tourSelectedIds.length) return;
+  tourSelectedIds.splice(from, 1);
+  tourDragState = null;
+  renderTourPicker();
+  clearTourDropIndicators();
+}
+
+function initTourPickerDragAndDrop() {
+  const pool = document.getElementById("tour-location-pool");
+  const order = document.getElementById("tour-location-order");
+  if (!pool || !order || pool.dataset.dragReady === "true") return;
+  pool.dataset.dragReady = "true";
+
+  pool.addEventListener("dragover", (event) => {
+    const state = readTourDragState(event);
+    if (!state || state.type !== "route") return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
+    pool.classList.add("is-drop-target");
+    autoScrollTourList(pool, event);
+  });
+  pool.addEventListener("dragleave", (event) => {
+    if (!pool.contains(event.relatedTarget)) pool.classList.remove("is-drop-target");
+  });
+  pool.addEventListener("drop", (event) => {
+    const state = readTourDragState(event);
+    if (!state || state.type !== "route") return;
+    event.preventDefault();
+    removeTourStopAt(state.fromIndex);
+  });
+
+  order.addEventListener("dragover", (event) => {
+    const state = readTourDragState(event);
+    if (!state) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = state.type === "route" ? "move" : "copy";
+    order.classList.add("is-drop-target");
+    setTourDropIndicator(tourDropIndexFromPointer(order, event.clientY));
+    autoScrollTourList(order, event);
+  });
+  order.addEventListener("dragleave", (event) => {
+    if (order.contains(event.relatedTarget)) return;
+    order.classList.remove("is-drop-target");
+    clearTourDropIndicators();
+  });
+  order.addEventListener("drop", (event) => {
+    const state = readTourDragState(event);
+    if (!state) return;
+    event.preventDefault();
+    applyTourDrop(state, tourDropIndexFromPointer(order, event.clientY));
+  });
+}
+
+initTourPickerDragAndDrop();
 
 async function openTourModal(tour = null) {
   const modal = document.getElementById("tour-modal");
