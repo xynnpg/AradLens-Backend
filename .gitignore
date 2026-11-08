@@ -39,6 +39,9 @@ aradlens-night-theme.png
 *.png
 !assets/**/*.png
 
+# Automated test reports
+.reports/
+
 # Local consent/audit records (personal data)
 data/
 
