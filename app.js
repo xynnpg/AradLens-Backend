@@ -58,7 +58,7 @@ const uiTranslations = {
   "Password recovery will be available when account recovery is connected.": "Resetarea parolei va fi disponibilă după conectarea serviciului de recuperare a contului.",
   "Enter the email address of your administrator account and we'll send you a reset link.": "Introdu adresa de email a contului de administrator și îți trimitem un link de resetare.",
   "Email": "Email",
-  "Send reset link": "Trimite linkul de resetare",
+  "Reset": "Resetează",
   "Choose a new password for your administrator account.": "Alege o parolă nouă pentru contul de administrator.",
   "New password": "Parolă nouă",
   "Confirm new password": "Confirmă parola nouă",

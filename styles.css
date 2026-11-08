@@ -5179,6 +5179,14 @@ body {
   max-width:380px;
   margin-top:16px;
 }
+#auth-back-button,
+#login-back-button {
+  width:100%;
+  max-width:380px;
+}
+#auth-back-button {
+  margin-top:20px;
+}
 
 /* ============================================================
    25. MOTION
