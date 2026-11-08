@@ -539,6 +539,8 @@ async function proxyApi(req, res, pathname) {
   const isRegister = pathname === "/api/auth/register" && req.method === "POST";
   const isForgotPassword = pathname === "/api/auth/forgot-password" && req.method === "POST";
   const isResetPassword = pathname === "/api/auth/reset-password" && req.method === "POST";
+  const isResetRequestsList = pathname === "/api/auth/password-reset-requests" && req.method === "GET";
+  const isResetRequestCreate = /^\/api\/auth\/password-reset-requests\/\d+$/.test(pathname) && req.method === "POST";
   const isMe = pathname === "/api/auth/me" && req.method === "GET";
   const isPasswordChange = pathname === "/api/auth/change-password" && req.method === "POST";
   const isHealth = pathname === "/api/health" && req.method === "GET";
@@ -584,7 +586,7 @@ async function proxyApi(req, res, pathname) {
   const isCaptureImage = Boolean(captureImageMatch) && req.method === "POST";
   const isCaptureLinkCreate = pathname === "/api/capture-links" && req.method === "POST";
 
-  if (!isLogin && !isRegister && !isForgotPassword && !isResetPassword && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isOwnAdminEndpoint && !isInviteEndpoint && !isTourEndpoint && !isPublicLocationRead && !isLocationWrite && !isLocationImageEndpoint && !isCategoryEndpoint && !isCaptureInfo && !isCaptureCreate && !isCaptureImage && !isCaptureLinkCreate) return false;
+  if (!isLogin && !isRegister && !isForgotPassword && !isResetPassword && !isResetRequestsList && !isResetRequestCreate && !isMe && !isPasswordChange && !isHealth && !isLogout && !isAccounts && !isSwitch && !isAdminEndpoint && !isOwnAdminEndpoint && !isInviteEndpoint && !isTourEndpoint && !isPublicLocationRead && !isLocationWrite && !isLocationImageEndpoint && !isCategoryEndpoint && !isCaptureInfo && !isCaptureCreate && !isCaptureImage && !isCaptureLinkCreate) return false;
   if ((isLogin || isRegister) && !rateLimit(req, "auth", 20, 15 * 60 * 1000)) {
     sendJson(res, 429, { detail: "Too many authentication attempts. Try again later." }, { "Retry-After": "900" });
     return true;
@@ -631,7 +633,7 @@ async function proxyApi(req, res, pathname) {
     return true;
   }
   const authorization = token ? `Bearer ${token}` : clientAuthorization;
-  if ((isMe || isPasswordChange || isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourWrite || isLocationWrite || isLocationImageWrite || isCategoryWrite || isCaptureLinkCreate) && !authorization) {
+  if ((isMe || isPasswordChange || isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourWrite || isLocationWrite || isLocationImageWrite || isCategoryWrite || isCaptureLinkCreate || isResetRequestsList || isResetRequestCreate) && !authorization) {
     sendJson(res, 401, { detail: "Not authenticated" });
     return true;
   }
@@ -801,7 +803,7 @@ async function proxyApi(req, res, pathname) {
         : isResetPassword ? "/auth/reset-password"
           : isMe ? "/auth/me"
             : isPasswordChange ? "/auth/change-password"
-              : (isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourEndpoint || isPublicLocationRead || isLocationWrite || isLocationImageEndpoint || isCategoryEndpoint) ? pathname.replace(/^\/api/, "")
+              : (isAdminEndpoint || isOwnAdminEndpoint || isInviteEndpoint || isTourEndpoint || isPublicLocationRead || isLocationWrite || isLocationImageEndpoint || isCategoryEndpoint || isResetRequestsList || isResetRequestCreate) ? pathname.replace(/^\/api/, "")
                 : "/health";
   const upstreamHeaders = { Accept: req.headers.accept || "*/*" };
   if (payload) upstreamHeaders["Content-Type"] = Buffer.isBuffer(payload) ? req.headers["content-type"] : "application/json";

@@ -283,6 +283,7 @@
           <button class="nav-item" type="button" data-page="points"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 10-7 10S5 15 5 10a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2.5" /></svg><span>Important points</span><span class="nav-count is-hidden">0</span></button><button class="nav-item" type="button" data-page="tours"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.5" /><circle cx="18" cy="18" r="2.5" /><path d="M8.5 6H14a4 4 0 0 1 0 8H9a3 3 0 0 0 0 6h6.5" /></svg><span>Tours</span></button>
           <button class="nav-item" type="button" data-page="users"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3" /><path d="M5 20a7 7 0 0 1 14 0M17 5.5a3 3 0 0 1 0 5.5" /></svg><span>Administrators</span></button>
           <button class="nav-item superadmin-only" type="button" data-page="admins" hidden><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 12 0M16 11h5m-2.5-2.5V14" /></svg><span>Access control</span></button>
+          <button class="nav-item superadmin-only" type="button" data-page="resets" hidden><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9" /><path d="M21 3v6h-6" /><path d="M12 8v4l3 2" /></svg><span>Password resets</span><span class="nav-count is-hidden">0</span></button>
           <p class="nav-label nav-label-spaced">Monitor</p>
           <button class="nav-item superadmin-only" type="button" data-page="debug" title="All systems operational" hidden><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1" /><circle cx="12" cy="12" r="4" /></svg><span>Debug</span><span class="nav-status"><i></i>OK</span></button>
           <button class="nav-item" type="button" data-page="attention"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 2.6 17.4a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 16.6h.01"/></svg><span>Attention</span></button>
@@ -361,6 +362,34 @@
               <div id="admins-list" class="admin-list" aria-live="polite"></div>
             </div>
             <p class="field-help access-hint">Your own row is locked so you cannot lock yourself out.</p>
+          </section>
+        </div>
+
+        <div id="page-resets" class="page superadmin-only" hidden>
+          <div class="page-heading">
+            <div>
+              <h2>Password resets</h2>
+              <p class="heading-copy">Administrators who asked to reset their password. Generate a link and send it to them.</p>
+            </div>
+            <div class="page-heading-actions">
+              <button id="resets-refresh" class="button button-soft" type="button">Refresh</button>
+            </div>
+          </div>
+          <section class="panel table-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Pending requests</h3>
+                <p id="resets-summary" class="panel-summary">No pending requests.</p>
+              </div>
+              <span class="panel-note">Links are single-use and expire.</span>
+            </div>
+            <p id="resets-message" class="panel-message" role="status" aria-live="polite"></p>
+            <div class="users-table">
+              <div class="user-row user-head resets-head">
+                <span>Administrator</span><span>Email</span><span>Requested</span><span>Status</span><span>Reset link</span>
+              </div>
+              <div id="resets-list" class="admin-list" aria-live="polite"></div>
+            </div>
           </section>
         </div>
 
