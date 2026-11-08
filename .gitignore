@@ -15,6 +15,7 @@ node_modules/
 .opencode/
 .github/
 tools/
+tests/
 .impeccable/
 .playwright-mcp/
 magicui/
